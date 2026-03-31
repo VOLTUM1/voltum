@@ -1,0 +1,596 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Voltum — Panel Admin</title>
+  <link rel="stylesheet" href="css/styles.css">
+  <style>
+    /* ── ADMIN ESPECÍFICO ─────────────────────────── */
+    .admin-header {
+      display: flex; justify-content: space-between; align-items: center;
+      margin-bottom: 32px; flex-wrap: wrap; gap: 16px;
+    }
+    .admin-badge {
+      display: inline-flex; align-items: center; gap: 6px;
+      padding: 4px 14px; border-radius: 100px; font-size: 0.78rem;
+      font-weight: 700; background: rgba(245,158,11,0.15);
+      border: 1px solid rgba(245,158,11,0.3); color: var(--gold);
+    }
+
+    /* ── TABLA ────────────────────────────────────── */
+    .admin-table-wrap { overflow-x: auto; border-radius: var(--radius-lg); border: 1px solid var(--border2); }
+    .admin-table { width: 100%; border-collapse: collapse; font-size: 0.875rem; }
+    .admin-table th {
+      padding: 12px 16px; text-align: left; font-size: 0.75rem; font-weight: 700;
+      letter-spacing: 1px; text-transform: uppercase; color: var(--muted2);
+      background: var(--bg3); border-bottom: 1px solid var(--border2);
+      white-space: nowrap;
+    }
+    .admin-table td {
+      padding: 14px 16px; border-bottom: 1px solid var(--border2);
+      color: var(--text); vertical-align: middle;
+    }
+    .admin-table tr:last-child td { border-bottom: none; }
+    .admin-table tr:hover td { background: var(--card); }
+    .admin-table .muted { color: var(--muted2); font-size: 0.8rem; }
+
+    /* ── TABS ─────────────────────────────────────── */
+    .admin-tabs {
+      display: flex; gap: 4px; margin-bottom: 28px;
+      padding: 4px; background: var(--bg3);
+      border-radius: var(--radius); width: fit-content;
+    }
+    .admin-tab {
+      padding: 9px 20px; border-radius: calc(var(--radius) - 2px);
+      border: none; background: transparent; font-family: inherit;
+      font-weight: 500; font-size: 0.875rem; color: var(--muted);
+      cursor: pointer; transition: var(--transition); white-space: nowrap;
+    }
+    .admin-tab.active { background: var(--bg); color: var(--text); }
+
+    /* ── SEARCH ───────────────────────────────────── */
+    .search-bar { display: flex; gap: 12px; margin-bottom: 20px; flex-wrap: wrap; }
+    .search-bar input { flex: 1; min-width: 200px; }
+
+    /* ── REVENUE CARD ─────────────────────────────── */
+    .revenue-card {
+      padding: 28px 32px; border-radius: var(--radius-xl);
+      background: linear-gradient(135deg, rgba(139,92,246,0.12), rgba(34,211,238,0.06));
+      border: 1px solid var(--border); display: flex; align-items: center;
+      justify-content: space-between; gap: 24px; flex-wrap: wrap;
+    }
+    .revenue-value { font-size: 2.5rem; font-weight: 800; background: var(--gradient);
+      -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; }
+
+    /* ── USER ROW ACTIONS ─────────────────────────── */
+    .row-actions { display: flex; gap: 6px; }
+
+    /* ── DETAIL MODAL ─────────────────────────────── */
+    .modal-overlay {
+      position: fixed; inset: 0; z-index: 200;
+      background: rgba(0,0,0,0.7); backdrop-filter: blur(8px);
+      display: flex; align-items: center; justify-content: center; padding: 24px;
+    }
+    .modal {
+      background: var(--bg2); border: 1px solid var(--border);
+      border-radius: var(--radius-xl); padding: 32px; max-width: 560px;
+      width: 100%; max-height: 85vh; overflow-y: auto;
+    }
+    .modal-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px; }
+    .modal-close { background: none; border: none; color: var(--muted); cursor: pointer; font-size: 1.4rem; line-height: 1; }
+    .detail-row { display: flex; justify-content: space-between; padding: 10px 0; border-bottom: 1px solid var(--border2); font-size: 0.875rem; }
+    .detail-row:last-child { border-bottom: none; }
+    .detail-label { color: var(--muted); }
+    .detail-value { font-weight: 500; text-align: right; max-width: 60%; word-break: break-all; }
+
+    .empty-state { text-align: center; padding: 48px; color: var(--muted2); }
+    .filter-select { background: var(--bg3); border: 1px solid var(--border2); color: var(--text); padding: 10px 14px; border-radius: var(--radius); font-family: inherit; font-size: 0.875rem; cursor: pointer; }
+    .filter-select option { background: var(--bg3); }
+  </style>
+</head>
+<body>
+<div class="app-layout">
+
+  <!-- SIDEBAR -->
+  <aside class="sidebar">
+    <div class="sidebar-logo">
+      <a href="index.html" class="logo">
+        <div class="logo-mark">⚡</div>
+        VOLTUM
+      </a>
+    </div>
+    <nav class="sidebar-nav">
+      <a href="admin.html" class="sidebar-nav-item active">
+        <span class="nav-icon">🛡️</span> Panel Admin
+      </a>
+      <div style="height:1px;background:var(--border2);margin:12px 4px;"></div>
+      <a href="dashboard.html" class="sidebar-nav-item">
+        <span class="nav-icon">📊</span> Mi Dashboard
+      </a>
+      <a href="profile.html" class="sidebar-nav-item">
+        <span class="nav-icon">✏️</span> Mi Press Kit
+      </a>
+    </nav>
+    <div class="sidebar-footer">
+      <div style="padding:10px 14px;margin-bottom:8px;">
+        <div style="font-size:0.75rem;color:var(--muted2);margin-bottom:2px;">Conectado como</div>
+        <div id="adminEmail" style="font-size:0.82rem;font-weight:600;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;color:var(--gold);"></div>
+      </div>
+      <button class="sidebar-nav-item btn-danger" id="logoutBtn" style="width:100%;">
+        <span class="nav-icon">🚪</span> Cerrar sesión
+      </button>
+    </div>
+  </aside>
+
+  <!-- MAIN -->
+  <main class="main-content">
+    <div class="spinner" id="loadingSpinner"></div>
+    <div id="adminContent" class="hidden">
+
+      <!-- HEADER -->
+      <div class="admin-header">
+        <div>
+          <div style="display:flex;align-items:center;gap:10px;margin-bottom:4px;">
+            <h1 style="font-size:1.75rem;">Panel de Administración</h1>
+            <span class="admin-badge">🛡️ ADMIN</span>
+          </div>
+          <p style="font-size:0.875rem;">Gestiona usuarios, membresías y actividad de la plataforma</p>
+        </div>
+        <button class="btn btn-outline btn-sm" id="refreshBtn">↻ Actualizar</button>
+      </div>
+
+      <!-- REVENUE BANNER -->
+      <div class="revenue-card" style="margin-bottom:28px;">
+        <div>
+          <div style="font-size:0.8rem;color:var(--muted);text-transform:uppercase;letter-spacing:1px;margin-bottom:8px;">Ingresos del mes</div>
+          <div class="revenue-value" id="monthRevenue">$0</div>
+          <div style="font-size:0.85rem;color:var(--muted);margin-top:4px;" id="revenueSubtitle"></div>
+        </div>
+        <div style="display:flex;gap:32px;flex-wrap:wrap;">
+          <div style="text-align:center;">
+            <div style="font-size:1.8rem;font-weight:800;" id="totalUsersCount">—</div>
+            <div style="font-size:0.75rem;color:var(--muted2);">Usuarios totales</div>
+          </div>
+          <div style="text-align:center;">
+            <div style="font-size:1.8rem;font-weight:800;color:var(--green);" id="activeCount">—</div>
+            <div style="font-size:0.75rem;color:var(--muted2);">Membresías activas</div>
+          </div>
+          <div style="text-align:center;">
+            <div style="font-size:1.8rem;font-weight:800;color:var(--gold);" id="expiringSoon">—</div>
+            <div style="font-size:0.75rem;color:var(--muted2);">Vencen este mes</div>
+          </div>
+          <div style="text-align:center;">
+            <div style="font-size:1.8rem;font-weight:800;color:var(--red);" id="inactiveCount">—</div>
+            <div style="font-size:0.75rem;color:var(--muted2);">Sin membresía</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- TABS -->
+      <div class="admin-tabs">
+        <button class="admin-tab active" data-tab="users">👥 Usuarios</button>
+        <button class="admin-tab" data-tab="memberships">💳 Membresías</button>
+        <button class="admin-tab" data-tab="events">📅 Eventos</button>
+      </div>
+
+      <!-- TAB: USUARIOS -->
+      <div id="tab-users">
+        <div class="search-bar">
+          <input type="text" class="form-input" id="searchUsers" placeholder="🔍 Buscar por nombre o email...">
+          <select class="filter-select" id="filterStatus">
+            <option value="all">Todos los estados</option>
+            <option value="active">Con membresía activa</option>
+            <option value="inactive">Sin membresía</option>
+          </select>
+        </div>
+        <div class="admin-table-wrap">
+          <table class="admin-table">
+            <thead>
+              <tr>
+                <th>DJ</th>
+                <th>Email</th>
+                <th>Ciudad</th>
+                <th>Géneros</th>
+                <th>Membresía</th>
+                <th>Vistas</th>
+                <th>Registro</th>
+                <th>Acciones</th>
+              </tr>
+            </thead>
+            <tbody id="usersTableBody">
+              <tr><td colspan="8" class="empty-state">Cargando...</td></tr>
+            </tbody>
+          </table>
+        </div>
+        <div id="usersPagination" style="display:flex;justify-content:flex-end;gap:8px;margin-top:16px;"></div>
+      </div>
+
+      <!-- TAB: MEMBRESÍAS -->
+      <div id="tab-memberships" class="hidden">
+        <div class="search-bar">
+          <input type="text" class="form-input" id="searchMemberships" placeholder="🔍 Buscar por DJ o payment ID...">
+          <select class="filter-select" id="filterMembStatus">
+            <option value="all">Todos</option>
+            <option value="active">Activas</option>
+            <option value="pending">Pendientes</option>
+            <option value="expired">Vencidas</option>
+          </select>
+        </div>
+        <div class="admin-table-wrap">
+          <table class="admin-table">
+            <thead>
+              <tr>
+                <th>DJ</th>
+                <th>Estado</th>
+                <th>Monto</th>
+                <th>Payment ID</th>
+                <th>Inicio</th>
+                <th>Vencimiento</th>
+                <th>Días restantes</th>
+                <th>Acciones</th>
+              </tr>
+            </thead>
+            <tbody id="membershipsTableBody">
+              <tr><td colspan="8" class="empty-state">Cargando...</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- TAB: EVENTOS -->
+      <div id="tab-events" class="hidden">
+        <div class="search-bar">
+          <input type="text" class="form-input" id="searchEvents" placeholder="🔍 Buscar por evento, venue o ciudad...">
+        </div>
+        <div class="admin-table-wrap">
+          <table class="admin-table">
+            <thead>
+              <tr>
+                <th>Evento</th>
+                <th>DJ</th>
+                <th>Venue</th>
+                <th>Ciudad</th>
+                <th>Fecha</th>
+              </tr>
+            </thead>
+            <tbody id="eventsTableBody">
+              <tr><td colspan="5" class="empty-state">Cargando...</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+    </div><!-- /adminContent -->
+  </main>
+</div>
+
+<!-- MODAL DETALLE USUARIO -->
+<div class="modal-overlay hidden" id="userModal">
+  <div class="modal">
+    <div class="modal-header">
+      <h3 id="modalTitle">Detalle del usuario</h3>
+      <button class="modal-close" id="closeModal">×</button>
+    </div>
+    <div id="modalBody"></div>
+  </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="js/config.js"></script>
+<script>
+let allUsers = [], allMemberships = [], allEvents = [];
+let currentUser = null;
+
+(async () => {
+  currentUser = await Auth.requireAuth();
+  if (!currentUser) return;
+
+  // Verificar que es admin
+  const { data: profile } = await sb.from('profiles').select('is_admin, dj_name').eq('id', currentUser.id).single();
+  if (!profile?.is_admin) {
+    document.body.innerHTML = `
+      <div style="min-height:100vh;display:flex;align-items:center;justify-content:center;text-align:center;padding:32px;">
+        <div>
+          <div style="font-size:3rem;margin-bottom:16px;">🔒</div>
+          <h2 style="margin-bottom:8px;">Acceso restringido</h2>
+          <p style="margin-bottom:24px;">No tienes permisos de administrador.</p>
+          <a href="dashboard.html" class="btn btn-primary">Volver al Dashboard</a>
+        </div>
+      </div>`;
+    return;
+  }
+
+  document.getElementById('adminEmail').textContent = profile.dj_name || currentUser.email;
+
+  await loadAll();
+  setupTabs();
+  setupSearch();
+  setupRefresh();
+
+  document.getElementById('loadingSpinner').classList.add('hidden');
+  document.getElementById('adminContent').classList.remove('hidden');
+
+  document.getElementById('logoutBtn').addEventListener('click', async () => {
+    await sb.auth.signOut();
+    window.location.href = 'index.html';
+  });
+
+  document.getElementById('closeModal').addEventListener('click', () => {
+    document.getElementById('userModal').classList.add('hidden');
+  });
+  document.getElementById('userModal').addEventListener('click', e => {
+    if (e.target === document.getElementById('userModal')) document.getElementById('userModal').classList.add('hidden');
+  });
+})();
+
+async function loadAll() {
+  const [profilesRes, membershipsRes, eventsRes] = await Promise.all([
+    sb.from('profiles').select('*').order('created_at', { ascending: false }),
+    sb.from('memberships').select('*, profiles(dj_name, booking_email)').order('created_at', { ascending: false }),
+    sb.from('events').select('*, profiles(dj_name)').order('date', { ascending: false })
+  ]);
+
+  allUsers = profilesRes.data || [];
+  allMemberships = membershipsRes.data || [];
+  allEvents = eventsRes.data || [];
+
+  calcStats();
+  renderUsers();
+  renderMemberships();
+  renderEvents();
+}
+
+function calcStats() {
+  const now = new Date();
+  const endOfMonth = new Date(now.getFullYear(), now.getMonth() + 1, 0);
+  const active = allMemberships.filter(m => m.status === 'active');
+  const expiring = active.filter(m => new Date(m.expires_at) <= endOfMonth);
+  const inactive = allUsers.filter(u => !allMemberships.find(m => m.user_id === u.id && m.status === 'active'));
+  const monthRevenue = active
+    .filter(m => new Date(m.starts_at).getMonth() === now.getMonth() && new Date(m.starts_at).getFullYear() === now.getFullYear())
+    .reduce((sum, m) => sum + (m.amount || 0), 0);
+
+  document.getElementById('totalUsersCount').textContent = allUsers.length;
+  document.getElementById('activeCount').textContent = active.length;
+  document.getElementById('expiringSoon').textContent = expiring.length;
+  document.getElementById('inactiveCount').textContent = inactive.length;
+  document.getElementById('monthRevenue').textContent = formatPrice(monthRevenue);
+  document.getElementById('revenueSubtitle').textContent = `${active.length} membresías activas en total`;
+}
+
+// ─── USUARIOS ──────────────────────────────────────────────
+function renderUsers(filter = '', status = 'all') {
+  let data = [...allUsers];
+
+  if (filter) {
+    const q = filter.toLowerCase();
+    data = data.filter(u => u.dj_name?.toLowerCase().includes(q) || u.booking_email?.toLowerCase().includes(q) || u.location?.toLowerCase().includes(q));
+  }
+  if (status === 'active') data = data.filter(u => allMemberships.find(m => m.user_id === u.id && m.status === 'active'));
+  if (status === 'inactive') data = data.filter(u => !allMemberships.find(m => m.user_id === u.id && m.status === 'active'));
+
+  const tbody = document.getElementById('usersTableBody');
+  if (!data.length) { tbody.innerHTML = `<tr><td colspan="8" class="empty-state">Sin resultados</td></tr>`; return; }
+
+  tbody.innerHTML = data.map(u => {
+    const mem = allMemberships.find(m => m.user_id === u.id);
+    const isActive = mem?.status === 'active';
+    const expires = mem?.expires_at ? new Date(mem.expires_at) : null;
+    const days = expires ? Math.ceil((expires - new Date()) / (1000 * 60 * 60 * 24)) : null;
+    const registered = new Date(u.created_at).toLocaleDateString('es-CL');
+    const genres = u.genres?.slice(0, 2).join(', ') || '—';
+
+    return `
+    <tr>
+      <td>
+        <div style="display:flex;align-items:center;gap:10px;">
+          <div style="width:34px;height:34px;border-radius:50%;background:var(--gradient);display:flex;align-items:center;justify-content:center;font-weight:700;font-size:0.9rem;flex-shrink:0;">
+            ${(u.dj_name || '?')[0].toUpperCase()}
+          </div>
+          <div>
+            <div style="font-weight:600;">${u.dj_name || '—'}</div>
+            ${u.is_admin ? '<span class="admin-badge" style="font-size:0.7rem;padding:2px 8px;">ADMIN</span>' : ''}
+          </div>
+        </div>
+      </td>
+      <td class="muted">${u.booking_email || '—'}</td>
+      <td class="muted">${u.location || '—'}</td>
+      <td class="muted">${genres}</td>
+      <td>
+        ${isActive
+          ? `<span class="badge badge-green">● Activa</span><div class="muted" style="margin-top:4px;">${days}d restantes</div>`
+          : `<span class="badge badge-red">✗ Sin membresía</span>`}
+      </td>
+      <td><span style="font-weight:600;">${u.profile_views || 0}</span></td>
+      <td class="muted">${registered}</td>
+      <td>
+        <div class="row-actions">
+          <button class="btn btn-outline btn-sm" onclick="showUserDetail('${u.id}')">Ver</button>
+          ${isActive
+            ? `<button class="btn btn-danger btn-sm" onclick="toggleMembership('${u.id}', 'cancel')">Cancelar</button>`
+            : `<button class="btn btn-primary btn-sm" onclick="toggleMembership('${u.id}', 'activate')">Activar</button>`}
+        </div>
+      </td>
+    </tr>`;
+  }).join('');
+}
+
+// ─── MEMBRESÍAS ────────────────────────────────────────────
+function renderMemberships(filter = '', status = 'all') {
+  let data = [...allMemberships];
+
+  if (filter) {
+    const q = filter.toLowerCase();
+    data = data.filter(m => m.profiles?.dj_name?.toLowerCase().includes(q) || m.payment_id?.toLowerCase().includes(q));
+  }
+  if (status !== 'all') data = data.filter(m => m.status === status);
+
+  const tbody = document.getElementById('membershipsTableBody');
+  if (!data.length) { tbody.innerHTML = `<tr><td colspan="8" class="empty-state">Sin resultados</td></tr>`; return; }
+
+  tbody.innerHTML = data.map(m => {
+    const expires = m.expires_at ? new Date(m.expires_at) : null;
+    const days = expires ? Math.ceil((expires - new Date()) / (1000 * 60 * 60 * 24)) : null;
+    const daysColor = days === null ? 'var(--muted2)' : days <= 5 ? 'var(--red)' : days <= 15 ? 'var(--gold)' : 'var(--green)';
+    const starts = m.starts_at ? new Date(m.starts_at).toLocaleDateString('es-CL') : '—';
+    const expiresStr = expires ? expires.toLocaleDateString('es-CL') : '—';
+
+    const statusBadge = {
+      active:  '<span class="badge badge-green">● Activa</span>',
+      pending: '<span class="badge badge-gold">● Pendiente</span>',
+      expired: '<span class="badge badge-red">● Vencida</span>',
+    }[m.status] || `<span class="badge badge-purple">${m.status}</span>`;
+
+    return `
+    <tr>
+      <td><span style="font-weight:600;">${m.profiles?.dj_name || '—'}</span></td>
+      <td>${statusBadge}</td>
+      <td style="font-weight:600;">${m.amount ? formatPrice(m.amount) : '—'}</td>
+      <td class="muted" style="font-family:monospace;font-size:0.78rem;">${m.payment_id ? m.payment_id.slice(0, 20) + '...' : '—'}</td>
+      <td class="muted">${starts}</td>
+      <td class="muted">${expiresStr}</td>
+      <td style="font-weight:700;color:${daysColor};">${days !== null ? (days > 0 ? days + 'd' : 'Vencida') : '—'}</td>
+      <td>
+        <div class="row-actions">
+          ${m.status === 'active'
+            ? `<button class="btn btn-danger btn-sm" onclick="toggleMembership('${m.user_id}', 'cancel')">Cancelar</button>`
+            : `<button class="btn btn-primary btn-sm" onclick="toggleMembership('${m.user_id}', 'activate')">Activar</button>`}
+        </div>
+      </td>
+    </tr>`;
+  }).join('');
+}
+
+// ─── EVENTOS ───────────────────────────────────────────────
+function renderEvents(filter = '') {
+  let data = [...allEvents];
+  if (filter) {
+    const q = filter.toLowerCase();
+    data = data.filter(e => e.name?.toLowerCase().includes(q) || e.venue?.toLowerCase().includes(q) || e.city?.toLowerCase().includes(q) || e.profiles?.dj_name?.toLowerCase().includes(q));
+  }
+
+  const tbody = document.getElementById('eventsTableBody');
+  if (!data.length) { tbody.innerHTML = `<tr><td colspan="5" class="empty-state">Sin resultados</td></tr>`; return; }
+
+  tbody.innerHTML = data.map(e => {
+    const d = new Date(e.date + 'T12:00:00');
+    const isPast = d < new Date();
+    return `
+    <tr>
+      <td style="font-weight:600;">${e.name}</td>
+      <td>${e.profiles?.dj_name || '—'}</td>
+      <td class="muted">${e.venue || '—'}</td>
+      <td class="muted">${e.city || '—'}</td>
+      <td>
+        <span style="color:${isPast ? 'var(--muted2)' : 'var(--green)'};">
+          ${d.toLocaleDateString('es-CL')}
+        </span>
+        ${isPast ? '<span class="muted" style="font-size:0.75rem;display:block;">Pasado</span>' : ''}
+      </td>
+    </tr>`;
+  }).join('');
+}
+
+// ─── DETALLE USUARIO ───────────────────────────────────────
+function showUserDetail(userId) {
+  const u = allUsers.find(x => x.id === userId);
+  const mem = allMemberships.find(m => m.user_id === userId);
+  if (!u) return;
+
+  document.getElementById('modalTitle').textContent = u.dj_name || 'Usuario';
+  document.getElementById('modalBody').innerHTML = `
+    <div style="display:flex;gap:16px;align-items:center;margin-bottom:24px;">
+      <div style="width:64px;height:64px;border-radius:50%;background:var(--gradient);display:flex;align-items:center;justify-content:center;font-size:1.8rem;font-weight:800;flex-shrink:0;">
+        ${u.photo_url ? `<img src="${u.photo_url}" style="width:64px;height:64px;border-radius:50%;object-fit:cover;">` : (u.dj_name || '?')[0].toUpperCase()}
+      </div>
+      <div>
+        <h3 style="margin-bottom:4px;">${u.dj_name || '—'}</h3>
+        <p style="font-size:0.875rem;">${u.real_name || ''} ${u.location ? '· ' + u.location : ''}</p>
+      </div>
+    </div>
+    <div class="detail-row"><span class="detail-label">Email booking</span><span class="detail-value">${u.booking_email || '—'}</span></div>
+    <div class="detail-row"><span class="detail-label">Géneros</span><span class="detail-value">${u.genres?.join(', ') || '—'}</span></div>
+    <div class="detail-row"><span class="detail-label">Vistas del perfil</span><span class="detail-value">${u.profile_views || 0}</span></div>
+    <div class="detail-row"><span class="detail-label">Membresía</span><span class="detail-value">${mem?.status === 'active' ? '✓ Activa' : '✗ Inactiva'}</span></div>
+    ${mem?.expires_at ? `<div class="detail-row"><span class="detail-label">Vence</span><span class="detail-value">${new Date(mem.expires_at).toLocaleDateString('es-CL')}</span></div>` : ''}
+    ${mem?.payment_id ? `<div class="detail-row"><span class="detail-label">Payment ID</span><span class="detail-value" style="font-family:monospace;font-size:0.8rem;">${mem.payment_id}</span></div>` : ''}
+    <div class="detail-row"><span class="detail-label">Registrado</span><span class="detail-value">${new Date(u.created_at).toLocaleDateString('es-CL')}</span></div>
+    <div class="detail-row"><span class="detail-label">Instagram</span><span class="detail-value">${u.social_instagram ? `<a href="${u.social_instagram}" target="_blank">Ver →</a>` : '—'}</span></div>
+    <div class="detail-row"><span class="detail-label">SoundCloud</span><span class="detail-value">${u.social_soundcloud ? `<a href="${u.social_soundcloud}" target="_blank">Ver →</a>` : '—'}</span></div>
+    <div style="display:flex;gap:8px;margin-top:20px;flex-wrap:wrap;">
+      <a href="presskit.html?id=${u.id}" target="_blank" class="btn btn-outline btn-sm">👁️ Ver Press Kit</a>
+      ${mem?.status === 'active'
+        ? `<button class="btn btn-danger btn-sm" onclick="toggleMembership('${u.id}','cancel');document.getElementById('userModal').classList.add('hidden');">Cancelar membresía</button>`
+        : `<button class="btn btn-primary btn-sm" onclick="toggleMembership('${u.id}','activate');document.getElementById('userModal').classList.add('hidden');">Activar membresía</button>`}
+    </div>
+  `;
+  document.getElementById('userModal').classList.remove('hidden');
+}
+
+// ─── TOGGLE MEMBRESÍA ──────────────────────────────────────
+async function toggleMembership(userId, action) {
+  if (action === 'activate') {
+    const starts = new Date();
+    const expires = new Date(starts);
+    expires.setMonth(expires.getMonth() + 1);
+    const { error } = await sb.from('memberships').upsert({
+      user_id: userId, status: 'active',
+      payment_id: 'ADMIN_' + Date.now(),
+      amount: 11990,
+      starts_at: starts.toISOString(),
+      expires_at: expires.toISOString()
+    }, { onConflict: 'user_id' });
+    if (error) { showToast('Error: ' + error.message, 'error'); return; }
+    showToast('Membresía activada', 'success');
+  } else {
+    const { error } = await sb.from('memberships').update({ status: 'expired' }).eq('user_id', userId);
+    if (error) { showToast('Error: ' + error.message, 'error'); return; }
+    showToast('Membresía cancelada', 'info');
+  }
+  await loadAll();
+}
+
+// ─── TABS ──────────────────────────────────────────────────
+function setupTabs() {
+  document.querySelectorAll('.admin-tab').forEach(tab => {
+    tab.addEventListener('click', () => {
+      document.querySelectorAll('.admin-tab').forEach(t => t.classList.remove('active'));
+      tab.classList.add('active');
+      ['users', 'memberships', 'events'].forEach(name => {
+        document.getElementById(`tab-${name}`).classList.toggle('hidden', name !== tab.dataset.tab);
+      });
+    });
+  });
+}
+
+// ─── SEARCH & FILTER ───────────────────────────────────────
+function setupSearch() {
+  document.getElementById('searchUsers').addEventListener('input', e => {
+    renderUsers(e.target.value, document.getElementById('filterStatus').value);
+  });
+  document.getElementById('filterStatus').addEventListener('change', e => {
+    renderUsers(document.getElementById('searchUsers').value, e.target.value);
+  });
+  document.getElementById('searchMemberships').addEventListener('input', e => {
+    renderMemberships(e.target.value, document.getElementById('filterMembStatus').value);
+  });
+  document.getElementById('filterMembStatus').addEventListener('change', e => {
+    renderMemberships(document.getElementById('searchMemberships').value, e.target.value);
+  });
+  document.getElementById('searchEvents').addEventListener('input', e => {
+    renderEvents(e.target.value);
+  });
+}
+
+function setupRefresh() {
+  document.getElementById('refreshBtn').addEventListener('click', async () => {
+    document.getElementById('refreshBtn').textContent = '↻ Actualizando...';
+    await loadAll();
+    document.getElementById('refreshBtn').textContent = '↻ Actualizar';
+    showToast('Datos actualizados', 'success');
+  });
+}
+</script>
+</body>
+</html>
