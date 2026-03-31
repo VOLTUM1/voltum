@@ -325,15 +325,30 @@ let currentUser = null;
 })();
 
 async function loadAll() {
+  // Queries separadas para evitar problemas de foreign key entre memberships y profiles
   const [profilesRes, membershipsRes, eventsRes] = await Promise.all([
     sb.from('profiles').select('*').order('created_at', { ascending: false }),
-    sb.from('memberships').select('*, profiles(dj_name, booking_email)').order('created_at', { ascending: false }),
-    sb.from('events').select('*, profiles(dj_name)').order('date', { ascending: false })
+    sb.from('memberships').select('*').order('created_at', { ascending: false }),
+    sb.from('events').select('*').order('date', { ascending: false })
   ]);
+
+  if (profilesRes.error) { showToast('Error cargando perfiles: ' + profilesRes.error.message, 'error'); console.error(profilesRes.error); }
+  if (membershipsRes.error) { showToast('Error cargando membresías: ' + membershipsRes.error.message, 'error'); console.error(membershipsRes.error); }
+  if (eventsRes.error) { showToast('Error cargando eventos: ' + eventsRes.error.message, 'error'); console.error(eventsRes.error); }
 
   allUsers = profilesRes.data || [];
   allMemberships = membershipsRes.data || [];
   allEvents = eventsRes.data || [];
+
+  // Enriquecer membresías y eventos con datos del perfil (merge manual)
+  allMemberships = allMemberships.map(m => ({
+    ...m,
+    profiles: allUsers.find(u => u.id === m.user_id) || null
+  }));
+  allEvents = allEvents.map(e => ({
+    ...e,
+    profiles: allUsers.find(u => u.id === e.user_id) || null
+  }));
 
   calcStats();
   renderUsers();
