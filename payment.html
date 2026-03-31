@@ -1,0 +1,173 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Voltum — Activar Membresía</title>
+  <link rel="stylesheet" href="css/styles.css">
+</head>
+<body>
+
+<nav class="navbar">
+  <div class="container">
+    <a href="index.html" class="logo">
+      <div class="logo-mark">⚡</div>
+      VOLTUM
+    </a>
+    <div class="nav-links">
+      <a href="dashboard.html" class="btn btn-ghost btn-sm">← Volver al Dashboard</a>
+    </div>
+  </div>
+</nav>
+
+<div class="payment-page" style="padding-top:80px;">
+  <div class="payment-card">
+
+    <div style="text-align:center;margin-bottom:32px;">
+      <h1 style="font-size:1.75rem;margin-bottom:8px;">Activa tu membresía</h1>
+      <p>Un pago anual. Press kit ilimitado. Carrera profesional.</p>
+    </div>
+
+    <!-- Monto -->
+    <div class="payment-amount">
+      <div style="font-size:0.85rem;color:var(--muted);margin-bottom:8px;text-transform:uppercase;letter-spacing:1px;">Voltum Pro · Anual</div>
+      <div class="payment-amount-value">$11.990</div>
+      <div style="font-size:0.9rem;color:var(--muted);margin-top:6px;">pesos chilenos · renueva cada 12 meses</div>
+    </div>
+
+    <!-- Beneficios -->
+    <ul class="payment-benefits">
+      <li>Press kit digital profesional con URL propia</li>
+      <li>Fotos, banner y bio ilimitados</li>
+      <li>Historial completo de eventos</li>
+      <li>Rider técnico integrado</li>
+      <li>Links a todas tus redes y plataformas</li>
+      <li>Dashboard con estadísticas de vistas</li>
+      <li>Soporte prioritario</li>
+      <li>Acceso a todas las funciones futuras</li>
+    </ul>
+
+    <!-- Estado de membresía actual -->
+    <div id="currentMembershipInfo" style="padding:14px;border-radius:var(--radius);background:var(--card);border:1px solid var(--border2);margin-bottom:24px;font-size:0.875rem;color:var(--muted);text-align:center;"></div>
+
+    <!-- Botón de pago -->
+    <div id="mpButtonContainer">
+      <div class="spinner" id="mpLoading"></div>
+    </div>
+
+    <div class="trust-badges">
+      <div class="trust-badge">🔒 Pago seguro</div>
+      <div class="trust-badge">💳 Mercado Pago</div>
+      <div class="trust-badge">🇨🇱 Pesos chilenos</div>
+    </div>
+
+    <div style="margin-top:24px;text-align:center;">
+      <p style="font-size:0.8rem;color:var(--muted2);">
+        Al pagar aceptas los términos de servicio.<br>
+        La membresía es renovable manualmente cada año.
+      </p>
+    </div>
+  </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="https://sdk.mercadopago.com/js/v2"></script>
+<script src="js/config.js"></script>
+<script>
+(async () => {
+  const user = await Auth.requireAuth();
+  if (!user) return;
+
+  // Verificar membresía existente
+  const { data: mem } = await sb.from('memberships').select('*').eq('user_id', user.id).single();
+  const infoEl = document.getElementById('currentMembershipInfo');
+
+  if (mem?.status === 'active') {
+    const expires = new Date(mem.expires_at);
+    const days = Math.ceil((expires - new Date()) / (1000 * 60 * 60 * 24));
+    infoEl.innerHTML = `<span style="color:var(--green);">✓ Membresía activa</span> · Vence el ${expires.toLocaleDateString('es-CL')} (${days} días)`;
+  } else {
+    infoEl.textContent = 'Sin membresía activa — realiza el pago para activar tu press kit.';
+  }
+
+  // Cargar perfil para datos del pago
+  const { data: profile } = await sb.from('profiles').select('dj_name').eq('id', user.id).single();
+
+  // Iniciar Mercado Pago
+  await initMercadoPago(user, profile);
+})();
+
+async function initMercadoPago(user, profile) {
+  const loadingEl = document.getElementById('mpLoading');
+  const container = document.getElementById('mpButtonContainer');
+
+  try {
+    // Crear preferencia en el backend (Supabase Edge Function)
+    const res = await fetch(VOLTUM.mercadoPago.preferenceEndpoint, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${(await sb.auth.getSession()).data.session?.access_token}`
+      },
+      body: JSON.stringify({
+        userId: user.id,
+        userEmail: user.email,
+        djName: profile?.dj_name || 'DJ Voltum'
+      })
+    });
+
+    if (!res.ok) throw new Error('No se pudo inicializar el pago');
+    const { id: preferenceId } = await res.json();
+
+    loadingEl.remove();
+
+    const mp = new MercadoPago(VOLTUM.mercadoPago.publicKey, { locale: 'es-CL' });
+    mp.bricks().create('wallet', 'mpButtonContainer', {
+      initialization: { preferenceId },
+      customization: {
+        texts: { valueProp: 'smart_option' },
+        visual: { buttonBackground: 'default', borderRadius: '12px' }
+      }
+    });
+
+  } catch (err) {
+    console.error(err);
+    loadingEl.remove();
+    // Fallback: mostrar botón manual
+    container.innerHTML = `
+      <div style="padding:20px;border-radius:var(--radius-lg);background:rgba(245,158,11,0.08);border:1px solid rgba(245,158,11,0.2);margin-bottom:16px;">
+        <p style="font-size:0.875rem;color:var(--gold);margin-bottom:12px;">
+          ⚠️ Configura tu endpoint de Mercado Pago en <code>js/config.js</code> para habilitar el pago.<br>
+          Despliega la Edge Function en <code>supabase/functions/create-payment/</code>
+        </p>
+        <a href="https://www.mercadopago.cl/developers/es/docs/checkout-pro/landing" target="_blank" class="btn btn-outline btn-sm">Ver documentación →</a>
+      </div>
+      <button class="btn btn-primary btn-full btn-lg" id="testPayBtn">⚡ Simular pago (desarrollo)</button>
+    `;
+
+    document.getElementById('testPayBtn')?.addEventListener('click', async () => {
+      const btn = document.getElementById('testPayBtn');
+      btn.disabled = true; btn.textContent = 'Procesando...';
+
+      // Crear/actualizar membresía simulada
+      const starts = new Date();
+      const expires = new Date(starts);
+      expires.setFullYear(expires.getFullYear() + 1);
+
+      const user = await Auth.getUser();
+      await sb.from('memberships').upsert({
+        user_id: user.id,
+        status: 'active',
+        payment_id: 'TEST_' + Date.now(),
+        amount: 11990,
+        starts_at: starts.toISOString(),
+        expires_at: expires.toISOString()
+      }, { onConflict: 'user_id' });
+
+      window.location.href = 'success.html';
+    });
+  }
+}
+</script>
+</body>
+</html>

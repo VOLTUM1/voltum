@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Voltum — ¡Pago exitoso!</title>
+  <link rel="stylesheet" href="css/styles.css">
+</head>
+<body>
+<div class="success-page">
+  <div style="max-width:480px;width:100%;">
+    <div class="confetti-ring">🎉</div>
+    <h1 style="font-size:2rem;margin-bottom:12px;">¡Membresía activada!</h1>
+    <p style="font-size:1.05rem;margin-bottom:8px;">Tu Voltum Pro está activo por 12 meses.</p>
+    <p style="margin-bottom:36px;">Ya puedes completar tu press kit y compartirlo con el mundo.</p>
+    <div style="display:flex;flex-direction:column;gap:12px;align-items:center;">
+      <a href="profile.html" class="btn btn-primary btn-lg" style="width:100%;justify-content:center;">
+        ✏️ Completar mi Press Kit
+      </a>
+      <a href="dashboard.html" class="btn btn-outline" style="width:100%;justify-content:center;">
+        Ir al Dashboard
+      </a>
+    </div>
+    <div style="margin-top:32px;padding-top:24px;border-top:1px solid var(--border2);text-align:center;">
+      <p style="font-size:0.8rem;color:var(--muted2);">
+        Recibirás un email de confirmación.<br>
+        Cualquier duda escríbenos a <a href="mailto:hola@voltum.app">hola@voltum.app</a>
+      </p>
+    </div>
+  </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="js/config.js"></script>
+<script>
+// Verificar si llegamos desde Mercado Pago con payment_id
+(async () => {
+  const params = new URLSearchParams(window.location.search);
+  const paymentId = params.get('payment_id');
+  const status = params.get('status');
+  const extRef = params.get('external_reference'); // user_id
+
+  if (paymentId && status === 'approved' && extRef) {
+    // Activar membresía real desde la respuesta de MP
+    const starts = new Date();
+    const expires = new Date(starts);
+    expires.setFullYear(expires.getFullYear() + 1);
+
+    await sb.from('memberships').upsert({
+      user_id: extRef,
+      status: 'active',
+      payment_id: paymentId,
+      amount: 11990,
+      starts_at: starts.toISOString(),
+      expires_at: expires.toISOString()
+    }, { onConflict: 'user_id' });
+  }
+})();
+</script>
+</body>
+</html>

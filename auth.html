@@ -1,0 +1,236 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Voltum — Acceder</title>
+  <link rel="stylesheet" href="css/styles.css">
+</head>
+<body>
+<div class="auth-page">
+
+  <!-- LEFT PANEL -->
+  <div class="auth-left">
+    <a href="index.html" class="logo" style="margin-bottom:48px;display:inline-flex;">
+      <div class="logo-mark">⚡</div>
+      VOLTUM
+    </a>
+    <div class="auth-left-content">
+      <h2 style="font-size:2rem;margin-bottom:16px;">Tu press kit,<br><span class="gradient-text">tu carrera.</span></h2>
+      <p style="margin-bottom:40px;font-size:1rem;line-height:1.7;">Únete a los DJs que ya tienen su identidad digital profesional y consiguen más bookings.</p>
+      <div class="auth-features">
+        <div class="auth-feature">
+          <div class="auth-feature-icon">🎧</div>
+          <div class="auth-feature-text">
+            <h4>Press Kit completo</h4>
+            <p>Bio, fotos, géneros, rider y eventos en un solo link</p>
+          </div>
+        </div>
+        <div class="auth-feature">
+          <div class="auth-feature-icon">📊</div>
+          <div class="auth-feature-text">
+            <h4>Dashboard de carrera</h4>
+            <p>Estadísticas de visualizaciones y actividad</p>
+          </div>
+        </div>
+        <div class="auth-feature">
+          <div class="auth-feature-icon">⚡</div>
+          <div class="auth-feature-text">
+            <h4>Membresía anual</h4>
+            <p>Solo $11.990 CLP al año. Todo incluido.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- RIGHT PANEL -->
+  <div class="auth-right">
+    <div class="auth-form-container">
+      <div class="auth-tabs" id="authTabs">
+        <button class="auth-tab active" data-tab="login">Iniciar sesión</button>
+        <button class="auth-tab" data-tab="register">Crear cuenta</button>
+      </div>
+
+      <!-- LOGIN FORM -->
+      <div id="loginForm">
+        <div class="form-group">
+          <label class="form-label">Email</label>
+          <input type="email" id="loginEmail" class="form-input" placeholder="tu@email.com" autocomplete="email">
+        </div>
+        <div class="form-group">
+          <label class="form-label">Contraseña</label>
+          <input type="password" id="loginPassword" class="form-input" placeholder="••••••••" autocomplete="current-password">
+        </div>
+        <button class="btn btn-primary btn-full btn-lg" id="loginBtn" style="margin-bottom:20px;">
+          Iniciar sesión →
+        </button>
+        <p style="text-align:center;font-size:0.875rem;">
+          ¿Olvidaste tu contraseña?
+          <a href="#" id="forgotLink" style="color:var(--purple-l);">Recuperar</a>
+        </p>
+      </div>
+
+      <!-- REGISTER FORM -->
+      <div id="registerForm" class="hidden">
+        <div class="form-group">
+          <label class="form-label">Nombre artístico (DJ Name)</label>
+          <input type="text" id="regDjName" class="form-input" placeholder="ej: DJ Nova" autocomplete="off">
+          <div class="form-hint">Este será tu nombre público en el press kit</div>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Email</label>
+          <input type="email" id="regEmail" class="form-input" placeholder="tu@email.com" autocomplete="email">
+        </div>
+        <div class="form-group">
+          <label class="form-label">Contraseña</label>
+          <input type="password" id="regPassword" class="form-input" placeholder="Mínimo 6 caracteres" autocomplete="new-password">
+        </div>
+        <button class="btn btn-primary btn-full btn-lg" id="registerBtn" style="margin-bottom:16px;">
+          Crear cuenta gratis →
+        </button>
+        <p style="font-size:0.8rem;color:var(--muted2);text-align:center;">
+          Al crear tu cuenta, activas una prueba de 7 días.<br>
+          Después necesitas activar tu membresía Voltum Pro.
+        </p>
+      </div>
+
+      <!-- RESET PASSWORD FORM -->
+      <div id="resetForm" class="hidden">
+        <h3 style="margin-bottom:8px;">Recuperar contraseña</h3>
+        <p style="margin-bottom:24px;font-size:0.9rem;">Te enviaremos un link para resetear tu contraseña.</p>
+        <div class="form-group">
+          <label class="form-label">Email</label>
+          <input type="email" id="resetEmail" class="form-input" placeholder="tu@email.com">
+        </div>
+        <button class="btn btn-primary btn-full" id="resetBtn" style="margin-bottom:16px;">
+          Enviar link de recuperación
+        </button>
+        <a href="#" id="backToLogin" style="font-size:0.875rem;">← Volver al login</a>
+      </div>
+
+      <div class="divider"></div>
+      <p style="text-align:center;font-size:0.85rem;color:var(--muted2);">
+        ¿Solo quieres explorar?
+        <a href="presskit.html?demo=true" style="color:var(--purple-l);">Ver demo sin registro →</a>
+      </p>
+    </div>
+  </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="js/config.js"></script>
+<script>
+(async () => {
+  // Si ya está logueado, redirigir
+  const user = await Auth.getUser();
+  if (user) { window.location.href = 'dashboard.html'; return; }
+
+  // Tabs
+  const tabs = document.querySelectorAll('.auth-tab');
+  const loginF = document.getElementById('loginForm');
+  const registerF = document.getElementById('registerForm');
+  const resetF = document.getElementById('resetForm');
+
+  const urlParams = new URLSearchParams(window.location.search);
+  if (urlParams.get('tab') === 'register') {
+    showTab('register');
+  }
+
+  tabs.forEach(tab => {
+    tab.addEventListener('click', () => showTab(tab.dataset.tab));
+  });
+
+  function showTab(name) {
+    tabs.forEach(t => t.classList.toggle('active', t.dataset.tab === name));
+    loginF.classList.toggle('hidden', name !== 'login');
+    registerF.classList.toggle('hidden', name !== 'register');
+    resetF.classList.add('hidden');
+  }
+
+  // Forgot password
+  document.getElementById('forgotLink').addEventListener('click', e => {
+    e.preventDefault();
+    loginF.classList.add('hidden');
+    resetF.classList.remove('hidden');
+  });
+  document.getElementById('backToLogin').addEventListener('click', e => {
+    e.preventDefault();
+    resetF.classList.add('hidden');
+    loginF.classList.remove('hidden');
+  });
+
+  // LOGIN
+  document.getElementById('loginBtn').addEventListener('click', async () => {
+    const email = document.getElementById('loginEmail').value.trim();
+    const password = document.getElementById('loginPassword').value;
+    if (!email || !password) { showToast('Completa todos los campos', 'error'); return; }
+
+    const btn = document.getElementById('loginBtn');
+    btn.disabled = true; btn.textContent = 'Ingresando...';
+
+    const { error } = await sb.auth.signInWithPassword({ email, password });
+    if (error) {
+      showToast(error.message === 'Invalid login credentials' ? 'Email o contraseña incorrectos' : error.message, 'error');
+      btn.disabled = false; btn.textContent = 'Iniciar sesión →';
+    } else {
+      window.location.href = 'dashboard.html';
+    }
+  });
+
+  // REGISTER
+  document.getElementById('registerBtn').addEventListener('click', async () => {
+    const djName = document.getElementById('regDjName').value.trim();
+    const email = document.getElementById('regEmail').value.trim();
+    const password = document.getElementById('regPassword').value;
+
+    if (!djName || !email || !password) { showToast('Completa todos los campos', 'error'); return; }
+    if (password.length < 6) { showToast('La contraseña debe tener al menos 6 caracteres', 'error'); return; }
+
+    const btn = document.getElementById('registerBtn');
+    btn.disabled = true; btn.textContent = 'Creando cuenta...';
+
+    const { data, error } = await sb.auth.signUp({ email, password });
+    if (error) {
+      showToast(error.message, 'error');
+      btn.disabled = false; btn.textContent = 'Crear cuenta gratis →';
+      return;
+    }
+
+    if (data.user) {
+      // Generar slug único
+      const slug = djName.toLowerCase().replace(/\s+/g, '-').replace(/[^a-z0-9-]/g, '') + '-' + Math.random().toString(36).slice(2, 6);
+      await sb.from('profiles').insert({
+        id: data.user.id,
+        dj_name: djName,
+        slug: slug,
+        booking_email: email
+      });
+      showToast('¡Cuenta creada! Redirigiendo...', 'success');
+      setTimeout(() => { window.location.href = 'dashboard.html'; }, 1200);
+    }
+  });
+
+  // RESET PASSWORD
+  document.getElementById('resetBtn').addEventListener('click', async () => {
+    const email = document.getElementById('resetEmail').value.trim();
+    if (!email) { showToast('Ingresa tu email', 'error'); return; }
+
+    const { error } = await sb.auth.resetPasswordForEmail(email, {
+      redirectTo: `${VOLTUM.app.url}/auth.html`
+    });
+    if (error) { showToast(error.message, 'error'); }
+    else { showToast('Link enviado a tu email', 'success'); }
+  });
+
+  // Enter key support
+  document.addEventListener('keydown', e => {
+    if (e.key === 'Enter') {
+      if (!loginF.classList.contains('hidden')) document.getElementById('loginBtn').click();
+      else if (!registerF.classList.contains('hidden')) document.getElementById('registerBtn').click();
+    }
+  });
+})();
+</script>
+</body>
+</html>

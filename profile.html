@@ -1,0 +1,543 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Voltum — Editar Press Kit</title>
+  <link rel="stylesheet" href="css/styles.css">
+  <style>
+    .save-bar {
+      position: sticky; bottom: 0; background: rgba(5,5,8,0.95);
+      backdrop-filter: blur(12px); padding: 16px 0;
+      border-top: 1px solid var(--border2); margin-top: 32px; z-index: 10;
+      display: flex; justify-content: flex-end; gap: 12px;
+    }
+    .img-preview-wrap { position:relative; }
+    .img-preview-wrap .remove-img {
+      position:absolute; top:8px; right:8px;
+      background:rgba(239,68,68,0.85); color:#fff; border:none;
+      border-radius:8px; padding:4px 10px; cursor:pointer; font-size:0.8rem;
+      display:none;
+    }
+    .img-preview-wrap:hover .remove-img { display:block; }
+    #addEventForm { background:var(--bg3); border:1px solid var(--border2); border-radius:var(--radius-lg); padding:20px; margin-bottom:16px; display:none; }
+    #addEventForm.show { display:block; }
+  </style>
+</head>
+<body>
+
+<div class="app-layout">
+  <!-- SIDEBAR -->
+  <aside class="sidebar">
+    <div class="sidebar-logo">
+      <a href="index.html" class="logo">
+        <div class="logo-mark">⚡</div>
+        VOLTUM
+      </a>
+    </div>
+    <nav class="sidebar-nav">
+      <a href="dashboard.html" class="sidebar-nav-item">
+        <span class="nav-icon">📊</span> Dashboard
+      </a>
+      <a href="profile.html" class="sidebar-nav-item active">
+        <span class="nav-icon">✏️</span> Editar Press Kit
+      </a>
+      <a href="#" id="viewPressKit" class="sidebar-nav-item">
+        <span class="nav-icon">👁️</span> Ver mi Press Kit
+      </a>
+      <a href="payment.html" class="sidebar-nav-item">
+        <span class="nav-icon">💳</span> Membresía
+      </a>
+    </nav>
+    <div class="sidebar-footer">
+      <button class="sidebar-nav-item btn-danger" id="logoutBtn" style="width:100%;">
+        <span class="nav-icon">🚪</span> Cerrar sesión
+      </button>
+    </div>
+  </aside>
+
+  <!-- MAIN -->
+  <main class="main-content">
+    <div class="spinner" id="loadingSpinner"></div>
+    <div id="profileContent" class="hidden">
+      <div class="page-header" style="display:flex;justify-content:space-between;align-items:flex-start;flex-wrap:wrap;gap:16px;">
+        <div>
+          <h1>Editar Press Kit</h1>
+          <p>Todo lo que agregues aquí aparecerá en tu perfil público</p>
+        </div>
+        <a href="#" id="previewBtn" target="_blank" class="btn btn-outline btn-sm">👁️ Ver en vivo</a>
+      </div>
+
+      <!-- TABS -->
+      <div class="profile-tabs" id="profileTabs">
+        <button class="profile-tab active" data-tab="basic">📝 Básico</button>
+        <button class="profile-tab" data-tab="media">📸 Fotos</button>
+        <button class="profile-tab" data-tab="social">🌐 Redes</button>
+        <button class="profile-tab" data-tab="events">📅 Eventos</button>
+        <button class="profile-tab" data-tab="rider">🎛️ Rider</button>
+      </div>
+
+      <!-- TAB: BÁSICO -->
+      <div class="tab-content active card" id="tab-basic">
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:20px;">
+          <div class="form-group">
+            <label class="form-label">Nombre artístico *</label>
+            <input type="text" id="djName" class="form-input" placeholder="ej: DJ Nova">
+          </div>
+          <div class="form-group">
+            <label class="form-label">Nombre real</label>
+            <input type="text" id="realName" class="form-input" placeholder="ej: Nicolás García">
+          </div>
+        </div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:20px;">
+          <div class="form-group">
+            <label class="form-label">Ciudad / País</label>
+            <input type="text" id="location" class="form-input" placeholder="ej: Santiago, Chile">
+          </div>
+          <div class="form-group">
+            <label class="form-label">Email de booking</label>
+            <input type="email" id="bookingEmail" class="form-input" placeholder="booking@email.com">
+            <div class="form-hint">Este email se muestra en tu press kit para contacto</div>
+          </div>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Biografía</label>
+          <textarea id="bio" class="form-textarea" rows="5" placeholder="Cuéntanos tu historia como DJ: cómo empezaste, tu estilo musical, tus influencias y logros más importantes..."></textarea>
+          <div class="form-hint" id="bioCount">0 / 600 caracteres</div>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Géneros musicales</label>
+          <div class="genres-input-area" id="genresArea">
+            <input type="text" id="genreInput" placeholder="Escribe un género y presiona Enter...">
+          </div>
+          <div class="form-hint">Ej: Techno, House, Minimal, Trance — máximo 8 géneros</div>
+        </div>
+      </div>
+
+      <!-- TAB: FOTOS -->
+      <div class="tab-content card hidden" id="tab-media">
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:28px;">
+          <div>
+            <label class="form-label" style="margin-bottom:12px;display:block;">🎭 Foto de perfil</label>
+            <div class="img-preview-wrap">
+              <div class="image-upload avatar-upload" id="photoUploadArea" style="width:180px;height:180px;border-radius:50%;">
+                <input type="file" id="photoInput" accept="image/*">
+                <div id="photoPlaceholder">
+                  <div class="upload-icon">📷</div>
+                  <p style="font-size:0.75rem;">Subir foto</p>
+                </div>
+                <img id="photoPreview" style="display:none;width:180px;height:180px;border-radius:50%;object-fit:cover;">
+              </div>
+              <button class="remove-img" id="removePhoto">✕ Quitar</button>
+            </div>
+            <div class="form-hint" style="margin-top:12px;">JPG, PNG o WEBP · Máx 5MB<br>Recomendado: 400×400px</div>
+          </div>
+          <div style="flex:1;">
+            <label class="form-label" style="margin-bottom:12px;display:block;">🖼️ Banner / portada</label>
+            <div class="img-preview-wrap">
+              <div class="image-upload" id="bannerUploadArea">
+                <input type="file" id="bannerInput" accept="image/*">
+                <div id="bannerPlaceholder">
+                  <div class="upload-icon">🖼️</div>
+                  <p>Subir banner</p>
+                  <p style="font-size:0.8rem;color:var(--muted2);">Recomendado: 1500×500px</p>
+                </div>
+                <img id="bannerPreview" style="display:none;width:100%;height:200px;object-fit:cover;border-radius:calc(var(--radius-lg) - 2px);">
+              </div>
+              <button class="remove-img" id="removeBanner">✕ Quitar</button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- TAB: REDES SOCIALES -->
+      <div class="tab-content card hidden" id="tab-social">
+        <p style="margin-bottom:24px;font-size:0.9rem;">Agrega tus redes sociales y plataformas musicales. Solo incluye lo que tengas activo.</p>
+        <div class="social-field">
+          <div class="social-icon">📸</div>
+          <input type="text" id="socialInstagram" class="form-input" placeholder="instagram.com/tu-usuario">
+        </div>
+        <div class="social-field">
+          <div class="social-icon">☁️</div>
+          <input type="text" id="socialSoundcloud" class="form-input" placeholder="soundcloud.com/tu-usuario">
+        </div>
+        <div class="social-field">
+          <div class="social-icon">🎵</div>
+          <input type="text" id="socialSpotify" class="form-input" placeholder="open.spotify.com/artist/...">
+        </div>
+        <div class="social-field">
+          <div class="social-icon">▶️</div>
+          <input type="text" id="socialYoutube" class="form-input" placeholder="youtube.com/@tu-canal">
+        </div>
+        <div class="social-field">
+          <div class="social-icon">👤</div>
+          <input type="text" id="socialFacebook" class="form-input" placeholder="facebook.com/tu-pagina">
+        </div>
+      </div>
+
+      <!-- TAB: EVENTOS -->
+      <div class="tab-content card hidden" id="tab-events">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:20px;">
+          <div>
+            <h3 style="font-size:1rem;margin-bottom:4px;">Historial de eventos</h3>
+            <p style="font-size:0.85rem;">Agrega tus presentaciones para mostrar tu trayectoria</p>
+          </div>
+          <button class="btn btn-primary btn-sm" id="toggleAddEvent">+ Agregar evento</button>
+        </div>
+        <div id="addEventForm">
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;">
+            <div class="form-group" style="margin-bottom:0;">
+              <label class="form-label">Nombre del evento *</label>
+              <input type="text" id="eventName" class="form-input" placeholder="ej: Clubnight Extended">
+            </div>
+            <div class="form-group" style="margin-bottom:0;">
+              <label class="form-label">Fecha *</label>
+              <input type="date" id="eventDate" class="form-input">
+            </div>
+            <div class="form-group" style="margin-bottom:0;">
+              <label class="form-label">Venue / Club</label>
+              <input type="text" id="eventVenue" class="form-input" placeholder="ej: Club Chocolate">
+            </div>
+            <div class="form-group" style="margin-bottom:0;">
+              <label class="form-label">Ciudad</label>
+              <input type="text" id="eventCity" class="form-input" placeholder="ej: Santiago">
+            </div>
+          </div>
+          <div style="display:flex;gap:10px;margin-top:16px;">
+            <button class="btn btn-primary btn-sm" id="saveEventBtn">Guardar evento</button>
+            <button class="btn btn-ghost btn-sm" id="cancelEventBtn">Cancelar</button>
+          </div>
+        </div>
+        <div class="events-list" id="eventsList">
+          <div style="text-align:center;padding:32px;color:var(--muted2);">Cargando eventos...</div>
+        </div>
+      </div>
+
+      <!-- TAB: RIDER TÉCNICO -->
+      <div class="tab-content card hidden" id="tab-rider">
+        <h3 style="font-size:1rem;margin-bottom:8px;">Rider técnico</h3>
+        <p style="font-size:0.875rem;margin-bottom:20px;">Especifica tus requerimientos de equipo y técnica. Esto aparecerá en tu press kit para que venues lleguen preparados.</p>
+        <textarea id="technicalRider" class="form-textarea" rows="12" placeholder="Ejemplo:
+
+EQUIPO DE SONIDO
+- Sistema de sonido de al menos 2000W
+- Monitores en escenario
+- Subwoofers
+
+CABINA / BOOTH
+- 2x CDJ-2000NXS2 o superior
+- 1x DJM-900NXS2
+- Conexión USB en cada CDJ
+- Iluminación en cabina
+
+HOSPITALIDAD
+- Acceso VIP para 2 personas
+- Agua mineral sin gas
+- 1 botella de agua en cabina..."></textarea>
+        <div class="form-hint">Sé específico pero conciso. Los venues aprecian la claridad.</div>
+      </div>
+
+      <!-- SAVE BAR -->
+      <div class="save-bar">
+        <span id="saveStatus" style="align-self:center;font-size:0.85rem;color:var(--muted);"></span>
+        <a href="#" id="previewBtn2" target="_blank" class="btn btn-outline btn-sm">👁️ Ver en vivo</a>
+        <button class="btn btn-primary" id="saveProfileBtn">💾 Guardar cambios</button>
+      </div>
+    </div>
+  </main>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="js/config.js"></script>
+<script>
+let currentUser = null;
+let profile = null;
+let genres = [];
+let events = [];
+let photoFile = null;
+let bannerFile = null;
+
+(async () => {
+  currentUser = await Auth.requireAuth();
+  if (!currentUser) return;
+
+  // Cargar perfil
+  const { data } = await sb.from('profiles').select('*').eq('id', currentUser.id).single();
+  profile = data || {};
+  genres = profile.genres || [];
+
+  fillForm();
+  await loadEvents();
+
+  // Configurar link de vista previa
+  const slug = profile.slug || currentUser.id;
+  const previewUrl = `presskit.html?slug=${slug}`;
+  document.getElementById('previewBtn').href = previewUrl;
+  document.getElementById('previewBtn2').href = previewUrl;
+  document.getElementById('viewPressKit').href = previewUrl;
+
+  document.getElementById('loadingSpinner').classList.add('hidden');
+  document.getElementById('profileContent').classList.remove('hidden');
+
+  // Tabs
+  const urlParams = new URLSearchParams(window.location.search);
+  const activeTab = urlParams.get('tab') || 'basic';
+  switchTab(activeTab);
+
+  document.querySelectorAll('.profile-tab').forEach(tab => {
+    tab.addEventListener('click', () => switchTab(tab.dataset.tab));
+  });
+
+  // Géneros
+  setupGenres();
+
+  // Bio counter
+  const bioEl = document.getElementById('bio');
+  bioEl.addEventListener('input', () => {
+    document.getElementById('bioCount').textContent = `${bioEl.value.length} / 600 caracteres`;
+  });
+
+  // Imágenes
+  setupImageUpload('photoInput', 'photoPreview', 'photoPlaceholder', (f) => { photoFile = f; });
+  setupImageUpload('bannerInput', 'bannerPreview', 'bannerPlaceholder', (f) => { bannerFile = f; });
+
+  document.getElementById('removePhoto').addEventListener('click', () => {
+    document.getElementById('photoPreview').style.display = 'none';
+    document.getElementById('photoPlaceholder').style.display = 'block';
+    photoFile = null; profile.photo_url = null;
+  });
+  document.getElementById('removeBanner').addEventListener('click', () => {
+    document.getElementById('bannerPreview').style.display = 'none';
+    document.getElementById('bannerPlaceholder').style.display = 'block';
+    bannerFile = null; profile.banner_url = null;
+  });
+
+  // Eventos
+  document.getElementById('toggleAddEvent').addEventListener('click', () => {
+    document.getElementById('addEventForm').classList.toggle('show');
+  });
+  document.getElementById('cancelEventBtn').addEventListener('click', () => {
+    document.getElementById('addEventForm').classList.remove('show');
+    clearEventForm();
+  });
+  document.getElementById('saveEventBtn').addEventListener('click', saveEvent);
+
+  // Guardar
+  document.getElementById('saveProfileBtn').addEventListener('click', saveProfile);
+
+  // Logout
+  document.getElementById('logoutBtn').addEventListener('click', async () => {
+    await sb.auth.signOut();
+    window.location.href = 'index.html';
+  });
+})();
+
+function fillForm() {
+  document.getElementById('djName').value = profile.dj_name || '';
+  document.getElementById('realName').value = profile.real_name || '';
+  document.getElementById('location').value = profile.location || '';
+  document.getElementById('bookingEmail').value = profile.booking_email || '';
+  document.getElementById('bio').value = profile.bio || '';
+  document.getElementById('bioCount').textContent = `${(profile.bio||'').length} / 600 caracteres`;
+  document.getElementById('socialInstagram').value = profile.social_instagram || '';
+  document.getElementById('socialSoundcloud').value = profile.social_soundcloud || '';
+  document.getElementById('socialSpotify').value = profile.social_spotify || '';
+  document.getElementById('socialYoutube').value = profile.social_youtube || '';
+  document.getElementById('socialFacebook').value = profile.social_facebook || '';
+  document.getElementById('technicalRider').value = profile.technical_rider || '';
+
+  if (profile.photo_url) {
+    const img = document.getElementById('photoPreview');
+    img.src = profile.photo_url; img.style.display = 'block';
+    document.getElementById('photoPlaceholder').style.display = 'none';
+  }
+  if (profile.banner_url) {
+    const img = document.getElementById('bannerPreview');
+    img.src = profile.banner_url; img.style.display = 'block';
+    document.getElementById('bannerPlaceholder').style.display = 'none';
+  }
+  renderGenres();
+}
+
+function switchTab(name) {
+  document.querySelectorAll('.profile-tab').forEach(t => t.classList.toggle('active', t.dataset.tab === name));
+  document.querySelectorAll('.tab-content').forEach(c => {
+    c.classList.toggle('active', c.id === `tab-${name}`);
+    c.classList.toggle('hidden', c.id !== `tab-${name}`);
+  });
+}
+
+function setupGenres() {
+  const input = document.getElementById('genreInput');
+  input.addEventListener('keydown', e => {
+    if ((e.key === 'Enter' || e.key === ',') && input.value.trim()) {
+      e.preventDefault();
+      if (genres.length >= 8) { showToast('Máximo 8 géneros', 'error'); return; }
+      genres.push(input.value.trim());
+      input.value = '';
+      renderGenres();
+    }
+  });
+}
+
+function renderGenres() {
+  const area = document.getElementById('genresArea');
+  const input = document.getElementById('genreInput');
+  area.querySelectorAll('.genre-tag').forEach(t => t.remove());
+  genres.forEach((g, i) => {
+    const tag = document.createElement('div');
+    tag.className = 'genre-tag';
+    tag.innerHTML = `${g}<button type="button">×</button>`;
+    tag.querySelector('button').onclick = () => { genres.splice(i, 1); renderGenres(); };
+    area.insertBefore(tag, input);
+  });
+}
+
+function setupImageUpload(inputId, previewId, placeholderId, onFile) {
+  document.getElementById(inputId).addEventListener('change', function() {
+    const file = this.files[0];
+    if (!file) return;
+    if (file.size > 5 * 1024 * 1024) { showToast('La imagen no puede superar 5MB', 'error'); return; }
+    onFile(file);
+    const reader = new FileReader();
+    reader.onload = e => {
+      const img = document.getElementById(previewId);
+      img.src = e.target.result; img.style.display = 'block';
+      document.getElementById(placeholderId).style.display = 'none';
+    };
+    reader.readAsDataURL(file);
+  });
+}
+
+async function uploadImage(file, path) {
+  const { data, error } = await sb.storage.from('press-kits').upload(path, file, { upsert: true });
+  if (error) throw error;
+  const { data: { publicUrl } } = sb.storage.from('press-kits').getPublicUrl(path);
+  return publicUrl;
+}
+
+async function saveProfile() {
+  const btn = document.getElementById('saveProfileBtn');
+  const status = document.getElementById('saveStatus');
+  btn.disabled = true; btn.textContent = '💾 Guardando...';
+  status.textContent = '';
+
+  try {
+    let photoUrl = profile.photo_url;
+    let bannerUrl = profile.banner_url;
+
+    if (photoFile) photoUrl = await uploadImage(photoFile, `${currentUser.id}/photo-${Date.now()}`);
+    if (bannerFile) bannerUrl = await uploadImage(bannerFile, `${currentUser.id}/banner-${Date.now()}`);
+
+    const updates = {
+      dj_name: document.getElementById('djName').value.trim(),
+      real_name: document.getElementById('realName').value.trim() || null,
+      location: document.getElementById('location').value.trim() || null,
+      booking_email: document.getElementById('bookingEmail').value.trim() || null,
+      bio: document.getElementById('bio').value.trim() || null,
+      genres: genres.length ? genres : null,
+      social_instagram: document.getElementById('socialInstagram').value.trim() || null,
+      social_soundcloud: document.getElementById('socialSoundcloud').value.trim() || null,
+      social_spotify: document.getElementById('socialSpotify').value.trim() || null,
+      social_youtube: document.getElementById('socialYoutube').value.trim() || null,
+      social_facebook: document.getElementById('socialFacebook').value.trim() || null,
+      technical_rider: document.getElementById('technicalRider').value.trim() || null,
+      photo_url: photoUrl,
+      banner_url: bannerUrl,
+      updated_at: new Date().toISOString()
+    };
+
+    const { error } = await sb.from('profiles').update(updates).eq('id', currentUser.id);
+    if (error) throw error;
+
+    profile = { ...profile, ...updates };
+    photoFile = null; bannerFile = null;
+    showToast('¡Press kit guardado exitosamente!', 'success');
+    status.textContent = '✓ Guardado';
+    status.style.color = 'var(--green)';
+  } catch (err) {
+    showToast('Error al guardar: ' + err.message, 'error');
+    status.textContent = '✗ Error al guardar';
+    status.style.color = 'var(--red)';
+  }
+
+  btn.disabled = false; btn.textContent = '💾 Guardar cambios';
+}
+
+async function loadEvents() {
+  const { data } = await sb.from('events').select('*').eq('user_id', currentUser.id).order('date', { ascending: false });
+  events = data || [];
+  renderEvents();
+}
+
+function renderEvents() {
+  const list = document.getElementById('eventsList');
+  if (!events.length) {
+    list.innerHTML = '<div style="text-align:center;padding:32px;color:var(--muted2);">Sin eventos. Agrega tu primera fecha.</div>';
+    return;
+  }
+  list.innerHTML = events.map(ev => {
+    const d = new Date(ev.date + 'T12:00:00');
+    const month = d.toLocaleDateString('es-CL', { month: 'short' }).toUpperCase();
+    const day = d.getDate();
+    return `
+    <div class="event-item">
+      <div class="event-date-badge">
+        <div class="event-date-month">${month}</div>
+        <div class="event-date-day">${day}</div>
+      </div>
+      <div class="event-info">
+        <strong>${ev.name}</strong>
+        <span>${[ev.venue, ev.city].filter(Boolean).join(' · ')}</span>
+      </div>
+      <button class="btn btn-danger btn-sm btn-icon" onclick="deleteEvent('${ev.id}')">✕</button>
+    </div>`;
+  }).join('');
+}
+
+function clearEventForm() {
+  document.getElementById('eventName').value = '';
+  document.getElementById('eventDate').value = '';
+  document.getElementById('eventVenue').value = '';
+  document.getElementById('eventCity').value = '';
+}
+
+async function saveEvent() {
+  const name = document.getElementById('eventName').value.trim();
+  const date = document.getElementById('eventDate').value;
+  if (!name || !date) { showToast('Nombre y fecha son obligatorios', 'error'); return; }
+
+  const btn = document.getElementById('saveEventBtn');
+  btn.disabled = true;
+
+  const { data, error } = await sb.from('events').insert({
+    user_id: currentUser.id,
+    name,
+    date,
+    venue: document.getElementById('eventVenue').value.trim() || null,
+    city: document.getElementById('eventCity').value.trim() || null
+  }).select().single();
+
+  if (error) { showToast(error.message, 'error'); }
+  else {
+    events.unshift(data);
+    renderEvents();
+    clearEventForm();
+    document.getElementById('addEventForm').classList.remove('show');
+    showToast('Evento agregado', 'success');
+  }
+  btn.disabled = false;
+}
+
+async function deleteEvent(id) {
+  if (!confirm('¿Eliminar este evento?')) return;
+  const { error } = await sb.from('events').delete().eq('id', id);
+  if (!error) {
+    events = events.filter(e => e.id !== id);
+    renderEvents();
+    showToast('Evento eliminado', 'info');
+  }
+}
+</script>
+</body>
+</html>

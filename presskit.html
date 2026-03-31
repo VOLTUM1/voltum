@@ -1,0 +1,326 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Voltum — Press Kit</title>
+  <link rel="stylesheet" href="css/styles.css">
+  <style>
+    .pk-nav {
+      position: fixed; top: 0; left: 0; right: 0; z-index: 100;
+      padding: 14px 24px; display: flex; justify-content: space-between; align-items: center;
+      background: rgba(5,5,8,0.7); backdrop-filter: blur(20px);
+      border-bottom: 1px solid var(--border2);
+    }
+    .pk-social-grid { display: flex; flex-wrap: wrap; gap: 10px; }
+    .pk-social-btn {
+      display: inline-flex; align-items: center; gap: 8px;
+      padding: 10px 18px; border-radius: var(--radius);
+      background: var(--card); border: 1px solid var(--border2);
+      color: var(--muted); font-size: 0.875rem; font-weight: 500;
+      transition: var(--transition); text-decoration: none;
+    }
+    .pk-social-btn:hover { border-color: var(--border); color: var(--text); background: var(--card-hover); }
+    .pk-event-grid { display: grid; gap: 10px; }
+    .pk-event { display: flex; gap: 16px; padding: 16px 20px; border-radius: var(--radius-lg); background: var(--card); border: 1px solid var(--border2); align-items: center; }
+    .demo-badge {
+      position: fixed; bottom: 24px; left: 50%; transform: translateX(-50%);
+      padding: 12px 28px; border-radius: 100px; z-index: 200;
+      background: rgba(139,92,246,0.15); border: 1px solid var(--border);
+      backdrop-filter: blur(12px); white-space: nowrap;
+      display: flex; align-items: center; gap: 12px; font-size: 0.9rem;
+    }
+  </style>
+</head>
+<body class="presskit-page">
+
+<!-- NAV -->
+<nav class="pk-nav">
+  <a href="index.html" class="logo" style="font-size:1.1rem;">
+    <div class="logo-mark" style="width:28px;height:28px;font-size:0.8rem;">⚡</div>
+    VOLTUM
+  </a>
+  <div style="display:flex;gap:8px;" id="pkNavActions">
+    <button id="shareBtn" class="btn btn-outline btn-sm">📤 Compartir</button>
+  </div>
+</nav>
+
+<!-- SPINNER -->
+<div id="pkSpinner" style="display:flex;align-items:center;justify-content:center;min-height:100vh;">
+  <div class="spinner"></div>
+</div>
+
+<!-- PRESS KIT CONTENT -->
+<div id="pkContent" class="hidden">
+  <!-- BANNER -->
+  <div class="presskit-banner" id="pkBanner">
+    <div class="presskit-banner-overlay"></div>
+  </div>
+
+  <!-- HEADER -->
+  <div style="max-width:900px;margin:0 auto;padding:0 24px;">
+    <div class="presskit-header" id="pkHeader">
+      <div class="presskit-avatar" id="pkAvatar"></div>
+      <div style="padding-bottom:12px;flex:1;">
+        <div style="display:flex;align-items:center;gap:12px;flex-wrap:wrap;margin-bottom:6px;">
+          <h1 class="presskit-name" id="pkName"></h1>
+          <span class="badge badge-purple" id="pkMemberBadge" style="display:none;">⚡ Voltum Pro</span>
+        </div>
+        <p style="color:var(--muted);font-size:1rem;" id="pkLocation"></p>
+        <div id="pkGenres" style="margin-top:12px;" class="genres-display"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- BODY -->
+  <div class="presskit-body">
+
+    <!-- BIO -->
+    <div class="presskit-section" id="bioSection">
+      <div class="presskit-section-title">Biografía</div>
+      <p id="pkBio" style="line-height:1.85;font-size:1rem;color:var(--text);white-space:pre-line;"></p>
+    </div>
+
+    <!-- SOCIAL LINKS -->
+    <div class="presskit-section" id="socialSection">
+      <div class="presskit-section-title">Plataformas & Redes</div>
+      <div class="pk-social-grid" id="pkSocials"></div>
+    </div>
+
+    <!-- EVENTS -->
+    <div class="presskit-section" id="eventsSection">
+      <div class="presskit-section-title">Fechas & Eventos</div>
+      <div class="pk-event-grid" id="pkEvents"></div>
+    </div>
+
+    <!-- RIDER -->
+    <div class="presskit-section" id="riderSection">
+      <div class="presskit-section-title">Rider técnico</div>
+      <div class="rider-content" id="pkRider"></div>
+    </div>
+
+    <!-- CONTACT -->
+    <div class="presskit-section" id="contactSection" style="text-align:center;padding:48px 24px;border-radius:var(--radius-xl);background:linear-gradient(135deg,rgba(139,92,246,0.08),rgba(34,211,238,0.04));border:1px solid var(--border);">
+      <h2 style="margin-bottom:12px;">¿Te interesa hacer un booking?</h2>
+      <p style="margin-bottom:28px;font-size:1rem;">Escríbenos directamente para coordinar fechas y condiciones.</p>
+      <a href="#" id="pkContactBtn" class="btn btn-primary btn-lg">📬 Contactar para booking</a>
+    </div>
+
+    <!-- VOLTUM FOOTER -->
+    <div style="text-align:center;margin-top:48px;padding-top:32px;border-top:1px solid var(--border2);">
+      <a href="index.html" style="display:inline-flex;align-items:center;gap:8px;color:var(--muted2);font-size:0.8rem;text-decoration:none;">
+        Press kit creado con
+        <span style="font-weight:700;color:var(--purple-l);">⚡ VOLTUM</span>
+      </a>
+    </div>
+  </div>
+</div>
+
+<!-- DEMO BADGE -->
+<div class="demo-badge hidden" id="demoBadge">
+  <span class="equalizer"><span></span><span></span><span></span><span></span></span>
+  <span>Modo Demo — <a href="auth.html" style="color:var(--purple-l);">Crea el tuyo gratis →</a></span>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="js/config.js"></script>
+<script>
+const DEMO_DATA = {
+  dj_name: 'DJ Nova',
+  real_name: 'Nicolás García',
+  location: 'Santiago, Chile',
+  bio: `DJ Nova lleva más de 8 años recorriendo las cabinas más importantes de Chile y Latinoamérica. Su sonido transita entre el Techno oscuro de Detroit y el House melódico europeo, creando sets que equilibran tensión y euforia con precisión quirúrgica.
+
+Ha tocado en festivales como Sónar Santiago, Club Chocolate, Tresor (Berlín) y en venues de Argentina, Colombia y España. Su residencia mensual en Club Cha en Santiago es considerada una de las noches electrónicas más importantes del circuito underground local.
+
+Con más de 15 producciones propias publicadas en sellos como Rekids, Kompakt y su propio sello NOVA Records, es una voz inconfundible en la escena electrónica latinoamericana.`,
+  genres: ['Techno', 'Melodic House', 'Minimal', 'Dark Ambient'],
+  photo_url: null,
+  banner_url: null,
+  social_instagram: 'https://instagram.com',
+  social_soundcloud: 'https://soundcloud.com',
+  social_spotify: 'https://spotify.com',
+  social_youtube: 'https://youtube.com',
+  booking_email: 'booking@djnova.cl',
+  technical_rider: `SISTEMA DE SONIDO
+— Sistema de PA de mínimo 2000W RMS
+— Subwoofers correctamente cableados
+— Monitores de escenario (2x mínimo)
+
+CABINA / BOOTH
+— 2x Pioneer CDJ-2000NXS2 (o superior)
+— 1x Pioneer DJM-900NXS2
+— Conectores USB disponibles en cada CDJ
+— Iluminación LED en cabina
+— Cubierta anti-líquidos en mixer
+
+HOSPITALIDAD
+— Acceso backstage para 2 personas
+— 1 botella de agua mineral en cabina
+— Camarín con espejo y luz
+
+TÉCNICO DE SONIDO
+— Técnico dedicado durante el set
+— Prueba de sonido 45 min antes del show`,
+  profile_views: 1247
+};
+
+const DEMO_EVENTS = [
+  { name: 'Festival Sónar Santiago', venue: 'Parque O\'Higgins', city: 'Santiago', date: '2026-04-12' },
+  { name: 'Clubnight Extended', venue: 'Club Chocolate', city: 'Santiago', date: '2026-03-22' },
+  { name: 'VOID Techno Night', venue: 'Club Cha', city: 'Santiago', date: '2026-03-08' },
+  { name: 'Berlín Residency', venue: 'Tresor', city: 'Berlín, Alemania', date: '2026-02-15' },
+  { name: 'Colombia Tour', venue: 'Baum Club', city: 'Bogotá, Colombia', date: '2026-01-27' },
+];
+
+(async () => {
+  const params = new URLSearchParams(window.location.search);
+  const isDemo = params.get('demo') === 'true';
+  const slug = params.get('slug');
+  const userId = params.get('id');
+
+  let profileData, eventsData;
+
+  if (isDemo) {
+    profileData = DEMO_DATA;
+    eventsData = DEMO_EVENTS;
+    document.getElementById('demoBadge').classList.remove('hidden');
+  } else if (slug || userId) {
+    let query = sb.from('profiles').select('*');
+    if (slug) query = query.eq('slug', slug);
+    else query = query.eq('id', userId);
+    const { data } = await query.single();
+    profileData = data;
+
+    if (profileData) {
+      const { data: evs } = await sb.from('events').select('*').eq('user_id', profileData.id).order('date', { ascending: false });
+      eventsData = evs || [];
+
+      // Incrementar vistas (fire & forget)
+      sb.from('profiles').update({ profile_views: (profileData.profile_views || 0) + 1 }).eq('id', profileData.id).then(() => {});
+
+      // Verificar membresía activa
+      const { data: mem } = await sb.from('memberships').select('status').eq('user_id', profileData.id).single();
+      if (mem?.status === 'active') {
+        document.getElementById('pkMemberBadge').style.display = 'inline-flex';
+      }
+    }
+  }
+
+  if (!profileData) {
+    document.getElementById('pkSpinner').innerHTML = '<div style="text-align:center;padding:60px;"><h2>Press kit no encontrado</h2><p style="margin-top:12px;">El DJ que buscas no existe o su perfil es privado.</p><a href="index.html" class="btn btn-primary" style="margin-top:24px;">Ir al inicio</a></div>';
+    return;
+  }
+
+  renderPressKit(profileData, eventsData || []);
+})();
+
+function renderPressKit(p, events) {
+  document.title = `${p.dj_name} — Press Kit · Voltum`;
+
+  // Meta tags para compartir
+  const desc = p.bio ? p.bio.slice(0, 150) + '...' : `Press kit de ${p.dj_name}`;
+  document.querySelector('meta[name="description"]')?.setAttribute('content', desc);
+
+  // Banner
+  const banner = document.getElementById('pkBanner');
+  if (p.banner_url) {
+    banner.style.backgroundImage = `url(${p.banner_url})`;
+    banner.style.backgroundSize = 'cover';
+    banner.style.backgroundPosition = 'center';
+  } else {
+    banner.style.background = 'linear-gradient(135deg, #1a0533 0%, #050514 40%, #0a1a2e 100%)';
+    // Decoración visual si no hay banner
+    banner.innerHTML += `<div style="position:absolute;inset:0;display:flex;align-items:center;justify-content:center;opacity:0.15;font-size:8rem;font-weight:800;letter-spacing:-4px;color:white;pointer-events:none;">VOLTUM</div>`;
+  }
+
+  // Avatar
+  const avatar = document.getElementById('pkAvatar');
+  if (p.photo_url) {
+    avatar.innerHTML = '';
+    avatar.style.backgroundImage = `url(${p.photo_url})`;
+    avatar.style.backgroundSize = 'cover';
+    avatar.style.backgroundPosition = 'center';
+  } else {
+    avatar.textContent = (p.dj_name || 'D')[0].toUpperCase();
+  }
+
+  document.getElementById('pkName').textContent = p.dj_name || '';
+  document.getElementById('pkLocation').textContent = [p.real_name, p.location].filter(Boolean).join(' · ');
+
+  // Géneros
+  const genresEl = document.getElementById('pkGenres');
+  if (p.genres?.length) {
+    genresEl.innerHTML = p.genres.map(g => `<span>${g}</span>`).join('');
+  } else genresEl.style.display = 'none';
+
+  // Bio
+  if (p.bio) {
+    document.getElementById('pkBio').textContent = p.bio;
+  } else document.getElementById('bioSection').style.display = 'none';
+
+  // Socials
+  const socials = [
+    { key: 'social_instagram', icon: '📸', label: 'Instagram' },
+    { key: 'social_soundcloud', icon: '☁️', label: 'SoundCloud' },
+    { key: 'social_spotify',   icon: '🎵', label: 'Spotify' },
+    { key: 'social_youtube',   icon: '▶️', label: 'YouTube' },
+    { key: 'social_facebook',  icon: '👤', label: 'Facebook' },
+  ];
+  const socEl = document.getElementById('pkSocials');
+  const links = socials.filter(s => p[s.key]);
+  if (links.length) {
+    socEl.innerHTML = links.map(s => `<a href="${p[s.key]}" target="_blank" rel="noopener" class="pk-social-btn">${s.icon} ${s.label}</a>`).join('');
+  } else document.getElementById('socialSection').style.display = 'none';
+
+  // Eventos
+  if (events.length) {
+    document.getElementById('pkEvents').innerHTML = events.map(ev => {
+      const d = new Date(ev.date + 'T12:00:00');
+      const month = d.toLocaleDateString('es-CL', { month: 'short' }).toUpperCase();
+      const day = d.getDate();
+      const year = d.getFullYear();
+      const isPast = d < new Date();
+      return `
+      <div class="pk-event" style="${isPast ? 'opacity:0.6' : ''}">
+        <div class="event-date-badge">
+          <div class="event-date-month">${month}</div>
+          <div class="event-date-day">${day}</div>
+          <div style="font-size:0.65rem;color:var(--muted2);">${year}</div>
+        </div>
+        <div class="event-info" style="flex:1;">
+          <strong style="font-size:1rem;">${ev.name}</strong>
+          <span>${[ev.venue, ev.city].filter(Boolean).join(' · ')}</span>
+        </div>
+        ${isPast ? '<span class="badge badge-purple" style="font-size:0.7rem;">Pasado</span>' : '<span class="badge badge-green" style="font-size:0.7rem;">Próximo</span>'}
+      </div>`;
+    }).join('');
+  } else document.getElementById('eventsSection').style.display = 'none';
+
+  // Rider
+  if (p.technical_rider) {
+    document.getElementById('pkRider').textContent = p.technical_rider;
+  } else document.getElementById('riderSection').style.display = 'none';
+
+  // Contact button
+  if (p.booking_email) {
+    document.getElementById('pkContactBtn').href = `mailto:${p.booking_email}?subject=Booking Request - ${p.dj_name}`;
+  } else document.getElementById('contactSection').style.display = 'none';
+
+  // Share button
+  document.getElementById('shareBtn').addEventListener('click', () => {
+    if (navigator.share) {
+      navigator.share({ title: `${p.dj_name} — Press Kit`, url: window.location.href });
+    } else {
+      navigator.clipboard.writeText(window.location.href);
+      showToast('Link copiado al portapapeles', 'success');
+    }
+  });
+
+  // Mostrar
+  document.getElementById('pkSpinner').style.display = 'none';
+  document.getElementById('pkContent').classList.remove('hidden');
+}
+</script>
+</body>
+</html>
