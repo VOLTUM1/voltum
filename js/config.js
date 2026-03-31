@@ -78,13 +78,13 @@
 
 const VOLTUM = {
   supabase: {
-    url: 'TU_SUPABASE_URL',          // ej: https://xxxx.supabase.co
-    anonKey: 'TU_SUPABASE_ANON_KEY'  // ej: eyJhbGci...
+    url: 'https://vsadzmuzzeovwqnpcgrr.supabase.co',
+    anonKey: 'sb_publishable_AkB3PPIhFjaUZAf4_JgLFA_Zv_pguEo'
   },
   mercadoPago: {
     publicKey: 'TU_MP_PUBLIC_KEY',   // ej: APP_USR-xxxx
     // Endpoint para crear la preferencia de pago (Supabase Edge Function o tu backend)
-    preferenceEndpoint: 'TU_SUPABASE_URL/functions/v1/create-payment'
+    preferenceEndpoint: 'https://vsadzmuzzeovwqnpcgrr.supabase.co/functions/v1/create-payment'
   },
   plan: {
     name: 'Voltum Pro',
