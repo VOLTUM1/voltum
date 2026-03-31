@@ -38,7 +38,7 @@ serve(async (req: Request) => {
     // Activar membresía en Supabase
     const supabase = createClient(
       Deno.env.get("SUPABASE_URL") ?? "",
-      Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") ?? ""  // service role para escribir sin RLS
+      Deno.env.get("SERVICE_ROLE_KEY") ?? ""  // service role para escribir sin RLS
     );
 
     const starts = new Date();
