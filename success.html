@@ -11,7 +11,7 @@
   <div style="max-width:480px;width:100%;">
     <div class="confetti-ring">🎉</div>
     <h1 style="font-size:2rem;margin-bottom:12px;">¡Membresía activada!</h1>
-    <p style="font-size:1.05rem;margin-bottom:8px;">Tu Voltum Pro está activo por 12 meses.</p>
+    <p style="font-size:1.05rem;margin-bottom:8px;">Tu Voltum Pro está activo por 1 mes.</p>
     <p style="margin-bottom:36px;">Ya puedes completar tu press kit y compartirlo con el mundo.</p>
     <div style="display:flex;flex-direction:column;gap:12px;align-items:center;">
       <a href="profile.html" class="btn btn-primary btn-lg" style="width:100%;justify-content:center;">
@@ -44,7 +44,7 @@
     // Activar membresía real desde la respuesta de MP
     const starts = new Date();
     const expires = new Date(starts);
-    expires.setFullYear(expires.getFullYear() + 1);
+    expires.setMonth(expires.getMonth() + 1);
 
     await sb.from('memberships').upsert({
       user_id: extRef,

@@ -90,7 +90,7 @@ const VOLTUM = {
     name: 'Voltum Pro',
     price: 11990,
     currency: 'CLP',
-    description: 'Press Kit Digital + Membresía Anual'
+    description: 'Press Kit Digital + Membresía Mensual'
   },
   app: {
     url: 'http://localhost' // Cambia a tu dominio en producción

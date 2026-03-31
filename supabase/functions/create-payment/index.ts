@@ -55,9 +55,9 @@ serve(async (req: Request) => {
       },
       body: JSON.stringify({
         items: [{
-          id: "voltum-pro-annual",
-          title: "Voltum Pro — Press Kit Digital Anual",
-          description: `Membresía anual para ${djName || "DJ"}`,
+          id: "voltum-pro-monthly",
+          title: "Voltum Pro — Press Kit Digital Mensual",
+          description: `Membresía mensual para ${djName || "DJ"}`,
           quantity: 1,
           unit_price: 11990,
           currency_id: "CLP",

@@ -43,7 +43,7 @@ serve(async (req: Request) => {
 
     const starts = new Date();
     const expires = new Date(starts);
-    expires.setFullYear(expires.getFullYear() + 1);
+    expires.setMonth(expires.getMonth() + 1);
 
     await supabase.from("memberships").upsert({
       user_id: userId,

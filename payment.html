@@ -25,14 +25,14 @@
 
     <div style="text-align:center;margin-bottom:32px;">
       <h1 style="font-size:1.75rem;margin-bottom:8px;">Activa tu membresía</h1>
-      <p>Un pago anual. Press kit ilimitado. Carrera profesional.</p>
+      <p>Un pago mensual. Press kit ilimitado. Carrera profesional.</p>
     </div>
 
     <!-- Monto -->
     <div class="payment-amount">
-      <div style="font-size:0.85rem;color:var(--muted);margin-bottom:8px;text-transform:uppercase;letter-spacing:1px;">Voltum Pro · Anual</div>
+      <div style="font-size:0.85rem;color:var(--muted);margin-bottom:8px;text-transform:uppercase;letter-spacing:1px;">Voltum Pro · Mensual</div>
       <div class="payment-amount-value">$11.990</div>
-      <div style="font-size:0.9rem;color:var(--muted);margin-top:6px;">pesos chilenos · renueva cada 12 meses</div>
+      <div style="font-size:0.9rem;color:var(--muted);margin-top:6px;">pesos chilenos · renueva cada mes</div>
     </div>
 
     <!-- Beneficios -->
@@ -64,7 +64,7 @@
     <div style="margin-top:24px;text-align:center;">
       <p style="font-size:0.8rem;color:var(--muted2);">
         Al pagar aceptas los términos de servicio.<br>
-        La membresía es renovable manualmente cada año.
+        La membresía es renovable manualmente cada mes.
       </p>
     </div>
   </div>
@@ -152,7 +152,7 @@ async function initMercadoPago(user, profile) {
       // Crear/actualizar membresía simulada
       const starts = new Date();
       const expires = new Date(starts);
-      expires.setFullYear(expires.getFullYear() + 1);
+      expires.setMonth(expires.getMonth() + 1);
 
       const user = await Auth.getUser();
       await sb.from('memberships').upsert({
