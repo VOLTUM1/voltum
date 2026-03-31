@@ -22,6 +22,30 @@
     .img-preview-wrap:hover .remove-img { display:block; }
     #addEventForm { background:var(--bg3); border:1px solid var(--border2); border-radius:var(--radius-lg); padding:20px; margin-bottom:16px; display:none; }
     #addEventForm.show { display:block; }
+
+    /* Rider grid */
+    .rider-grid { display:flex; flex-wrap:wrap; gap:8px; }
+    .rider-item {
+      display:flex; align-items:center; gap:8px; padding:8px 14px;
+      border-radius:var(--radius); border:1px solid var(--border2);
+      background:var(--card); cursor:pointer; transition:var(--transition);
+      font-size:0.85rem; color:var(--muted); user-select:none;
+    }
+    .rider-item:hover { border-color:var(--border); color:var(--text); }
+    .rider-item.selected { background:rgba(139,92,246,0.12); border-color:var(--purple); color:var(--purple-l); }
+    .rider-item .check { width:16px; height:16px; border-radius:4px; border:1px solid var(--border); display:flex; align-items:center; justify-content:center; font-size:0.7rem; flex-shrink:0; transition:var(--transition); }
+    .rider-item.selected .check { background:var(--purple); border-color:var(--purple); color:#fff; }
+
+    /* Genre dropdown */
+    #genreDropdown::-webkit-scrollbar { width:4px; }
+    #genreDropdown::-webkit-scrollbar-thumb { background:var(--muted2); border-radius:2px; }
+    .genre-option {
+      display:inline-flex; align-items:center; gap:6px; padding:5px 12px;
+      border-radius:100px; border:1px solid var(--border2); background:var(--card);
+      cursor:pointer; font-size:0.82rem; color:var(--muted); transition:var(--transition);
+    }
+    .genre-option:hover { border-color:var(--border); color:var(--text); }
+    .genre-option.selected { background:rgba(139,92,246,0.15); border-color:var(--purple); color:var(--purple-l); }
   </style>
 </head>
 <body>
@@ -106,11 +130,17 @@
           <div class="form-hint" id="bioCount">0 / 600 caracteres</div>
         </div>
         <div class="form-group">
-          <label class="form-label">Géneros musicales</label>
-          <div class="genres-input-area" id="genresArea">
-            <input type="text" id="genreInput" placeholder="Escribe un género y presiona Enter...">
+          <label class="form-label">Géneros musicales <span style="color:var(--muted2);font-weight:400;">(máx. 8)</span></label>
+          <div style="position:relative;">
+            <div class="genres-input-area" id="genresArea" style="cursor:pointer;" onclick="document.getElementById('genreDropdown').classList.toggle('hidden')">
+              <span id="genresPlaceholder" style="color:var(--muted2);font-size:0.9rem;padding:2px 4px;">Selecciona tus géneros...</span>
+            </div>
+            <div id="genreDropdown" class="hidden" style="position:absolute;top:calc(100% + 6px);left:0;right:0;z-index:50;background:var(--bg3);border:1px solid var(--border);border-radius:var(--radius-lg);padding:12px;max-height:320px;overflow-y:auto;box-shadow:0 8px 32px rgba(0,0,0,0.4);">
+              <input type="text" id="genreSearch" class="form-input" placeholder="🔍 Buscar género..." style="margin-bottom:10px;font-size:0.85rem;" onclick="event.stopPropagation()">
+              <div id="genreList" style="display:flex;flex-wrap:wrap;gap:6px;"></div>
+            </div>
           </div>
-          <div class="form-hint">Ej: Techno, House, Minimal, Trance — máximo 8 géneros</div>
+          <div class="form-hint">Haz clic para desplegar la lista de géneros</div>
         </div>
       </div>
 
@@ -215,26 +245,44 @@
 
       <!-- TAB: RIDER TÉCNICO -->
       <div class="tab-content card hidden" id="tab-rider">
-        <h3 style="font-size:1rem;margin-bottom:8px;">Rider técnico</h3>
-        <p style="font-size:0.875rem;margin-bottom:20px;">Especifica tus requerimientos de equipo y técnica. Esto aparecerá en tu press kit para que venues lleguen preparados.</p>
-        <textarea id="technicalRider" class="form-textarea" rows="12" placeholder="Ejemplo:
+        <h3 style="font-size:1rem;margin-bottom:4px;">Rider técnico Pioneer DJ</h3>
+        <p style="font-size:0.875rem;margin-bottom:24px;">Selecciona el equipo que necesitas. Tu rider se generará automáticamente para el press kit.</p>
 
-EQUIPO DE SONIDO
-- Sistema de sonido de al menos 2000W
-- Monitores en escenario
-- Subwoofers
+        <!-- CDJs / REPRODUCTORES -->
+        <div style="margin-bottom:24px;">
+          <div style="font-size:0.75rem;font-weight:700;letter-spacing:1px;text-transform:uppercase;color:var(--purple-l);margin-bottom:12px;padding-bottom:8px;border-bottom:1px solid var(--border2);">🎵 Reproductores (CDJ / XDJ)</div>
+          <div class="rider-grid" id="riderCDJs"></div>
+        </div>
 
-CABINA / BOOTH
-- 2x CDJ-2000NXS2 o superior
-- 1x DJM-900NXS2
-- Conexión USB en cada CDJ
-- Iluminación en cabina
+        <!-- MIXERS -->
+        <div style="margin-bottom:24px;">
+          <div style="font-size:0.75rem;font-weight:700;letter-spacing:1px;text-transform:uppercase;color:var(--cyan);margin-bottom:12px;padding-bottom:8px;border-bottom:1px solid var(--border2);">🎚️ Mixers / Consolas</div>
+          <div class="rider-grid" id="riderMixers"></div>
+        </div>
 
-HOSPITALIDAD
-- Acceso VIP para 2 personas
-- Agua mineral sin gas
-- 1 botella de agua en cabina..."></textarea>
-        <div class="form-hint">Sé específico pero conciso. Los venues aprecian la claridad.</div>
+        <!-- CONTROLADORES -->
+        <div style="margin-bottom:24px;">
+          <div style="font-size:0.75rem;font-weight:700;letter-spacing:1px;text-transform:uppercase;color:var(--gold);margin-bottom:12px;padding-bottom:8px;border-bottom:1px solid var(--border2);">🎹 Controladores All-in-One</div>
+          <div class="rider-grid" id="riderControllers"></div>
+        </div>
+
+        <!-- ACCESORIOS -->
+        <div style="margin-bottom:24px;">
+          <div style="font-size:0.75rem;font-weight:700;letter-spacing:1px;text-transform:uppercase;color:var(--green);margin-bottom:12px;padding-bottom:8px;border-bottom:1px solid var(--border2);">⚙️ Accesorios & Requerimientos</div>
+          <div class="rider-grid" id="riderAccessories"></div>
+        </div>
+
+        <!-- PREVIEW DEL RIDER GENERADO -->
+        <div style="margin-top:8px;">
+          <div style="font-size:0.75rem;font-weight:700;letter-spacing:1px;text-transform:uppercase;color:var(--muted);margin-bottom:10px;">Vista previa del rider</div>
+          <div id="riderPreview" style="padding:16px 20px;background:var(--bg3);border:1px solid var(--border2);border-radius:var(--radius-lg);font-size:0.85rem;color:var(--muted);white-space:pre-line;line-height:1.8;min-height:60px;"></div>
+        </div>
+
+        <!-- NOTAS ADICIONALES -->
+        <div class="form-group" style="margin-top:16px;">
+          <label class="form-label">Notas adicionales (opcional)</label>
+          <textarea id="riderNotes" class="form-textarea" rows="3" placeholder="Hospitalidad, camarín, condiciones especiales..."></textarea>
+        </div>
       </div>
 
       <!-- SAVE BAR -->
@@ -290,6 +338,8 @@ let bannerFile = null;
 
   // Géneros
   setupGenres();
+  setupRider();
+  document.getElementById('riderNotes').addEventListener('input', updateRiderPreview);
 
   // Bio counter
   const bioEl = document.getElementById('bio');
@@ -344,7 +394,8 @@ function fillForm() {
   document.getElementById('socialSpotify').value = profile.social_spotify || '';
   document.getElementById('socialYoutube').value = profile.social_youtube || '';
   document.getElementById('socialFacebook').value = profile.social_facebook || '';
-  document.getElementById('technicalRider').value = profile.technical_rider || '';
+  // Cargar rider desde texto guardado
+  if (profile.technical_rider) loadRiderFromText(profile.technical_rider);
 
   if (profile.photo_url) {
     const img = document.getElementById('photoPreview');
@@ -367,30 +418,190 @@ function switchTab(name) {
   });
 }
 
+// ─── LISTA COMPLETA DE GÉNEROS ──────────────────────────────
+const ALL_GENRES = [
+  'Techno','House','Minimal Techno','Deep House','Tech House',
+  'Melodic House & Techno','Progressive House','Trance','Progressive Trance',
+  'Psy-Trance','Hard Trance','Uplifting Trance','Vocal Trance',
+  'Drum & Bass','Jungle','Dubstep','Riddim','Trap','Future Bass',
+  'Hardstyle','Hardcore','Gabber','Industrial Techno','Dark Techno',
+  'Ambient Techno','Dub Techno','EBM','Industrial',
+  'Electro','Electro House','Dutch House','Big Room','Festival EDM',
+  'Disco','Nu-Disco','Funk','Soul','Afro House','Tribal House',
+  'Latin House','Reggaeton','Dembow','Cumbia Digital','Moombahton',
+  'Hip-Hop','R&B','Neo Soul','Breakbeat','UK Garage','Speed Garage',
+  'Grime','UK Bass','Future Garage','Jersey Club',
+  'Ambient','Downtempo','Chillout','Lo-Fi','Trip-Hop',
+  'IDM','Glitch','Noise','Experimental','Avant-garde',
+  'Pop','Indie Pop','Synth-Pop','Dance-Pop','Nu-Rave',
+  'Rock Electrónico','Industrial Rock','Darkwave','Gothic','New Wave',
+  'Flamenco Fusión','Jazz Electrónico','Bossa Nova Electrónica',
+  'World Music','Ethnic Fusion','Middle Eastern','Afrobeat',
+  'Mainstage','Club','Open Format'
+].sort();
+
 function setupGenres() {
-  const input = document.getElementById('genreInput');
-  input.addEventListener('keydown', e => {
-    if ((e.key === 'Enter' || e.key === ',') && input.value.trim()) {
-      e.preventDefault();
-      if (genres.length >= 8) { showToast('Máximo 8 géneros', 'error'); return; }
-      genres.push(input.value.trim());
-      input.value = '';
-      renderGenres();
+  const search = document.getElementById('genreSearch');
+  renderGenreList('');
+  search.addEventListener('input', () => renderGenreList(search.value));
+
+  // Cerrar dropdown al hacer clic fuera
+  document.addEventListener('click', e => {
+    const dropdown = document.getElementById('genreDropdown');
+    const area = document.getElementById('genresArea');
+    if (!dropdown.contains(e.target) && !area.contains(e.target)) {
+      dropdown.classList.add('hidden');
     }
   });
 }
 
+function renderGenreList(filter) {
+  const list = document.getElementById('genreList');
+  const filtered = ALL_GENRES.filter(g => g.toLowerCase().includes(filter.toLowerCase()));
+  list.innerHTML = filtered.map(g => `
+    <div class="genre-option ${genres.includes(g) ? 'selected' : ''}" onclick="toggleGenre('${g}')">
+      ${genres.includes(g) ? '✓ ' : ''}${g}
+    </div>
+  `).join('');
+}
+
+function toggleGenre(g) {
+  if (genres.includes(g)) {
+    genres = genres.filter(x => x !== g);
+  } else {
+    if (genres.length >= 8) { showToast('Máximo 8 géneros', 'error'); return; }
+    genres.push(g);
+  }
+  renderGenres();
+  renderGenreList(document.getElementById('genreSearch').value);
+}
+
 function renderGenres() {
   const area = document.getElementById('genresArea');
-  const input = document.getElementById('genreInput');
+  const placeholder = document.getElementById('genresPlaceholder');
   area.querySelectorAll('.genre-tag').forEach(t => t.remove());
-  genres.forEach((g, i) => {
-    const tag = document.createElement('div');
-    tag.className = 'genre-tag';
-    tag.innerHTML = `${g}<button type="button">×</button>`;
-    tag.querySelector('button').onclick = () => { genres.splice(i, 1); renderGenres(); };
-    area.insertBefore(tag, input);
+  if (genres.length === 0) {
+    placeholder.style.display = 'block';
+  } else {
+    placeholder.style.display = 'none';
+    genres.forEach((g, i) => {
+      const tag = document.createElement('div');
+      tag.className = 'genre-tag';
+      tag.innerHTML = `${g}<button type="button">×</button>`;
+      tag.querySelector('button').onclick = (e) => { e.stopPropagation(); genres.splice(i, 1); renderGenres(); renderGenreList(document.getElementById('genreSearch').value); };
+      area.insertBefore(tag, placeholder);
+    });
+  }
+}
+
+// ─── RIDER PIONEER ──────────────────────────────────────────
+const PIONEER_EQUIPMENT = {
+  cdjs: [
+    { id:'cdj3000',   label:'CDJ-3000 Multiplayer',    desc:'Flagship' },
+    { id:'cdj2000nxs2', label:'CDJ-2000NXS2',          desc:'Pro estándar' },
+    { id:'cdj2000nxs', label:'CDJ-2000NXS',            desc:''},
+    { id:'cdj900nxs', label:'CDJ-900NXS',              desc:'' },
+    { id:'xdj1000mk2', label:'XDJ-1000MK2',            desc:'Sin CD' },
+    { id:'xdjxz',     label:'XDJ-XZ (All-in-One)',     desc:'Con mixer' },
+    { id:'xdjrx3',    label:'XDJ-RX3',                 desc:'Standalone' },
+    { id:'xdjrx2',    label:'XDJ-RX2',                 desc:'' },
+  ],
+  mixers: [
+    { id:'djm900nxs2', label:'DJM-900NXS2',            desc:'4 canales' },
+    { id:'djm750mk2',  label:'DJM-750MK2',             desc:'4 canales' },
+    { id:'djm450',     label:'DJM-450',                 desc:'2 canales' },
+    { id:'djmv10',     label:'DJM-V10',                 desc:'6 canales' },
+    { id:'djma9',      label:'DJM-A9',                  desc:'4 canales' },
+    { id:'djms11',     label:'DJM-S11',                 desc:'Scratch' },
+    { id:'djms9',      label:'DJM-S9',                  desc:'Scratch' },
+    { id:'djms7',      label:'DJM-S7',                  desc:'Scratch' },
+  ],
+  controllers: [
+    { id:'ddjflx10',  label:'DDJ-FLX10',               desc:'4 canales' },
+    { id:'ddjsx3',    label:'DDJ-SX3',                  desc:'4 canales' },
+    { id:'ddjrev7',   label:'DDJ-REV7',                 desc:'Scratch' },
+    { id:'ddjrev5',   label:'DDJ-REV5',                 desc:'' },
+    { id:'ddjfln',    label:'DDJ-FLN',                  desc:'' },
+    { id:'ddjsb3',    label:'DDJ-SB3',                  desc:'Entrada' },
+    { id:'toraiz',    label:'TORAIZ SP-16 Sampler',     desc:'' },
+    { id:'dj808',     label:'DJS-1000 Sampler',         desc:'' },
+  ],
+  accessories: [
+    { id:'usb',       label:'Puerto USB en cada CDJ',   desc:'' },
+    { id:'rekordbox', label:'Rekordbox compatible',     desc:'' },
+    { id:'serato',    label:'Serato DJ compatible',     desc:'' },
+    { id:'lighting',  label:'Iluminación en cabina',    desc:'' },
+    { id:'monitor',   label:'Monitor de escenario',     desc:'' },
+    { id:'headphones',label:'Auriculares HDJ-X10',      desc:'' },
+    { id:'stand',     label:'Soporte/mesa de DJ',       desc:'' },
+    { id:'cover',     label:'Cubierta anti-líquidos',   desc:'' },
+  ]
+};
+
+let riderSelected = new Set();
+
+function setupRider() {
+  renderRiderSection('riderCDJs', PIONEER_EQUIPMENT.cdjs);
+  renderRiderSection('riderMixers', PIONEER_EQUIPMENT.mixers);
+  renderRiderSection('riderControllers', PIONEER_EQUIPMENT.controllers);
+  renderRiderSection('riderAccessories', PIONEER_EQUIPMENT.accessories);
+  updateRiderPreview();
+}
+
+function renderRiderSection(containerId, items) {
+  const container = document.getElementById(containerId);
+  container.innerHTML = items.map(item => `
+    <div class="rider-item ${riderSelected.has(item.id) ? 'selected' : ''}" onclick="toggleRiderItem('${item.id}')">
+      <div class="check">${riderSelected.has(item.id) ? '✓' : ''}</div>
+      <span>${item.label}${item.desc ? ` <span style="color:var(--muted2);font-size:0.75rem;">· ${item.desc}</span>` : ''}</span>
+    </div>
+  `).join('');
+}
+
+function toggleRiderItem(id) {
+  if (riderSelected.has(id)) riderSelected.delete(id);
+  else riderSelected.add(id);
+  setupRider();
+}
+
+function updateRiderPreview() {
+  const allItems = [...PIONEER_EQUIPMENT.cdjs, ...PIONEER_EQUIPMENT.mixers, ...PIONEER_EQUIPMENT.controllers, ...PIONEER_EQUIPMENT.accessories];
+  const selected = allItems.filter(i => riderSelected.has(i.id));
+  const notes = document.getElementById('riderNotes')?.value.trim() || '';
+
+  if (selected.length === 0 && !notes) {
+    document.getElementById('riderPreview').textContent = 'Selecciona equipos para generar tu rider...';
+    return;
+  }
+
+  const cdjs = selected.filter(i => PIONEER_EQUIPMENT.cdjs.find(x => x.id === i.id));
+  const mixers = selected.filter(i => PIONEER_EQUIPMENT.mixers.find(x => x.id === i.id));
+  const controllers = selected.filter(i => PIONEER_EQUIPMENT.controllers.find(x => x.id === i.id));
+  const accessories = selected.filter(i => PIONEER_EQUIPMENT.accessories.find(x => x.id === i.id));
+
+  let text = '';
+  if (cdjs.length) text += `REPRODUCTORES\n${cdjs.map(i => `— ${i.label}`).join('\n')}\n\n`;
+  if (mixers.length) text += `MIXER / CONSOLA\n${mixers.map(i => `— ${i.label}`).join('\n')}\n\n`;
+  if (controllers.length) text += `CONTROLADOR\n${controllers.map(i => `— ${i.label}`).join('\n')}\n\n`;
+  if (accessories.length) text += `REQUERIMIENTOS TÉCNICOS\n${accessories.map(i => `— ${i.label}`).join('\n')}\n\n`;
+  if (notes) text += `NOTAS ADICIONALES\n${notes}`;
+
+  document.getElementById('riderPreview').textContent = text.trim();
+}
+
+function getRiderText() {
+  updateRiderPreview();
+  return document.getElementById('riderPreview').textContent;
+}
+
+function loadRiderFromText(text) {
+  // Al cargar perfil existente, intentar detectar items seleccionados
+  if (!text) return;
+  const allItems = [...PIONEER_EQUIPMENT.cdjs, ...PIONEER_EQUIPMENT.mixers, ...PIONEER_EQUIPMENT.controllers, ...PIONEER_EQUIPMENT.accessories];
+  allItems.forEach(item => {
+    if (text.includes(item.label)) riderSelected.add(item.id);
   });
+  setupRider();
 }
 
 function setupImageUpload(inputId, previewId, placeholderId, onFile) {
@@ -441,7 +652,7 @@ async function saveProfile() {
       social_spotify: document.getElementById('socialSpotify').value.trim() || null,
       social_youtube: document.getElementById('socialYoutube').value.trim() || null,
       social_facebook: document.getElementById('socialFacebook').value.trim() || null,
-      technical_rider: document.getElementById('technicalRider').value.trim() || null,
+      technical_rider: getRiderText() || null,
       photo_url: photoUrl,
       banner_url: bannerUrl,
       updated_at: new Date().toISOString()
