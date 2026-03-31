@@ -140,43 +140,48 @@ const DEMO_DATA = {
 Ha tocado en festivales como Sónar Santiago, Club Chocolate, Tresor (Berlín) y en venues de Argentina, Colombia y España. Su residencia mensual en Club Cha en Santiago es considerada una de las noches electrónicas más importantes del circuito underground local.
 
 Con más de 15 producciones propias publicadas en sellos como Rekids, Kompakt y su propio sello NOVA Records, es una voz inconfundible en la escena electrónica latinoamericana.`,
-  genres: ['Techno', 'Melodic House', 'Minimal', 'Dark Ambient'],
+  genres: ['Techno', 'Melodic House & Techno', 'Minimal Techno', 'Dark Techno', 'Deep House'],
   photo_url: null,
   banner_url: null,
-  social_instagram: 'https://instagram.com',
+  social_instagram: 'https://instagram.com/voltum.cl',
   social_soundcloud: 'https://soundcloud.com',
   social_spotify: 'https://spotify.com',
   social_youtube: 'https://youtube.com',
   booking_email: 'booking@djnova.cl',
-  technical_rider: `SISTEMA DE SONIDO
-— Sistema de PA de mínimo 2000W RMS
-— Subwoofers correctamente cableados
-— Monitores de escenario (2x mínimo)
+  technical_rider: `REPRODUCTORES
+— Pioneer CDJ-3000 Multiplayer (x2)
+— Puerto USB en cada CDJ
+— Rekordbox compatible
 
-CABINA / BOOTH
-— 2x Pioneer CDJ-2000NXS2 (o superior)
-— 1x Pioneer DJM-900NXS2
-— Conectores USB disponibles en cada CDJ
-— Iluminación LED en cabina
-— Cubierta anti-líquidos en mixer
+MIXER / CONSOLA
+— Pioneer DJM-900NXS2
 
-HOSPITALIDAD
+REQUERIMIENTOS TÉCNICOS
+— Iluminación en cabina
+— Monitor de escenario
+— Cubierta anti-líquidos
+— Auriculares HDJ-X10
+
+NOTAS ADICIONALES
+— Prueba de sonido 45 min antes del show
 — Acceso backstage para 2 personas
-— 1 botella de agua mineral en cabina
-— Camarín con espejo y luz
-
-TÉCNICO DE SONIDO
-— Técnico dedicado durante el set
-— Prueba de sonido 45 min antes del show`,
-  profile_views: 1247
+— 1 botella de agua mineral en cabina`,
+  profile_views: 1247,
+  gallery_urls: [
+    'https://images.unsplash.com/photo-1571266028243-e4733b0f0bb0?w=600&q=80',
+    'https://images.unsplash.com/photo-1493225457124-a3eb161ffa5f?w=600&q=80',
+    'https://images.unsplash.com/photo-1516450360452-9312f5e86fc7?w=600&q=80',
+    'https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=600&q=80',
+    'https://images.unsplash.com/photo-1598488035139-bdbb2231ce04?w=600&q=80',
+  ]
 };
 
 const DEMO_EVENTS = [
-  { name: 'Festival Sónar Santiago', venue: 'Parque O\'Higgins', city: 'Santiago', date: '2026-04-12' },
-  { name: 'Clubnight Extended', venue: 'Club Chocolate', city: 'Santiago', date: '2026-03-22' },
-  { name: 'VOID Techno Night', venue: 'Club Cha', city: 'Santiago', date: '2026-03-08' },
-  { name: 'Berlín Residency', venue: 'Tresor', city: 'Berlín, Alemania', date: '2026-02-15' },
-  { name: 'Colombia Tour', venue: 'Baum Club', city: 'Bogotá, Colombia', date: '2026-01-27' },
+  { name: 'Festival Sónar Santiago',  venue: 'Parque O\'Higgins', city: 'Santiago',          date: '2026-04-12', ticket_url: 'https://passline.com' },
+  { name: 'Clubnight Extended',       venue: 'Club Chocolate',    city: 'Santiago',          date: '2026-05-03', ticket_url: 'https://passline.com' },
+  { name: 'VOID Techno Night',        venue: 'Club Cha',          city: 'Santiago',          date: '2026-03-08', ticket_url: null },
+  { name: 'Berlín Residency',         venue: 'Tresor',            city: 'Berlín, Alemania',  date: '2026-02-15', ticket_url: null },
+  { name: 'Colombia Tour',            venue: 'Baum Club',         city: 'Bogotá, Colombia',  date: '2026-01-27', ticket_url: null },
 ];
 
 (async () => {
