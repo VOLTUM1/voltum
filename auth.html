@@ -190,7 +190,11 @@
     const btn = document.getElementById('registerBtn');
     btn.disabled = true; btn.textContent = 'Creando cuenta...';
 
-    const { data, error } = await sb.auth.signUp({ email, password });
+    // Pasar dj_name en metadata para que el trigger lo use
+    const { data, error } = await sb.auth.signUp({
+      email, password,
+      options: { data: { dj_name: djName } }
+    });
     if (error) {
       showToast(error.message, 'error');
       btn.disabled = false; btn.textContent = 'Crear cuenta gratis →';
@@ -198,14 +202,14 @@
     }
 
     if (data.user) {
-      // Generar slug único
+      // Intentar upsert del perfil (el trigger ya lo crea, esto actualiza el dj_name y slug correctos)
       const slug = djName.toLowerCase().replace(/\s+/g, '-').replace(/[^a-z0-9-]/g, '') + '-' + Math.random().toString(36).slice(2, 6);
-      await sb.from('profiles').insert({
+      await sb.from('profiles').upsert({
         id: data.user.id,
         dj_name: djName,
         slug: slug,
         booking_email: email
-      });
+      }, { onConflict: 'id' });
       showToast('¡Cuenta creada! Redirigiendo...', 'success');
       setTimeout(() => { window.location.href = 'dashboard.html'; }, 1200);
     }
