@@ -82,7 +82,7 @@ const VOLTUM = {
     anonKey: 'sb_publishable_AkB3PPIhFjaUZAf4_JgLFA_Zv_pguEo'
   },
   mercadoPago: {
-    publicKey: 'TU_MP_PUBLIC_KEY',   // ej: APP_USR-xxxx
+    publicKey: 'APP_USR-081a5007-0ae7-4e29-aa9f-5bceefbdda78',
     // Endpoint para crear la preferencia de pago (Supabase Edge Function o tu backend)
     preferenceEndpoint: 'https://vsadzmuzzeovwqnpcgrr.supabase.co/functions/v1/create-payment'
   },
