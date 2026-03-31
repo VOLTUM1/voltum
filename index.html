@@ -34,7 +34,8 @@
       <a href="auth.html" class="btn btn-ghost btn-sm" id="navLoginBtn">Iniciar sesión</a>
       <a href="auth.html" class="btn btn-primary btn-sm" id="navRegisterBtn">Comenzar gratis</a>
       <!-- Mostrado si SÍ está logueado -->
-      <a href="dashboard.html" class="btn btn-primary btn-sm hidden" id="navDashBtn">Mi Dashboard →</a>
+      <a href="dashboard.html" class="btn btn-outline btn-sm hidden" id="navDashBtn">Mi Dashboard</a>
+      <button class="btn btn-danger btn-sm hidden" id="navLogoutBtn">Cerrar sesión</button>
     </div>
   </div>
 </nav>
@@ -42,14 +43,18 @@
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script src="js/config.js"></script>
 <script>
-// Mostrar botón de dashboard si ya está logueado
 (async () => {
   const user = await Auth.getUser();
   if (user) {
     document.getElementById('navLoginBtn').classList.add('hidden');
     document.getElementById('navRegisterBtn').classList.add('hidden');
     document.getElementById('navDashBtn').classList.remove('hidden');
+    document.getElementById('navLogoutBtn').classList.remove('hidden');
   }
+  document.getElementById('navLogoutBtn').addEventListener('click', async () => {
+    await sb.auth.signOut();
+    window.location.reload();
+  });
 })();
 </script>
 
