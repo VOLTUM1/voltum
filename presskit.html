@@ -93,6 +93,12 @@
       <div class="pk-event-grid" id="pkEvents"></div>
     </div>
 
+    <!-- GALERÍA -->
+    <div class="presskit-section" id="gallerySection">
+      <div class="presskit-section-title">Galería</div>
+      <div id="pkGallery" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(180px,1fr));gap:12px;"></div>
+    </div>
+
     <!-- RIDER -->
     <div class="presskit-section" id="riderSection">
       <div class="presskit-section-title">Rider técnico</div>
@@ -299,6 +305,14 @@ function renderPressKit(p, events) {
       </div>`;
     }).join('');
   } else document.getElementById('eventsSection').style.display = 'none';
+
+  // Galería
+  if (p.gallery_urls?.length) {
+    document.getElementById('pkGallery').innerHTML = p.gallery_urls.map((url, i) => `
+      <a href="${url}" target="_blank" rel="noopener" style="display:block;border-radius:var(--radius-lg);overflow:hidden;aspect-ratio:1;background:var(--bg3);border:1px solid var(--border2);transition:var(--transition);" onmouseover="this.style.transform='scale(1.02)'" onmouseout="this.style.transform='scale(1)'">
+        <img src="${url}" alt="Foto ${i+1}" style="width:100%;height:100%;object-fit:cover;display:block;">
+      </a>`).join('');
+  } else document.getElementById('gallerySection').style.display = 'none';
 
   // Rider
   if (p.technical_rider) {

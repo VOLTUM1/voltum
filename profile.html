@@ -23,6 +23,13 @@
     #addEventForm { background:var(--bg3); border:1px solid var(--border2); border-radius:var(--radius-lg); padding:20px; margin-bottom:16px; display:none; }
     #addEventForm.show { display:block; }
 
+    /* Galería */
+    .gallery-item { position:relative; border-radius:var(--radius); overflow:hidden; aspect-ratio:1; background:var(--bg3); border:1px solid var(--border2); }
+    .gallery-item img { width:100%; height:100%; object-fit:cover; display:block; }
+    .gallery-item .gallery-remove { position:absolute; top:6px; right:6px; background:rgba(239,68,68,0.85); color:#fff; border:none; border-radius:8px; padding:3px 8px; cursor:pointer; font-size:0.75rem; opacity:0; transition:var(--transition); }
+    .gallery-item:hover .gallery-remove { opacity:1; }
+    .gallery-item .gallery-num { position:absolute; bottom:6px; left:6px; background:rgba(0,0,0,0.6); color:#fff; border-radius:6px; padding:2px 8px; font-size:0.72rem; font-weight:700; }
+
     /* Rider grid */
     .rider-grid { display:flex; flex-wrap:wrap; gap:8px; }
     .rider-item {
@@ -96,6 +103,7 @@
       <div class="profile-tabs" id="profileTabs">
         <button class="profile-tab active" data-tab="basic">📝 Básico</button>
         <button class="profile-tab" data-tab="media">📸 Fotos</button>
+        <button class="profile-tab" data-tab="gallery">🖼️ Galería</button>
         <button class="profile-tab" data-tab="social">🌐 Redes</button>
         <button class="profile-tab" data-tab="events">📅 Eventos</button>
         <button class="profile-tab" data-tab="rider">🎛️ Rider</button>
@@ -178,6 +186,26 @@
             </div>
           </div>
         </div>
+      </div>
+
+      <!-- TAB: GALERÍA -->
+      <div class="tab-content card hidden" id="tab-gallery">
+        <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:20px;flex-wrap:wrap;gap:12px;">
+          <div>
+            <h3 style="font-size:1rem;margin-bottom:4px;">Galería de fotos</h3>
+            <p style="font-size:0.875rem;">Máximo 5 fotos. Aparecerán en tu press kit público.</p>
+          </div>
+          <label class="btn btn-primary btn-sm" id="galleryAddBtn" style="cursor:pointer;">
+            + Agregar foto
+            <input type="file" id="galleryInput" accept="image/*" multiple style="display:none;">
+          </label>
+        </div>
+        <div id="galleryGrid" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(160px,1fr));gap:12px;"></div>
+        <div id="galleryEmpty" style="text-align:center;padding:40px;color:var(--muted2);border:2px dashed var(--border2);border-radius:var(--radius-lg);">
+          <div style="font-size:2rem;margin-bottom:8px;">🖼️</div>
+          <p style="font-size:0.875rem;">Aún no hay fotos en la galería</p>
+        </div>
+        <div class="form-hint" style="margin-top:12px;" id="galleryCount">0 / 5 fotos</div>
       </div>
 
       <!-- TAB: REDES SOCIALES -->
@@ -312,6 +340,8 @@ let genres = [];
 let events = [];
 let photoFile = null;
 let bannerFile = null;
+let galleryUrls = [];     // URLs ya guardadas
+let galleryNewFiles = []; // Archivos nuevos pendientes de subir
 
 (async () => {
   currentUser = await Auth.requireAuth();
@@ -347,6 +377,7 @@ let bannerFile = null;
   // Géneros
   setupGenres();
   setupRider();
+  setupGallery();
   document.getElementById('riderNotes').addEventListener('input', updateRiderPreview);
 
   // Bio counter
@@ -415,6 +446,9 @@ function fillForm() {
     img.src = profile.banner_url; img.style.display = 'block';
     document.getElementById('bannerPlaceholder').style.display = 'none';
   }
+  // Cargar galería
+  galleryUrls = profile.gallery_urls || [];
+  renderGallery();
   renderGenres();
 }
 
@@ -648,6 +682,13 @@ async function saveProfile() {
     if (photoFile) photoUrl = await uploadImage(photoFile, `${currentUser.id}/photo-${Date.now()}`);
     if (bannerFile) bannerUrl = await uploadImage(bannerFile, `${currentUser.id}/banner-${Date.now()}`);
 
+    // Subir fotos de galería nuevas
+    if (galleryNewFiles.length) {
+      const newUrls = await uploadGalleryImages();
+      galleryUrls = [...galleryUrls, ...newUrls];
+      galleryNewFiles = [];
+    }
+
     const updates = {
       dj_name: document.getElementById('djName').value.trim(),
       real_name: document.getElementById('realName').value.trim() || null,
@@ -663,6 +704,7 @@ async function saveProfile() {
       technical_rider: getRiderText() || null,
       photo_url: photoUrl,
       banner_url: bannerUrl,
+      gallery_urls: galleryUrls.length ? galleryUrls : null,
       updated_at: new Date().toISOString()
     };
 
@@ -749,6 +791,78 @@ async function saveEvent() {
     showToast('Evento agregado', 'success');
   }
   btn.disabled = false;
+}
+
+// ─── GALERÍA ────────────────────────────────────────────────
+function setupGallery() {
+  document.getElementById('galleryInput').addEventListener('change', async function() {
+    const files = Array.from(this.files);
+    const total = galleryUrls.length + galleryNewFiles.length;
+    const slots = 5 - total;
+    if (slots <= 0) { showToast('Máximo 5 fotos en la galería', 'error'); this.value = ''; return; }
+    const toAdd = files.slice(0, slots);
+    if (files.length > slots) showToast(`Solo se agregaron ${slots} foto(s). Límite: 5`, 'info');
+    for (const file of toAdd) {
+      if (file.size > 5 * 1024 * 1024) { showToast(`${file.name} supera 5MB`, 'error'); continue; }
+      galleryNewFiles.push(file);
+    }
+    renderGallery();
+    this.value = '';
+  });
+}
+
+function renderGallery() {
+  const grid = document.getElementById('galleryGrid');
+  const empty = document.getElementById('galleryEmpty');
+  const total = galleryUrls.length + galleryNewFiles.length;
+
+  document.getElementById('galleryCount').textContent = `${total} / 5 fotos`;
+  document.getElementById('galleryAddBtn').style.opacity = total >= 5 ? '0.4' : '1';
+  document.getElementById('galleryAddBtn').style.pointerEvents = total >= 5 ? 'none' : 'auto';
+
+  if (total === 0) { grid.innerHTML = ''; empty.style.display = 'block'; return; }
+  empty.style.display = 'none';
+
+  // Renderizar guardadas
+  const savedHtml = galleryUrls.map((url, i) => `
+    <div class="gallery-item">
+      <img src="${url}" alt="Foto ${i+1}">
+      <button class="gallery-remove" onclick="removeGalleryUrl(${i})">✕ Quitar</button>
+      <div class="gallery-num">${i+1}</div>
+    </div>`).join('');
+
+  // Renderizar nuevas (blob preview)
+  const newHtml = galleryNewFiles.map((file, i) => {
+    const url = URL.createObjectURL(file);
+    const num = galleryUrls.length + i + 1;
+    return `
+    <div class="gallery-item" id="newGallery${i}">
+      <img src="${url}" alt="Nueva foto ${num}">
+      <button class="gallery-remove" onclick="removeNewGalleryFile(${i})">✕ Quitar</button>
+      <div class="gallery-num">${num} <span style="color:var(--gold);">●</span></div>
+    </div>`;
+  }).join('');
+
+  grid.innerHTML = savedHtml + newHtml;
+}
+
+function removeGalleryUrl(index) {
+  galleryUrls.splice(index, 1);
+  renderGallery();
+}
+
+function removeNewGalleryFile(index) {
+  galleryNewFiles.splice(index, 1);
+  renderGallery();
+}
+
+async function uploadGalleryImages() {
+  const uploaded = [];
+  for (const file of galleryNewFiles) {
+    const url = await uploadImage(file, `${currentUser.id}/gallery-${Date.now()}-${Math.random().toString(36).slice(2,6)}`);
+    uploaded.push(url);
+  }
+  return uploaded;
 }
 
 async function deleteEvent(id) {
