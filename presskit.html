@@ -292,7 +292,10 @@ function renderPressKit(p, events) {
           <strong style="font-size:1rem;">${ev.name}</strong>
           <span>${[ev.venue, ev.city].filter(Boolean).join(' · ')}</span>
         </div>
-        ${isPast ? '<span class="badge badge-purple" style="font-size:0.7rem;">Pasado</span>' : '<span class="badge badge-green" style="font-size:0.7rem;">Próximo</span>'}
+        <div style="display:flex;align-items:center;gap:8px;flex-shrink:0;">
+          ${!isPast && ev.ticket_url ? `<a href="${ev.ticket_url}" target="_blank" rel="noopener" class="btn btn-primary btn-sm" style="font-size:0.78rem;">🎟️ Entradas</a>` : ''}
+          ${isPast ? '<span class="badge badge-purple" style="font-size:0.7rem;">Pasado</span>' : '<span class="badge badge-green" style="font-size:0.7rem;">Próximo</span>'}
+        </div>
       </div>`;
     }).join('');
   } else document.getElementById('eventsSection').style.display = 'none';

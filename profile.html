@@ -233,6 +233,14 @@
               <input type="text" id="eventCity" class="form-input" placeholder="ej: Santiago">
             </div>
           </div>
+          <div class="form-group" style="margin-top:14px;margin-bottom:0;">
+            <label class="form-label">🎟️ Link de entradas <span style="color:var(--muted2);font-weight:400;">(opcional)</span></label>
+            <div style="display:flex;align-items:center;gap:10px;">
+              <span style="font-size:1.2rem;">🎟️</span>
+              <input type="url" id="eventTicketUrl" class="form-input" placeholder="ej: https://passline.com/eventos/...">
+            </div>
+            <div class="form-hint">Si hay entradas a la venta, agrega el link. Aparecerá como botón en tu press kit.</div>
+          </div>
           <div style="display:flex;gap:10px;margin-top:16px;">
             <button class="btn btn-primary btn-sm" id="saveEventBtn">Guardar evento</button>
             <button class="btn btn-ghost btn-sm" id="cancelEventBtn">Cancelar</button>
@@ -697,9 +705,10 @@ function renderEvents() {
         <div class="event-date-month">${month}</div>
         <div class="event-date-day">${day}</div>
       </div>
-      <div class="event-info">
+      <div class="event-info" style="flex:1;">
         <strong>${ev.name}</strong>
         <span>${[ev.venue, ev.city].filter(Boolean).join(' · ')}</span>
+        ${ev.ticket_url ? `<span style="margin-top:4px;display:block;"><a href="${ev.ticket_url}" target="_blank" style="font-size:0.78rem;color:var(--purple-l);">🎟️ Ver entradas →</a></span>` : ''}
       </div>
       <button class="btn btn-danger btn-sm btn-icon" onclick="deleteEvent('${ev.id}')">✕</button>
     </div>`;
@@ -711,6 +720,7 @@ function clearEventForm() {
   document.getElementById('eventDate').value = '';
   document.getElementById('eventVenue').value = '';
   document.getElementById('eventCity').value = '';
+  document.getElementById('eventTicketUrl').value = '';
 }
 
 async function saveEvent() {
@@ -726,7 +736,8 @@ async function saveEvent() {
     name,
     date,
     venue: document.getElementById('eventVenue').value.trim() || null,
-    city: document.getElementById('eventCity').value.trim() || null
+    city: document.getElementById('eventCity').value.trim() || null,
+    ticket_url: document.getElementById('eventTicketUrl').value.trim() || null
   }).select().single();
 
   if (error) { showToast(error.message, 'error'); }
