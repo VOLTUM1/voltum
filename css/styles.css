@@ -250,10 +250,7 @@ footer { padding: 60px 0 32px; border-top: 1px solid var(--border2); background:
    Sidebar es position:fixed → usamos display:block en
    app-layout y margin-left + width en main-content.
    ═══════════════════════════════════════════════════════════ */
-.app-layout {
-  display: block;
-  min-height: 100vh;
-}
+.app-layout { display: block; min-height: 100vh; }
 
 .sidebar {
   position: fixed;
@@ -297,12 +294,7 @@ footer { padding: 60px 0 32px; border-top: 1px solid var(--border2); background:
 .sidebar-nav-item .nav-icon { font-size: 1.1rem; flex-shrink: 0; }
 .sidebar-footer { padding-top: 16px; border-top: 1px solid var(--border2); }
 
-.main-content {
-  margin-left: var(--sidebar-w);
-  width: calc(100% - var(--sidebar-w));
-  padding: 40px;
-  min-height: 100vh;
-}
+.main-content { margin-left: 260px; width: calc(100% - 260px); padding: 40px; min-height: 100vh; }
 
 .page-header    { margin-bottom: 32px; }
 .page-header h1 { font-size: 1.75rem; margin-bottom: 6px; }
