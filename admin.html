@@ -455,6 +455,7 @@ function renderUsers(filter = '', status = 'all') {
       <td>
         <div class="row-actions">
           <button class="btn btn-outline btn-sm" onclick="showUserDetail('${u.id}')">Ver</button>
+          <a href="profile.html?admin_edit=${u.id}" class="btn btn-outline btn-sm" style="font-size:0.78rem;">✏️ Editar</a>
           ${isActive
             ? `<button class="btn btn-danger btn-sm" onclick="toggleMembership('${u.id}', 'cancel')">Cancelar</button>`
             : `<button class="btn btn-primary btn-sm" onclick="toggleMembership('${u.id}', 'activate')">Activar</button>`}

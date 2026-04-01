@@ -25,9 +25,13 @@
 //   technical_rider text,
 //   booking_email text,
 //   profile_views integer default 0,
+//   is_admin boolean default false,
 //   created_at timestamptz default now(),
 //   updated_at timestamptz default now()
 // );
+//
+// -- Si ya tienes la tabla, solo agrega la columna:
+// alter table public.profiles add column if not exists is_admin boolean default false;
 //
 // create table public.memberships (
 //   id uuid primary key default gen_random_uuid(),
@@ -55,19 +59,28 @@
 // alter table public.memberships enable row level security;
 // alter table public.events enable row level security;
 //
+// -- Función helper para verificar admin (ejecutar antes de las policies)
+// create or replace function public.is_admin()
+// returns boolean language sql security definer as $$
+//   select coalesce(
+//     (select is_admin from public.profiles where id = auth.uid()),
+//     false
+//   );
+// $$;
+//
 // -- Políticas de profiles
 // create policy "Profiles públicos visibles" on profiles for select using (true);
 // create policy "Usuarios crean su perfil" on profiles for insert with check (auth.uid() = id);
-// create policy "Usuarios editan su perfil" on profiles for update using (auth.uid() = id);
+// create policy "Usuarios editan su perfil" on profiles for update using (auth.uid() = id or public.is_admin());
 //
 // -- Políticas de memberships
-// create policy "Ver propia membresía" on memberships for select using (auth.uid() = user_id);
+// create policy "Ver propia membresía" on memberships for select using (auth.uid() = user_id or public.is_admin());
 // create policy "Insertar propia membresía" on memberships for insert with check (auth.uid() = user_id);
-// create policy "Actualizar propia membresía" on memberships for update using (auth.uid() = user_id);
+// create policy "Actualizar propia membresía" on memberships for update using (auth.uid() = user_id or public.is_admin());
 //
 // -- Políticas de events
 // create policy "Eventos públicos visibles" on events for select using (true);
-// create policy "Gestionar propios eventos" on events for all using (auth.uid() = user_id);
+// create policy "Gestionar propios eventos" on events for all using (auth.uid() = user_id or public.is_admin());
 //
 // -- Bucket de storage (ejecutar en Supabase Storage)
 // insert into storage.buckets (id, name, public) values ('press-kits', 'press-kits', true);

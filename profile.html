@@ -377,6 +377,7 @@
 <script src="js/config.js"></script>
 <script>
 let currentUser = null;
+let targetUserId = null; // currentUser.id normalmente; otro ID si admin edita un cliente
 let profile = null;
 let genres = [];
 let events = [];
@@ -390,18 +391,42 @@ let eventFlyerFile = null;
   currentUser = await Auth.requireAuth();
   if (!currentUser) return;
 
+  const urlParams = new URLSearchParams(window.location.search);
+  const adminEditId = urlParams.get('admin_edit');
+
+  if (adminEditId) {
+    // Verificar que el usuario actual es admin
+    const { data: me } = await sb.from('profiles').select('is_admin, dj_name').eq('id', currentUser.id).single();
+    if (!me?.is_admin) {
+      document.body.innerHTML = '<div style="display:flex;align-items:center;justify-content:center;min-height:100vh;flex-direction:column;gap:16px;"><h2>Sin permisos de administrador</h2><a href="admin.html" class="btn btn-primary">Volver al panel</a></div>';
+      return;
+    }
+    targetUserId = adminEditId;
+    document.getElementById('adminNavItem').style.display = 'block';
+
+    // Banner de modo admin
+    const banner = document.createElement('div');
+    banner.style.cssText = 'position:fixed;top:0;left:0;right:0;z-index:9999;padding:8px 24px;background:rgba(245,158,11,0.15);border-bottom:1px solid rgba(245,158,11,0.4);display:flex;align-items:center;justify-content:space-between;font-size:0.82rem;backdrop-filter:blur(8px);';
+    banner.innerHTML = `<span style="color:var(--gold);font-weight:600;">🛡️ Modo Admin — Editando press kit de un cliente</span><a href="admin.html" class="btn btn-outline btn-sm" style="font-size:0.78rem;">← Volver al panel</a>`;
+    document.body.prepend(banner);
+    // Compensar el banner en el layout
+    document.querySelector('.layout')?.style.setProperty('padding-top', '44px');
+  } else {
+    targetUserId = currentUser.id;
+  }
+
   // Cargar perfil
-  const { data } = await sb.from('profiles').select('*').eq('id', currentUser.id).single();
+  const { data } = await sb.from('profiles').select('*').eq('id', targetUserId).single();
   profile = data || {};
   genres = profile.genres || [];
 
-  if (profile.is_admin) document.getElementById('adminNavItem').style.display = 'block';
+  if (!adminEditId && profile.is_admin) document.getElementById('adminNavItem').style.display = 'block';
 
   fillForm();
   await loadEvents();
 
   // Configurar link de vista previa
-  const pkParam    = profile.slug ? `slug=${profile.slug}` : `id=${currentUser.id}`;
+  const pkParam    = profile.slug ? `slug=${profile.slug}` : `id=${targetUserId}`;
   const previewUrl = `presskit.html?${pkParam}`;
   document.getElementById('previewBtn').href = previewUrl;
   document.getElementById('previewBtn2').href = previewUrl;
@@ -757,8 +782,8 @@ async function saveProfile() {
     let photoUrl = profile.photo_url;
     let bannerUrl = profile.banner_url;
 
-    if (photoFile) photoUrl = await uploadImage(photoFile, `${currentUser.id}/photo-${Date.now()}`);
-    if (bannerFile) bannerUrl = await uploadImage(bannerFile, `${currentUser.id}/banner-${Date.now()}`);
+    if (photoFile) photoUrl = await uploadImage(photoFile, `${targetUserId}/photo-${Date.now()}`);
+    if (bannerFile) bannerUrl = await uploadImage(bannerFile, `${targetUserId}/banner-${Date.now()}`);
 
     // Subir fotos de galería nuevas
     if (galleryNewFiles.length) {
@@ -798,7 +823,7 @@ async function saveProfile() {
       updated_at: new Date().toISOString()
     };
 
-    const { error } = await sb.from('profiles').update(updates).eq('id', currentUser.id);
+    const { error } = await sb.from('profiles').update(updates).eq('id', targetUserId);
     if (error) throw error;
 
     profile = { ...profile, ...updates };
@@ -816,7 +841,7 @@ async function saveProfile() {
 }
 
 async function loadEvents() {
-  const { data } = await sb.from('events').select('*').eq('user_id', currentUser.id).order('date', { ascending: false });
+  const { data } = await sb.from('events').select('*').eq('user_id', targetUserId).order('date', { ascending: false });
   events = data || [];
   renderEvents();
 }
@@ -876,12 +901,12 @@ async function saveEvent() {
   let flyer_url = null;
   if (eventFlyerFile) {
     try {
-      flyer_url = await uploadImage(eventFlyerFile, `${currentUser.id}/flyers/flyer-${Date.now()}`);
+      flyer_url = await uploadImage(eventFlyerFile, `${targetUserId}/flyers/flyer-${Date.now()}`);
     } catch(e) { showToast('Error subiendo el flyer', 'error'); btn.disabled = false; return; }
   }
 
   const { data, error } = await sb.from('events').insert({
-    user_id: currentUser.id,
+    user_id: targetUserId,
     name,
     date,
     venue: document.getElementById('eventVenue').value.trim() || null,
@@ -967,7 +992,7 @@ function removeNewGalleryFile(index) {
 async function uploadGalleryImages() {
   const uploaded = [];
   for (const file of galleryNewFiles) {
-    const url = await uploadImage(file, `${currentUser.id}/gallery-${Date.now()}-${Math.random().toString(36).slice(2,6)}`);
+    const url = await uploadImage(file, `${targetUserId}/gallery-${Date.now()}-${Math.random().toString(36).slice(2,6)}`);
     uploaded.push(url);
   }
   return uploaded;
