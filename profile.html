@@ -377,8 +377,8 @@ let eventFlyerFile = null;
   await loadEvents();
 
   // Configurar link de vista previa
-  const slug = profile.slug || currentUser.id;
-  const previewUrl = `presskit.html?slug=${slug}`;
+  const pkParam    = profile.slug ? `slug=${profile.slug}` : `id=${currentUser.id}`;
+  const previewUrl = `presskit.html?${pkParam}`;
   document.getElementById('previewBtn').href = previewUrl;
   document.getElementById('previewBtn2').href = previewUrl;
   document.getElementById('viewPressKit').href = previewUrl;

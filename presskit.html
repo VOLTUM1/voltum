@@ -215,7 +215,14 @@ const DEMO_EVENTS = [
     if (slug) query = query.eq('slug', slug);
     else query = query.eq('id', userId);
     const { data } = await query.single();
-    profileData = data;
+
+    // Fallback: si vino ?slug= pero era un UUID (usuario sin slug asignado), buscar por id
+    if (!data && slug && slug.includes('-') && slug.length === 36) {
+      const { data: byId } = await sb.from('profiles').select('*').eq('id', slug).single();
+      profileData = byId;
+    } else {
+      profileData = data;
+    }
 
     if (profileData) {
       const { data: evs } = await sb.from('events').select('*').eq('user_id', profileData.id).order('date', { ascending: false });

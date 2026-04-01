@@ -219,8 +219,8 @@
     mAction.innerHTML  = `<a href="payment.html" class="btn btn-primary">Activar por $11.990 →</a>`;
   }
 
-  const slug      = profile?.slug || user.id;
-  const publicUrl = `${window.location.origin}${window.location.pathname.replace('dashboard.html', '')}presskit.html?slug=${slug}`;
+  const pkParam   = profile?.slug ? `slug=${profile.slug}` : `id=${user.id}`;
+  const publicUrl = `${window.location.origin}${window.location.pathname.replace('dashboard.html', '')}presskit.html?${pkParam}`;
   document.getElementById('publicLinkInput').value    = publicUrl;
   document.getElementById('openPressKitLink').href    = publicUrl;
   document.getElementById('viewPressKit').href        = publicUrl;
