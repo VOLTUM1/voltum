@@ -436,7 +436,6 @@ let eventFlyerFile = null;
   document.getElementById('profileContent').classList.remove('hidden');
 
   // Tabs
-  const urlParams = new URLSearchParams(window.location.search);
   const activeTab = urlParams.get('tab') || 'basic';
   switchTab(activeTab);
 
