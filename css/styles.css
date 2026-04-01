@@ -481,3 +481,163 @@ footer { padding: 60px 0 32px; border-top: 1px solid var(--border2); background:
   .btn-lg               { width: 100%; text-align: center; }
   .stats-grid           { grid-template-columns: 1fr; }
 }
+
+/* ═══════════════════════════════════════════════════════════
+   MOBILE NAVIGATION — Hamburger + Topbar + Sidebar overlay
+   ═══════════════════════════════════════════════════════════ */
+
+/* Hamburger button (landing + payment navbar) */
+.nav-hamburger {
+  display: none;
+  flex-direction: column;
+  justify-content: center;
+  gap: 5px;
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 6px;
+  z-index: 200;
+  flex-shrink: 0;
+}
+.nav-hamburger span {
+  display: block;
+  width: 22px;
+  height: 2px;
+  background: var(--text);
+  border-radius: 2px;
+  transition: var(--transition);
+  transform-origin: center;
+}
+.nav-hamburger.open span:nth-child(1) { transform: translateY(7px) rotate(45deg); }
+.nav-hamburger.open span:nth-child(2) { opacity: 0; transform: scaleX(0); }
+.nav-hamburger.open span:nth-child(3) { transform: translateY(-7px) rotate(-45deg); }
+
+/* Mobile fullscreen menu (landing) */
+.nav-mobile-menu {
+  display: none;
+  position: fixed;
+  top: 68px;
+  left: 0; right: 0;
+  background: rgba(5,5,8,0.98);
+  backdrop-filter: blur(24px);
+  border-bottom: 1px solid var(--border2);
+  padding: 16px;
+  flex-direction: column;
+  gap: 8px;
+  z-index: 97;
+  box-shadow: 0 12px 40px rgba(0,0,0,0.5);
+}
+.nav-mobile-menu.open { display: flex; }
+.nav-mobile-menu .btn { width: 100%; justify-content: center; }
+.nav-mobile-menu a[href^="#"] { color: var(--muted); font-weight: 500; padding: 12px; text-align: center; border-radius: var(--radius); transition: var(--transition); }
+.nav-mobile-menu a[href^="#"]:hover { background: var(--card); color: var(--text); }
+
+/* Mobile topbar (app pages: dashboard / profile / admin) */
+.mobile-topbar {
+  display: none;
+  position: fixed;
+  top: 0; left: 0; right: 0;
+  height: 60px;
+  background: rgba(8,8,15,0.95);
+  backdrop-filter: blur(20px);
+  border-bottom: 1px solid var(--border2);
+  z-index: 60;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 16px;
+}
+
+/* Overlay behind sidebar on mobile */
+.sidebar-overlay {
+  display: none;
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.65);
+  backdrop-filter: blur(2px);
+  z-index: 54;
+}
+.sidebar-overlay.visible { display: block; }
+
+/* ═══════════════════════════════════════════════════════════
+   RESPONSIVE — 768px (tablet / mobile)
+   ═══════════════════════════════════════════════════════════ */
+@media (max-width: 768px) {
+  /* Navbar */
+  .nav-links { display: none !important; }
+  .nav-hamburger { display: flex; }
+
+  /* App sidebar */
+  .mobile-topbar { display: flex; }
+  .sidebar {
+    transform: translateX(-100%);
+    transition: transform 0.28s cubic-bezier(0.4,0,0.2,1);
+    z-index: 55;
+  }
+  .sidebar.mobile-open { transform: translateX(0); box-shadow: 8px 0 40px rgba(0,0,0,0.6); }
+  .main-content { margin-left: 0 !important; padding: 76px 16px 32px; }
+
+  /* Auth */
+  .auth-right { padding: 32px 20px; align-items: flex-start; }
+  .auth-form-container { max-width: 100%; }
+
+  /* Footer */
+  .footer-bottom { flex-direction: column; gap: 16px; text-align: center; }
+  .footer-bottom > div { flex-wrap: wrap; justify-content: center; }
+
+  /* Press kit */
+  .presskit-name   { font-size: 1.75rem; }
+  .presskit-avatar { width: 100px; height: 100px; font-size: 2.2rem; }
+  .presskit-header { gap: 16px; padding: 0 16px; }
+  .presskit-body   { padding: 24px 16px 60px; }
+
+  /* Payment */
+  .payment-page { padding: 24px 16px; align-items: flex-start; }
+
+  /* Profile tabs — scroll horizontal */
+  .profile-tabs   { overflow-x: auto; flex-wrap: nowrap; -webkit-overflow-scrolling: touch; }
+  .profile-tab    { flex-shrink: 0; }
+
+  /* Copy link */
+  .copy-link-area { flex-direction: column; }
+  .copy-link-area .btn { width: 100%; }
+
+  /* Save bar */
+  .save-bar { justify-content: stretch; }
+  .save-bar .btn { flex: 1; }
+}
+
+/* ═══════════════════════════════════════════════════════════
+   RESPONSIVE — 480px (móvil pequeño)
+   ═══════════════════════════════════════════════════════════ */
+@media (max-width: 480px) {
+  .hero-badge   { font-size: 0.75rem; padding: 6px 12px; gap: 6px; }
+  .hero-title   { font-size: clamp(2rem, 8vw, 3rem); }
+  .hero-stats   { gap: 12px; }
+
+  .cta-actions  { flex-direction: column; align-items: stretch; }
+  .cta-actions .btn { width: 100%; }
+
+  .steps { gap: 16px; }
+  .step  { padding: 24px 16px; }
+
+  .quick-actions { grid-template-columns: 1fr 1fr; }
+
+  .presskit-name   { font-size: 1.4rem; }
+  .presskit-avatar { width: 80px; height: 80px; font-size: 1.8rem; }
+  .presskit-header { transform: translateY(-30px); margin-bottom: -15px; }
+  .presskit-event  { flex-wrap: wrap; gap: 10px; }
+
+  .socials-display { gap: 8px; }
+  .social-link     { padding: 8px 14px; font-size: 0.8rem; }
+
+  .trust-badges    { flex-direction: column; align-items: center; gap: 10px; }
+
+  .payment-amount-value { font-size: 2.5rem; }
+
+  .stats-grid      { grid-template-columns: 1fr 1fr; }
+
+  .admin-tabs      { overflow-x: auto; flex-wrap: nowrap; width: 100%; }
+  .admin-tab       { flex-shrink: 0; }
+
+  .revenue-card    { flex-direction: column; align-items: flex-start; }
+}

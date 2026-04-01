@@ -57,9 +57,21 @@
 </head>
 <body>
 
+<!-- MOBILE TOPBAR -->
+<div class="mobile-topbar">
+  <a href="index.html" class="logo" style="font-size:1.1rem;">
+    <div class="logo-mark" style="width:30px;height:30px;font-size:0.85rem;">⚡</div>
+    VOLTUM
+  </a>
+  <button class="nav-hamburger" id="sidebarToggle" aria-label="Menú">
+    <span></span><span></span><span></span>
+  </button>
+</div>
+<div class="sidebar-overlay" id="sidebarOverlay"></div>
+
 <div class="app-layout">
   <!-- SIDEBAR -->
-  <aside class="sidebar">
+  <aside class="sidebar" id="appSidebar">
     <div class="sidebar-logo">
       <a href="index.html" class="logo">
         <div class="logo-mark">⚡</div>
@@ -927,6 +939,32 @@ async function deleteEvent(id) {
     showToast('Evento eliminado', 'info');
   }
 }
+</script>
+<script>
+// Mobile sidebar toggle
+(function() {
+  const toggle = document.getElementById('sidebarToggle');
+  const overlay = document.getElementById('sidebarOverlay');
+  const sidebar = document.getElementById('appSidebar');
+  if (!toggle) return;
+  toggle.addEventListener('click', () => {
+    toggle.classList.toggle('open');
+    sidebar.classList.toggle('mobile-open');
+    overlay.classList.toggle('visible');
+  });
+  overlay.addEventListener('click', () => {
+    toggle.classList.remove('open');
+    sidebar.classList.remove('mobile-open');
+    overlay.classList.remove('visible');
+  });
+  sidebar.querySelectorAll('.sidebar-nav-item').forEach(item => {
+    item.addEventListener('click', () => {
+      toggle.classList.remove('open');
+      sidebar.classList.remove('mobile-open');
+      overlay.classList.remove('visible');
+    });
+  });
+})();
 </script>
 </body>
 </html>

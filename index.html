@@ -37,8 +37,22 @@
       <a href="dashboard.html" class="btn btn-outline btn-sm hidden" id="navDashBtn">Mi Dashboard</a>
       <button class="btn btn-danger btn-sm hidden" id="navLogoutBtn">Cerrar sesión</button>
     </div>
+    <button class="nav-hamburger" id="navHamburger" aria-label="Menú">
+      <span></span><span></span><span></span>
+    </button>
   </div>
 </nav>
+
+<!-- MOBILE MENU -->
+<div class="nav-mobile-menu" id="navMobileMenu">
+  <a href="#features">Características</a>
+  <a href="#how">Cómo funciona</a>
+  <a href="#pricing">Precios</a>
+  <a href="presskit.html?demo=true" class="btn btn-outline">Ver Demo</a>
+  <a href="auth.html" class="btn btn-ghost" id="navLoginBtnM">Iniciar sesión</a>
+  <a href="auth.html" class="btn btn-primary" id="navRegisterBtnM">⚡ Comenzar gratis</a>
+  <a href="dashboard.html" class="btn btn-outline hidden" id="navDashBtnM">Mi Dashboard</a>
+</div>
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script src="js/config.js"></script>
@@ -50,10 +64,27 @@
     document.getElementById('navRegisterBtn').classList.add('hidden');
     document.getElementById('navDashBtn').classList.remove('hidden');
     document.getElementById('navLogoutBtn').classList.remove('hidden');
+    document.getElementById('navLoginBtnM').classList.add('hidden');
+    document.getElementById('navRegisterBtnM').classList.add('hidden');
+    document.getElementById('navDashBtnM').classList.remove('hidden');
   }
   document.getElementById('navLogoutBtn').addEventListener('click', async () => {
     await sb.auth.signOut();
     window.location.reload();
+  });
+
+  // Hamburger toggle
+  const ham = document.getElementById('navHamburger');
+  const menu = document.getElementById('navMobileMenu');
+  ham.addEventListener('click', () => {
+    ham.classList.toggle('open');
+    menu.classList.toggle('open');
+  });
+  menu.querySelectorAll('a').forEach(a => {
+    a.addEventListener('click', () => {
+      ham.classList.remove('open');
+      menu.classList.remove('open');
+    });
   });
 })();
 </script>
