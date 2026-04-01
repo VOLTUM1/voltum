@@ -31,6 +31,73 @@
       display: flex; align-items: center; gap: 12px; font-size: 0.9rem;
     }
 
+    /* Spotify player */
+    .sp-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(155px, 1fr)); gap: 12px; }
+    .sp-card {
+      background: var(--card); border: 1px solid var(--border2);
+      border-radius: var(--radius-lg); overflow: hidden;
+      cursor: pointer; transition: var(--transition); user-select: none;
+    }
+    .sp-card:hover { border-color: rgba(29,185,84,0.4); background: var(--card-hover); transform: translateY(-2px); }
+    .sp-card.sp-playing { border-color: #1db954; background: var(--card-hover); }
+    .sp-card.sp-no-preview { cursor: default; opacity: 0.7; }
+    .sp-card.sp-no-preview:hover { transform: none; border-color: var(--border2); }
+    .sp-art { position: relative; aspect-ratio: 1; background: var(--bg3); overflow: hidden; }
+    .sp-art img { width: 100%; height: 100%; object-fit: cover; display: block; }
+    .sp-art-default { width: 100%; height: 100%; display: flex; align-items: center; justify-content: center; font-size: 2.5rem; opacity: 0.3; }
+    .sp-overlay {
+      position: absolute; inset: 0; background: rgba(0,0,0,0.5);
+      display: flex; align-items: center; justify-content: center;
+      opacity: 0; transition: opacity 0.2s;
+    }
+    .sp-card:not(.sp-no-preview):hover .sp-overlay,
+    .sp-card.sp-playing .sp-overlay { opacity: 1; }
+    .sp-play-btn {
+      width: 48px; height: 48px; border-radius: 50%;
+      background: #1db954; display: flex; align-items: center; justify-content: center;
+      box-shadow: 0 4px 16px rgba(29,185,84,0.4); transition: transform 0.15s;
+    }
+    .sp-play-btn:active { transform: scale(0.92); }
+    .sp-card.sp-playing .sp-play-btn .icon-play { display: none; }
+    .sp-card.sp-playing .sp-play-btn .icon-pause { display: block !important; }
+    .sp-eq {
+      position: absolute; bottom: 8px; right: 8px;
+      display: none; align-items: flex-end; gap: 2px; height: 16px;
+    }
+    .sp-card.sp-playing .sp-eq { display: flex; }
+    .sp-eq span {
+      width: 3px; background: #1db954; border-radius: 2px;
+      animation: scbar 0.8s ease-in-out infinite;
+    }
+    .sp-eq span:nth-child(1) { animation-delay: 0s;    height: 6px; }
+    .sp-eq span:nth-child(2) { animation-delay: 0.15s; height: 12px; }
+    .sp-eq span:nth-child(3) { animation-delay: 0.3s;  height: 8px; }
+    .sp-eq span:nth-child(4) { animation-delay: 0.45s; height: 14px; }
+    .sp-no-preview-tag {
+      position: absolute; bottom: 8px; left: 8px;
+      font-size: 0.65rem; color: var(--muted2); background: rgba(0,0,0,0.6);
+      padding: 2px 6px; border-radius: 4px;
+    }
+    .sp-meta { padding: 10px 12px 12px; }
+    .sp-title { font-size: 0.82rem; font-weight: 600; color: var(--text); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .sp-album { font-size: 0.73rem; color: var(--muted2); margin-top: 3px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .sp-dur { font-size: 0.73rem; color: var(--muted2); margin-top: 2px; }
+    .sp-skeleton { background: var(--bg3); border-radius: var(--radius-lg); animation: pulse 1.5s ease-in-out infinite; }
+    .sp-footer { margin-top: 20px; display: flex; justify-content: flex-end; }
+    .sp-nowplaying {
+      margin-bottom: 14px; padding: 12px 16px; border-radius: var(--radius-lg);
+      background: rgba(29,185,84,0.08); border: 1px solid rgba(29,185,84,0.2);
+      display: none; align-items: center; gap: 12px; font-size: 0.85rem;
+    }
+    .sp-nowplaying.visible { display: flex; }
+    .sp-nowplaying-title { color: var(--text); font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .sp-nowplaying-label { color: #1db954; font-size: 0.75rem; flex-shrink: 0; }
+    .sp-progress {
+      margin-top: 8px; height: 3px; background: rgba(29,185,84,0.2);
+      border-radius: 2px; overflow: hidden;
+    }
+    .sp-progress-bar { height: 100%; background: #1db954; width: 0%; transition: width 0.5s linear; }
+
     /* SoundCloud custom player */
     .sc-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(155px, 1fr)); gap: 12px; }
     .sc-card {
@@ -167,6 +234,23 @@
       <div id="pkSoundcloud"></div>
     </div>
 
+    <!-- SPOTIFY -->
+    <div class="presskit-section" id="spotifySection">
+      <div class="presskit-section-title" style="display:flex;align-items:center;gap:10px;">
+        <img src="https://cdn.simpleicons.org/spotify/1db954" width="18" height="18" alt="Spotify"> Top Tracks en Spotify
+      </div>
+      <div class="sp-nowplaying" id="spNowPlaying">
+        <span class="equalizer"><span></span><span></span><span></span><span></span></span>
+        <div style="flex:1;min-width:0;">
+          <div class="sp-nowplaying-label">Preview · 30 seg</div>
+          <div class="sp-nowplaying-title" id="spNowPlayingTitle"></div>
+        </div>
+        <button onclick="_spStop()" style="background:none;border:none;color:var(--muted2);cursor:pointer;font-size:1.1rem;flex-shrink:0;">■</button>
+      </div>
+      <div class="sp-progress"><div class="sp-progress-bar" id="spProgressBar"></div></div>
+      <div id="pkSpotify"></div>
+    </div>
+
     <!-- GALERÍA -->
     <div class="presskit-section" id="gallerySection">
       <div class="presskit-section-title">Galería</div>
@@ -228,7 +312,7 @@ Con más de 15 producciones propias publicadas en sellos como Rekids, Kompakt y 
   social_instagram: 'https://instagram.com/voltum.cl',
   social_tiktok: 'https://tiktok.com/@voltum.cl',
   social_soundcloud: 'https://soundcloud.com/bicep-music',
-  social_spotify: 'https://spotify.com',
+  social_spotify: 'https://open.spotify.com/artist/73A3bLnfnz5BoQjb4gNCga',
   social_youtube: 'https://youtube.com',
   booking_email: 'booking@djnova.cl',
   technical_rider: `REPRODUCTORES
@@ -405,6 +489,11 @@ function renderPressKit(p, events) {
   if (p.social_soundcloud) {
     initSoundCloudPlayer(p.social_soundcloud);
   } else document.getElementById('soundcloudSection').style.display = 'none';
+
+  // Spotify player
+  if (p.social_spotify) {
+    initSpotifyPlayer(p.social_spotify);
+  } else document.getElementById('spotifySection').style.display = 'none';
 
   // Galería
   if (p.gallery_urls?.length) {
@@ -605,6 +694,141 @@ function _scFormatCount(n) {
 }
 function _scEsc(str) {
   return String(str || '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+
+// ── Spotify Player ────────────────────────────────────────────────────────────
+let _spAudio = null;
+let _spPlayingIdx = -1;
+let _spProgressTimer = null;
+
+function _spExtractArtistId(url) {
+  if (!url) return null;
+  const m = url.match(/spotify\.com\/(?:intl-[a-z]+\/)?artist\/([A-Za-z0-9]+)/);
+  return m ? m[1] : null;
+}
+
+async function initSpotifyPlayer(spotifyUrl) {
+  const artistId = _spExtractArtistId(spotifyUrl);
+  if (!artistId) { document.getElementById('spotifySection').style.display = 'none'; return; }
+
+  const container = document.getElementById('pkSpotify');
+  container.innerHTML = `
+    <div class="sp-grid">
+      ${[1,2,3,4,5,6].map(() => `<div class="sp-skeleton" style="height:200px;"></div>`).join('')}
+    </div>`;
+
+  try {
+    const res = await fetch(`${VOLTUM.supabase.url}/functions/v1/spotify-tracks`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'apikey': VOLTUM.supabase.anonKey },
+      body: JSON.stringify({ artist_id: artistId }),
+    });
+    const data = await res.json();
+    if (data.error || !data.tracks?.length) throw new Error(data.error || 'Sin tracks');
+    _renderSpTracks(data.tracks, data.artist);
+  } catch {
+    document.getElementById('spotifySection').style.display = 'none';
+  }
+}
+
+function _renderSpTracks(tracks, artist) {
+  const container = document.getElementById('pkSpotify');
+  const grid = tracks.map((t, i) => {
+    const dur = _scFormatDur(t.duration_ms);
+    const hasPreview = !!t.preview_url;
+    return `
+    <div class="sp-card${hasPreview ? '' : ' sp-no-preview'}" data-idx="${i}"
+      ${hasPreview ? `onclick="_spTogglePlay(${i})"` : ''}
+      title="${hasPreview ? 'Reproducir preview' : 'Sin preview disponible'}">
+      <div class="sp-art">
+        ${t.artwork
+          ? `<img src="${_scEsc(t.artwork)}" alt="${_scEsc(t.name)}" loading="lazy">`
+          : `<div class="sp-art-default">🎵</div>`}
+        ${hasPreview ? `
+        <div class="sp-overlay">
+          <div class="sp-play-btn">
+            <svg class="icon-play" width="20" height="20" viewBox="0 0 24 24" fill="white"><path d="M8 5v14l11-7z"/></svg>
+            <svg class="icon-pause" width="20" height="20" viewBox="0 0 24 24" fill="white" style="display:none"><rect x="6" y="4" width="4" height="16"/><rect x="14" y="4" width="4" height="16"/></svg>
+          </div>
+        </div>
+        <div class="sp-eq"><span></span><span></span><span></span><span></span></div>` : `
+        <div class="sp-no-preview-tag">Sin preview</div>`}
+      </div>
+      <div class="sp-meta">
+        <div class="sp-title" title="${_scEsc(t.name)}">${_scEsc(t.name)}</div>
+        <div class="sp-album">${_scEsc(t.album)}</div>
+        <div class="sp-dur">${dur}</div>
+      </div>
+    </div>`;
+  }).join('');
+
+  container.innerHTML = `
+    <div class="sp-grid">${grid}</div>
+    <div class="sp-footer">
+      ${artist?.url ? `<a href="${_scEsc(artist.url)}" target="_blank" rel="noopener" class="btn btn-outline btn-sm" style="font-size:0.8rem;">
+        <img src="https://cdn.simpleicons.org/spotify/1db954" width="14" height="14" style="flex-shrink:0;"> Ver en Spotify
+      </a>` : ''}
+    </div>`;
+
+  // Guardar tracks para el audio player
+  container._spTracks = tracks;
+}
+
+function _spTogglePlay(idx) {
+  const container = document.getElementById('pkSpotify');
+  const tracks = container._spTracks;
+  if (!tracks) return;
+  const track = tracks[idx];
+  if (!track?.preview_url) return;
+
+  // Misma card → toggle pause
+  if (_spPlayingIdx === idx && _spAudio && !_spAudio.paused) {
+    _spAudio.pause();
+    _spSetPlaying(-1);
+    return;
+  }
+
+  // Nueva card → parar anterior y reproducir
+  if (_spAudio) { _spAudio.pause(); _spAudio = null; }
+  clearInterval(_spProgressTimer);
+
+  _spAudio = new Audio(track.preview_url);
+  _spAudio.volume = 0.8;
+  _spAudio.play().catch(() => {});
+
+  _spSetPlaying(idx, track.name);
+
+  // Barra de progreso
+  const bar = document.getElementById('spProgressBar');
+  if (bar) {
+    _spProgressTimer = setInterval(() => {
+      if (!_spAudio) return;
+      bar.style.width = `${(_spAudio.currentTime / (_spAudio.duration || 30)) * 100}%`;
+    }, 500);
+  }
+
+  _spAudio.addEventListener('ended', () => { _spSetPlaying(-1); clearInterval(_spProgressTimer); });
+}
+
+function _spStop() {
+  if (_spAudio) { _spAudio.pause(); _spAudio = null; }
+  clearInterval(_spProgressTimer);
+  _spSetPlaying(-1);
+}
+
+function _spSetPlaying(idx, title) {
+  _spPlayingIdx = idx;
+  document.querySelectorAll('.sp-card').forEach((c, i) => c.classList.toggle('sp-playing', i === idx));
+  const nowPlaying = document.getElementById('spNowPlaying');
+  const bar = document.getElementById('spProgressBar');
+  if (idx >= 0) {
+    document.getElementById('spNowPlayingTitle').textContent = title || '';
+    nowPlaying?.classList.add('visible');
+    if (bar) bar.style.width = '0%';
+  } else {
+    nowPlaying?.classList.remove('visible');
+    if (bar) bar.style.width = '0%';
+  }
 }
 </script>
 
