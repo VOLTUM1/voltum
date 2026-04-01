@@ -88,7 +88,7 @@
 //
 // -- Insertar el código richandbleak20 (ejecutar en SQL Editor)
 // insert into public.referral_codes (code, owner_user_id, discount_percent, discount_months)
-// select 'RICHANDBLEAK20', id, 20, 3
+// select 'RICHANDBLEAK40', id, 40, 3
 // from auth.users where email = 'richandbleakbookings@gmail.com';
 //
 // -- Función helper para verificar admin (ejecutar antes de las policies)
