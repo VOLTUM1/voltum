@@ -8,15 +8,33 @@ const corsHeaders = {
 async function getSpotifyToken() {
   const id = Deno.env.get("SPOTIFY_CLIENT_ID");
   const secret = Deno.env.get("SPOTIFY_CLIENT_SECRET");
+
+  if (!id || !secret) {
+    throw new Error("Missing SPOTIFY_CLIENT_ID or SPOTIFY_CLIENT_SECRET");
+  }
+
+  const credentials = btoa(id + ":" + secret);
   const res = await fetch("https://accounts.spotify.com/api/token", {
     method: "POST",
     headers: {
       "Content-Type": "application/x-www-form-urlencoded",
-      Authorization: "Basic " + btoa(id + ":" + secret),
+      "Authorization": "Basic " + credentials,
     },
     body: "grant_type=client_credentials",
   });
-  const data = await res.json();
+
+  const text = await res.text();
+  let data;
+  try {
+    data = JSON.parse(text);
+  } catch {
+    throw new Error("Spotify token response: " + text.slice(0, 200));
+  }
+
+  if (!data.access_token) {
+    throw new Error("Spotify token error: " + JSON.stringify(data));
+  }
+
   return data.access_token;
 }
 
@@ -46,16 +64,20 @@ serve(async (req) => {
     const token = await getSpotifyToken();
 
     const [tracksRes, artistRes] = await Promise.all([
-      fetch(`https://api.spotify.com/v1/artists/${artistId}/top-tracks?market=CL`, {
-        headers: { Authorization: `Bearer ${token}` },
+      fetch("https://api.spotify.com/v1/artists/" + artistId + "/top-tracks?market=CL", {
+        headers: { "Authorization": "Bearer " + token },
       }),
-      fetch(`https://api.spotify.com/v1/artists/${artistId}`, {
-        headers: { Authorization: `Bearer ${token}` },
+      fetch("https://api.spotify.com/v1/artists/" + artistId, {
+        headers: { "Authorization": "Bearer " + token },
       }),
     ]);
 
-    const tracksData = await tracksRes.json();
-    const artistData = await artistRes.json();
+    const tracksText = await tracksRes.text();
+    const artistText = await artistRes.text();
+
+    let tracksData, artistData;
+    try { tracksData = JSON.parse(tracksText); } catch { throw new Error("Tracks response: " + tracksText.slice(0, 200)); }
+    try { artistData = JSON.parse(artistText); } catch { throw new Error("Artist response: " + artistText.slice(0, 200)); }
 
     const tracks = (tracksData.tracks || []).slice(0, 6).map((t) => ({
       name: t.name,
