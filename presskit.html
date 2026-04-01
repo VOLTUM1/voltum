@@ -239,15 +239,6 @@
       <div class="presskit-section-title" style="display:flex;align-items:center;gap:10px;">
         <img src="https://cdn.simpleicons.org/spotify/1db954" width="18" height="18" alt="Spotify"> Top Tracks en Spotify
       </div>
-      <div class="sp-nowplaying" id="spNowPlaying">
-        <span class="equalizer"><span></span><span></span><span></span><span></span></span>
-        <div style="flex:1;min-width:0;">
-          <div class="sp-nowplaying-label">Preview · 30 seg</div>
-          <div class="sp-nowplaying-title" id="spNowPlayingTitle"></div>
-        </div>
-        <button onclick="_spStop()" style="background:none;border:none;color:var(--muted2);cursor:pointer;font-size:1.1rem;flex-shrink:0;">■</button>
-      </div>
-      <div class="sp-progress"><div class="sp-progress-bar" id="spProgressBar"></div></div>
       <div id="pkSpotify"></div>
     </div>
 
@@ -713,23 +704,13 @@ async function initSpotifyPlayer(spotifyUrl) {
 
   const container = document.getElementById('pkSpotify');
   container.innerHTML = `
-    <div class="sp-grid">
-      ${[1,2,3,4,5,6].map(() => `<div class="sp-skeleton" style="height:200px;"></div>`).join('')}
-    </div>`;
-
-  try {
-    const res = await fetch(`${VOLTUM.supabase.url}/functions/v1/spotify-tracks`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json', 'apikey': VOLTUM.supabase.anonKey },
-      body: JSON.stringify({ artist_id: artistId }),
-    });
-    const data = await res.json();
-    console.log('[Spotify debug]', JSON.stringify(data));
-    if (data.error || !data.tracks?.length) throw new Error(data.error || JSON.stringify(data) || 'Sin tracks');
-    _renderSpTracks(data.tracks, data.artist);
-  } catch(err) {
-    container.innerHTML = `<div style="padding:16px;color:var(--muted2);font-size:0.85rem;background:var(--bg3);border-radius:var(--radius-lg);border:1px solid var(--border2);">⚠️ Error Spotify: ${err.message}</div>`;
-  }
+    <iframe style="border-radius:12px"
+      src="https://open.spotify.com/embed/artist/${artistId}?utm_source=generator&theme=0"
+      width="100%" height="352" frameBorder="0"
+      allowfullscreen=""
+      allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture"
+      loading="lazy">
+    </iframe>`;
 }
 
 function _renderSpTracks(tracks, artist) {
