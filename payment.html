@@ -63,6 +63,10 @@
       <p style="text-align:center;font-size:0.8rem;color:var(--muted2);margin-top:12px;">
         Serás redirigido a Mercado Pago para autorizar el cobro automático.
       </p>
+      <div id="mpError" style="display:none;margin-top:14px;padding:12px 16px;border-radius:var(--radius);background:rgba(239,68,68,0.08);border:1px solid rgba(239,68,68,0.25);font-size:0.85rem;color:var(--red);"></div>
+      <div id="devSimulate" style="display:none;margin-top:16px;text-align:center;">
+        <button class="btn btn-outline btn-sm" id="testPayBtn" style="color:var(--muted);border-color:var(--border2);">Simular pago (solo desarrollo)</button>
+      </div>
     </div>
 
     <!-- Estado con suscripción activa -->
@@ -102,7 +106,8 @@
   if (!user) return;
 
   const { data: mem } = await sb.from('memberships').select('*').eq('user_id', user.id).single();
-  const { data: profile } = await sb.from('profiles').select('dj_name').eq('id', user.id).single();
+  const { data: profile } = await sb.from('profiles').select('dj_name, is_admin').eq('id', user.id).single();
+  const isAdmin = !!profile?.is_admin;
 
   const infoEl      = document.getElementById('currentMembershipInfo');
   const loadingEl   = document.getElementById('mpLoading');
@@ -128,12 +133,14 @@
       loadingEl.style.display = 'none';
       btnContainer.style.display = 'block';
       setupSubscribeButton(user, profile);
+      setupDevSimulate(user, isAdmin);
     }
   } else {
     infoEl.textContent = 'Sin membresía activa — suscríbete para activar tu press kit.';
     loadingEl.style.display = 'none';
     btnContainer.style.display = 'block';
     setupSubscribeButton(user, profile);
+    setupDevSimulate(user, isAdmin);
   }
 })();
 
@@ -141,10 +148,14 @@ function setupSubscribeButton(user, profile) {
   const btn = document.getElementById('subscribeBtn');
   btn.addEventListener('click', async () => {
     btn.disabled = true;
-    btn.textContent = 'Redirigiendo a Mercado Pago...';
+    btn.textContent = 'Conectando con Mercado Pago...';
+    document.getElementById('mpError').style.display = 'none';
 
     try {
-      const token = (await sb.auth.getSession()).data.session?.access_token;
+      const session = await sb.auth.getSession();
+      const token = session.data.session?.access_token;
+      if (!token) throw new Error('Sesión expirada. Recarga la página e intenta de nuevo.');
+
       const res = await fetch(VOLTUM.mercadoPago.preferenceEndpoint, {
         method: 'POST',
         headers: {
@@ -158,15 +169,22 @@ function setupSubscribeButton(user, profile) {
         })
       });
 
-      if (!res.ok) throw new Error('Error al crear suscripción');
-      const { init_point } = await res.json();
-      window.location.href = init_point;
+      if (!res.ok) {
+        const body = await res.json().catch(() => ({ error: `HTTP ${res.status}` }));
+        throw new Error(body.error || `Error ${res.status} al crear suscripción`);
+      }
+
+      const json = await res.json();
+      if (!json.init_point) throw new Error('Mercado Pago no devolvió un link de pago. Revisa los secrets en Supabase.');
+
+      window.location.href = json.init_point;
 
     } catch (err) {
-      console.error(err);
+      console.error('MP error:', err);
       btn.disabled = false;
       btn.textContent = '⚡ Suscribirse — $11.990/mes';
-      showFallback(user);
+      document.getElementById('mpError').textContent = '⚠️ ' + err.message;
+      document.getElementById('mpError').style.display = 'block';
     }
   });
 }
@@ -202,25 +220,15 @@ async function cancelSubscription(user) {
   }
 }
 
-function showFallback(user) {
-  const container = document.getElementById('mpButtonContainer');
-  container.innerHTML = `
-    <div style="padding:16px;border-radius:var(--radius-lg);background:rgba(245,158,11,0.08);border:1px solid rgba(245,158,11,0.2);margin-bottom:16px;">
-      <p style="font-size:0.875rem;color:var(--gold);margin-bottom:12px;">
-        ⚠️ Configura tu endpoint en <code>js/config.js</code> y despliega las Edge Functions para habilitar el pago.
-      </p>
-    </div>
-    <button class="btn btn-primary btn-full btn-lg" id="testPayBtn">⚡ Simular suscripción (desarrollo)</button>
-  `;
-
-  document.getElementById('testPayBtn')?.addEventListener('click', async () => {
+function setupDevSimulate(user, isAdmin) {
+  if (!isAdmin) return;
+  document.getElementById('devSimulate').style.display = 'block';
+  document.getElementById('testPayBtn').addEventListener('click', async () => {
     const btn = document.getElementById('testPayBtn');
     btn.disabled = true; btn.textContent = 'Procesando...';
-
     const starts = new Date();
     const expires = new Date(starts);
     expires.setMonth(expires.getMonth() + 1);
-
     await sb.from('memberships').upsert({
       user_id: user.id,
       status: 'active',
@@ -230,7 +238,6 @@ function showFallback(user) {
       starts_at: starts.toISOString(),
       expires_at: expires.toISOString()
     }, { onConflict: 'user_id' });
-
     window.location.href = 'success.html';
   });
 }
