@@ -726,8 +726,8 @@ async function initSpotifyPlayer(spotifyUrl) {
     const data = await res.json();
     if (data.error || !data.tracks?.length) throw new Error(data.error || 'Sin tracks');
     _renderSpTracks(data.tracks, data.artist);
-  } catch {
-    document.getElementById('spotifySection').style.display = 'none';
+  } catch(err) {
+    container.innerHTML = `<div style="padding:16px;color:var(--muted2);font-size:0.85rem;background:var(--bg3);border-radius:var(--radius-lg);border:1px solid var(--border2);">⚠️ Error Spotify: ${err.message}</div>`;
   }
 }
 
