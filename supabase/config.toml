@@ -1,0 +1,14 @@
+[functions.create-payment]
+verify_jwt = false
+
+[functions.cancel-subscription]
+verify_jwt = false
+
+[functions.send-welcome-email]
+verify_jwt = false
+
+[functions.payment-webhook]
+verify_jwt = false
+
+[functions.send-expiry-reminder]
+verify_jwt = false
