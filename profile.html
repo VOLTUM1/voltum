@@ -230,23 +230,27 @@
       <div class="tab-content card hidden" id="tab-social">
         <p style="margin-bottom:24px;font-size:0.9rem;">Agrega tus redes sociales y plataformas musicales. Solo incluye lo que tengas activo.</p>
         <div class="social-field">
-          <div class="social-icon">📸</div>
+          <div class="social-icon"><img src="https://cdn.simpleicons.org/instagram/ffffff" width="20" height="20" alt="Instagram"></div>
           <input type="text" id="socialInstagram" class="form-input" placeholder="instagram.com/tu-usuario">
         </div>
         <div class="social-field">
-          <div class="social-icon">☁️</div>
+          <div class="social-icon"><img src="https://cdn.simpleicons.org/tiktok/ffffff" width="20" height="20" alt="TikTok"></div>
+          <input type="text" id="socialTiktok" class="form-input" placeholder="tiktok.com/@tu-usuario">
+        </div>
+        <div class="social-field">
+          <div class="social-icon"><img src="https://cdn.simpleicons.org/soundcloud/ffffff" width="20" height="20" alt="SoundCloud"></div>
           <input type="text" id="socialSoundcloud" class="form-input" placeholder="soundcloud.com/tu-usuario">
         </div>
         <div class="social-field">
-          <div class="social-icon">🎵</div>
+          <div class="social-icon"><img src="https://cdn.simpleicons.org/spotify/ffffff" width="20" height="20" alt="Spotify"></div>
           <input type="text" id="socialSpotify" class="form-input" placeholder="open.spotify.com/artist/...">
         </div>
         <div class="social-field">
-          <div class="social-icon">▶️</div>
+          <div class="social-icon"><img src="https://cdn.simpleicons.org/youtube/ffffff" width="20" height="20" alt="YouTube"></div>
           <input type="text" id="socialYoutube" class="form-input" placeholder="youtube.com/@tu-canal">
         </div>
         <div class="social-field">
-          <div class="social-icon">👤</div>
+          <div class="social-icon"><img src="https://cdn.simpleicons.org/facebook/ffffff" width="20" height="20" alt="Facebook"></div>
           <input type="text" id="socialFacebook" class="form-input" placeholder="facebook.com/tu-pagina">
         </div>
       </div>
@@ -476,6 +480,7 @@ function fillForm() {
   document.getElementById('bio').value = profile.bio || '';
   document.getElementById('bioCount').textContent = `${(profile.bio||'').length} / 600 caracteres`;
   document.getElementById('socialInstagram').value = profile.social_instagram || '';
+  document.getElementById('socialTiktok').value = profile.social_tiktok || '';
   document.getElementById('socialSoundcloud').value = profile.social_soundcloud || '';
   document.getElementById('socialSpotify').value = profile.social_spotify || '';
   document.getElementById('socialYoutube').value = profile.social_youtube || '';
@@ -744,6 +749,7 @@ async function saveProfile() {
       bio: document.getElementById('bio').value.trim() || null,
       genres: genres.length ? genres : null,
       social_instagram: document.getElementById('socialInstagram').value.trim() || null,
+      social_tiktok: document.getElementById('socialTiktok').value.trim() || null,
       social_soundcloud: document.getElementById('socialSoundcloud').value.trim() || null,
       social_spotify: document.getElementById('socialSpotify').value.trim() || null,
       social_youtube: document.getElementById('socialYoutube').value.trim() || null,

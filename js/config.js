@@ -17,6 +17,7 @@
 //   photo_url text,
 //   banner_url text,
 //   social_instagram text,
+//   social_tiktok text,
 //   social_soundcloud text,
 //   social_spotify text,
 //   social_youtube text,
