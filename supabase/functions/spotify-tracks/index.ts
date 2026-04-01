@@ -1,40 +1,23 @@
-// ============================================================
-// Voltum — Supabase Edge Function: spotify-tracks
-// ============================================================
-// Devuelve las top tracks de un artista de Spotify usando
-// Client Credentials (no requiere que el usuario inicie sesión).
-//
-// Despliega con: supabase functions deploy spotify-tracks
-//
-// Variables de entorno requeridas (supabase secrets set):
-//   SPOTIFY_CLIENT_ID=tu_client_id
-//   SPOTIFY_CLIENT_SECRET=tu_client_secret
-// ============================================================
-
-import { serve } from "https://deno.land/std@0.177.0/http/server.ts";
+import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
   "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
 };
 
-async function getSpotifyToken(): Promise<string> {
-  const clientId     = Deno.env.get("SPOTIFY_CLIENT_ID")!;
-  const clientSecret = Deno.env.get("SPOTIFY_CLIENT_SECRET")!;
-  const credentials  = btoa(`${clientId}:${clientSecret}`);
-
+async function getSpotifyToken() {
+  const id = Deno.env.get("SPOTIFY_CLIENT_ID");
+  const secret = Deno.env.get("SPOTIFY_CLIENT_SECRET");
   const res = await fetch("https://accounts.spotify.com/api/token", {
     method: "POST",
     headers: {
-      "Authorization": `Basic ${credentials}`,
       "Content-Type": "application/x-www-form-urlencoded",
+      Authorization: "Basic " + btoa(id + ":" + secret),
     },
     body: "grant_type=client_credentials",
   });
-
-  if (!res.ok) throw new Error("No se pudo obtener el token de Spotify");
-  const { access_token } = await res.json();
-  return access_token;
+  const data = await res.json();
+  return data.access_token;
 }
 
 serve(async (req) => {
@@ -43,57 +26,60 @@ serve(async (req) => {
   }
 
   try {
-    const { artist_id } = await req.json();
-    if (!artist_id) {
-      return new Response(
-        JSON.stringify({ error: "artist_id es requerido" }),
-        { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } }
-      );
+    let artistId = null;
+
+    if (req.method === "POST") {
+      const body = await req.json();
+      artistId = body.artist_id;
+    } else {
+      const url = new URL(req.url);
+      artistId = url.searchParams.get("artist_id");
+    }
+
+    if (!artistId) {
+      return new Response(JSON.stringify({ error: "artist_id required" }), {
+        status: 400,
+        headers: { ...corsHeaders, "Content-Type": "application/json" },
+      });
     }
 
     const token = await getSpotifyToken();
-    const headers = { "Authorization": `Bearer ${token}` };
 
-    // Top tracks + info del artista en paralelo
     const [tracksRes, artistRes] = await Promise.all([
-      fetch(`https://api.spotify.com/v1/artists/${artist_id}/top-tracks?market=ES`, { headers }),
-      fetch(`https://api.spotify.com/v1/artists/${artist_id}`, { headers }),
+      fetch(`https://api.spotify.com/v1/artists/${artistId}/top-tracks?market=CL`, {
+        headers: { Authorization: `Bearer ${token}` },
+      }),
+      fetch(`https://api.spotify.com/v1/artists/${artistId}`, {
+        headers: { Authorization: `Bearer ${token}` },
+      }),
     ]);
 
-    if (!tracksRes.ok || !artistRes.ok) {
-      throw new Error("Artista no encontrado en Spotify");
-    }
+    const tracksData = await tracksRes.json();
+    const artistData = await artistRes.json();
 
-    const { tracks } = await tracksRes.json();
-    const artist     = await artistRes.json();
+    const tracks = (tracksData.tracks || []).slice(0, 6).map((t) => ({
+      name: t.name,
+      album: t.album?.name,
+      artwork: t.album?.images?.[1]?.url || t.album?.images?.[0]?.url,
+      preview_url: t.preview_url,
+      external_url: t.external_urls?.spotify,
+      duration_ms: t.duration_ms,
+    }));
 
-    // Solo los campos que necesitamos
-    const result = {
-      artist: {
-        name:      artist.name,
-        followers: artist.followers?.total ?? 0,
-        image:     artist.images?.[0]?.url ?? null,
-        url:       artist.external_urls?.spotify ?? null,
-      },
-      tracks: (tracks ?? []).slice(0, 6).map((t: any) => ({
-        id:          t.id,
-        name:        t.name,
-        album:       t.album?.name ?? "",
-        artwork:     t.album?.images?.[1]?.url ?? t.album?.images?.[0]?.url ?? null,
-        duration_ms: t.duration_ms,
-        preview_url: t.preview_url,
-        url:         t.external_urls?.spotify ?? null,
-        popularity:  t.popularity,
-      })),
+    const artist = {
+      name: artistData.name,
+      image: artistData.images?.[0]?.url,
+      url: artistData.external_urls?.spotify,
+      followers: artistData.followers?.total,
     };
 
-    return new Response(JSON.stringify(result), {
+    return new Response(JSON.stringify({ tracks, artist }), {
       headers: { ...corsHeaders, "Content-Type": "application/json" },
     });
-  } catch (err) {
-    return new Response(
-      JSON.stringify({ error: err.message }),
-      { status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" } }
-    );
+  } catch (e) {
+    return new Response(JSON.stringify({ error: e.message }), {
+      status: 500,
+      headers: { ...corsHeaders, "Content-Type": "application/json" },
+    });
   }
 });
