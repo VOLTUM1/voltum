@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Voltum — Página no encontrada</title>
+  <link rel="stylesheet" href="css/styles.css">
+  <style>
+    .not-found-page {
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+      padding: 40px 24px;
+    }
+    .not-found-code {
+      font-size: clamp(6rem, 20vw, 12rem);
+      font-weight: 800;
+      line-height: 1;
+      background: var(--gradient);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      margin-bottom: 8px;
+      font-family: 'Space Mono', monospace;
+    }
+    .not-found-eq {
+      display: flex;
+      align-items: flex-end;
+      justify-content: center;
+      gap: 4px;
+      height: 48px;
+      margin-bottom: 32px;
+    }
+    .not-found-eq span {
+      width: 5px;
+      background: var(--gradient);
+      border-radius: 3px;
+      animation: eq404 1.2s ease-in-out infinite;
+    }
+    .not-found-eq span:nth-child(1) { animation-delay: 0s;    height: 60%; }
+    .not-found-eq span:nth-child(2) { animation-delay: 0.2s;  height: 100%; }
+    .not-found-eq span:nth-child(3) { animation-delay: 0.1s;  height: 40%; }
+    .not-found-eq span:nth-child(4) { animation-delay: 0.3s;  height: 80%; }
+    .not-found-eq span:nth-child(5) { animation-delay: 0.15s; height: 55%; }
+    @keyframes eq404 {
+      0%, 100% { transform: scaleY(0.4); opacity: 0.5; }
+      50%       { transform: scaleY(1);   opacity: 1; }
+    }
+  </style>
+</head>
+<body>
+
+<nav class="navbar">
+  <div class="container">
+    <a href="index.html" class="logo">
+      <div class="logo-mark">⚡</div>
+      VOLTUM
+    </a>
+  </div>
+</nav>
+
+<div class="not-found-page">
+  <div class="not-found-code">404</div>
+
+  <div class="not-found-eq">
+    <span></span><span></span><span></span><span></span><span></span>
+  </div>
+
+  <h2 style="margin-bottom:12px;">Esta pista no existe</h2>
+  <p style="max-width:420px;margin-bottom:36px;font-size:1rem;line-height:1.7;">
+    El press kit que buscas no existe o fue removido.<br>
+    Puede que el DJ haya cambiado su link.
+  </p>
+
+  <div style="display:flex;gap:12px;flex-wrap:wrap;justify-content:center;">
+    <a href="index.html" class="btn btn-primary">← Volver al inicio</a>
+    <a href="presskit.html?demo=true" class="btn btn-outline">Ver demo</a>
+  </div>
+
+  <p style="margin-top:48px;font-size:0.8rem;color:var(--muted2);">
+    ¿Eres DJ? <a href="auth.html?tab=register" style="color:var(--purple-l);">Crea tu press kit gratis →</a>
+  </p>
+</div>
+
+</body>
+</html>

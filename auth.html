@@ -202,7 +202,6 @@
     }
 
     if (data.user) {
-      // Intentar upsert del perfil (el trigger ya lo crea, esto actualiza el dj_name y slug correctos)
       const slug = djName.toLowerCase().replace(/\s+/g, '-').replace(/[^a-z0-9-]/g, '') + '-' + Math.random().toString(36).slice(2, 6);
       await sb.from('profiles').upsert({
         id: data.user.id,
@@ -210,6 +209,17 @@
         slug: slug,
         booking_email: email
       }, { onConflict: 'id' });
+
+      // Email de bienvenida (fire & forget — no bloquea el registro)
+      const token = (await sb.auth.getSession()).data.session?.access_token;
+      if (token) {
+        fetch(`${VOLTUM.supabase.url}/functions/v1/send-welcome-email`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
+          body: JSON.stringify({ djName })
+        }).catch(() => {});
+      }
+
       showToast('¡Cuenta creada! Redirigiendo...', 'success');
       setTimeout(() => { window.location.href = 'dashboard.html'; }, 1200);
     }
