@@ -151,6 +151,14 @@
           </div>
         </div>
         <div class="form-group">
+          <label class="form-label">URL de tu press kit</label>
+          <div style="display:flex;align-items:center;gap:0;border:1px solid var(--border2);border-radius:var(--radius);overflow:hidden;background:var(--card);">
+            <span style="padding:10px 12px;background:var(--bg2);color:var(--muted2);font-size:0.85rem;white-space:nowrap;border-right:1px solid var(--border2);">voltum-six.vercel.app/</span>
+            <input type="text" id="djSlug" class="form-input" placeholder="dj-nova" style="border:none;border-radius:0;flex:1;background:transparent;" oninput="this.value=this.value.toLowerCase().replace(/[^a-z0-9-]/g,'')">
+          </div>
+          <div class="form-hint" id="slugHint">Solo letras minúsculas, números y guiones. Ej: dj-nova</div>
+        </div>
+        <div class="form-group">
           <label class="form-label">Biografía</label>
           <textarea id="bio" class="form-textarea" rows="5" placeholder="Cuéntanos tu historia como DJ: cómo empezaste, tu estilo musical, tus influencias y logros más importantes..."></textarea>
           <div class="form-hint" id="bioCount">0 / 600 caracteres</div>
@@ -476,6 +484,17 @@ function fillForm() {
   document.getElementById('djName').value = profile.dj_name || '';
   document.getElementById('realName').value = profile.real_name || '';
   document.getElementById('location').value = profile.location || '';
+  document.getElementById('djSlug').value = profile.slug || '';
+
+  // Auto-sugerir slug desde el nombre artístico si aún no tiene uno
+  document.getElementById('djName').addEventListener('blur', () => {
+    const slugEl = document.getElementById('djSlug');
+    if (!slugEl.value) {
+      slugEl.value = document.getElementById('djName').value.trim()
+        .toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '')
+        .replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '');
+    }
+  });
   document.getElementById('bookingEmail').value = profile.booking_email || '';
   document.getElementById('bio').value = profile.bio || '';
   document.getElementById('bioCount').textContent = `${(profile.bio||'').length} / 600 caracteres`;
@@ -741,8 +760,19 @@ async function saveProfile() {
       galleryNewFiles = [];
     }
 
+    // Validar slug único
+    const newSlug = document.getElementById('djSlug').value.trim() || null;
+    if (newSlug && newSlug !== profile.slug) {
+      const { data: existing } = await sb.from('profiles').select('id').eq('slug', newSlug).single();
+      if (existing) {
+        showToast('Esa URL ya está en uso, elegí otra.', 'error');
+        return;
+      }
+    }
+
     const updates = {
       dj_name: document.getElementById('djName').value.trim(),
+      slug: newSlug,
       real_name: document.getElementById('realName').value.trim() || null,
       location: document.getElementById('location').value.trim() || null,
       booking_email: document.getElementById('bookingEmail').value.trim() || null,
