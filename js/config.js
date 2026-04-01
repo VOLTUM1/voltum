@@ -83,8 +83,9 @@ const VOLTUM = {
   },
   mercadoPago: {
     publicKey: 'APP_USR-081a5007-0ae7-4e29-aa9f-5bceefbdda78',
-    // Endpoint para crear la preferencia de pago (Supabase Edge Function o tu backend)
-    preferenceEndpoint: 'https://vsadzmuzzeovwqnpcgrr.supabase.co/functions/v1/create-payment'
+    // Endpoints de Supabase Edge Functions
+    preferenceEndpoint: 'https://vsadzmuzzeovwqnpcgrr.supabase.co/functions/v1/create-payment',
+    cancelEndpoint: 'https://vsadzmuzzeovwqnpcgrr.supabase.co/functions/v1/cancel-subscription'
   },
   plan: {
     name: 'Voltum Pro',

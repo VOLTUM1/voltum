@@ -269,6 +269,18 @@
             </div>
             <div class="form-hint">Si hay entradas a la venta, agrega el link. Aparecerá como botón en tu press kit.</div>
           </div>
+          <div class="form-group" style="margin-top:14px;margin-bottom:0;">
+            <label class="form-label">🖼️ Flyer del evento <span style="color:var(--muted2);font-weight:400;">(opcional)</span></label>
+            <div style="display:flex;align-items:center;gap:12px;">
+              <label style="cursor:pointer;display:inline-flex;align-items:center;gap:8px;padding:8px 14px;border-radius:var(--radius);background:var(--bg3);border:1px solid var(--border2);font-size:0.85rem;color:var(--muted);transition:var(--transition);" onmouseover="this.style.borderColor='var(--border)'" onmouseout="this.style.borderColor='var(--border2)'">
+                📂 Subir flyer
+                <input type="file" id="eventFlyerInput" accept="image/*" style="display:none;">
+              </label>
+              <img id="eventFlyerPreview" style="display:none;height:48px;width:auto;border-radius:6px;border:1px solid var(--border2);object-fit:cover;" alt="Flyer preview">
+              <button type="button" id="removeFlyerBtn" style="display:none;background:none;border:none;color:var(--muted2);cursor:pointer;font-size:0.8rem;" onclick="clearFlyerPreview()">✕ Quitar</button>
+            </div>
+            <div class="form-hint">Imagen de la cartelera. Se mostrará en el press kit junto al evento.</div>
+          </div>
           <div style="display:flex;gap:10px;margin-top:16px;">
             <button class="btn btn-primary btn-sm" id="saveEventBtn">Guardar evento</button>
             <button class="btn btn-ghost btn-sm" id="cancelEventBtn">Cancelar</button>
@@ -342,6 +354,7 @@ let photoFile = null;
 let bannerFile = null;
 let galleryUrls = [];     // URLs ya guardadas
 let galleryNewFiles = []; // Archivos nuevos pendientes de subir
+let eventFlyerFile = null;
 
 (async () => {
   currentUser = await Auth.requireAuth();
@@ -410,6 +423,20 @@ let galleryNewFiles = []; // Archivos nuevos pendientes de subir
     clearEventForm();
   });
   document.getElementById('saveEventBtn').addEventListener('click', saveEvent);
+  document.getElementById('eventFlyerInput').addEventListener('change', function() {
+    const file = this.files[0];
+    if (!file) return;
+    if (file.size > 5 * 1024 * 1024) { showToast('El flyer no puede superar 5MB', 'error'); return; }
+    eventFlyerFile = file;
+    const reader = new FileReader();
+    reader.onload = e => {
+      const img = document.getElementById('eventFlyerPreview');
+      img.src = e.target.result;
+      img.style.display = 'block';
+      document.getElementById('removeFlyerBtn').style.display = 'inline';
+    };
+    reader.readAsDataURL(file);
+  });
 
   // Guardar
   document.getElementById('saveProfileBtn').addEventListener('click', saveProfile);
@@ -752,9 +779,17 @@ function renderEvents() {
         <span>${[ev.venue, ev.city].filter(Boolean).join(' · ')}</span>
         ${ev.ticket_url ? `<span style="margin-top:4px;display:block;"><a href="${ev.ticket_url}" target="_blank" style="font-size:0.78rem;color:var(--purple-l);">🎟️ Ver entradas →</a></span>` : ''}
       </div>
+      ${ev.flyer_url ? `<img src="${ev.flyer_url}" alt="Flyer" style="height:44px;width:auto;border-radius:6px;border:1px solid var(--border2);object-fit:cover;cursor:pointer;" onclick="window.open('${ev.flyer_url}','_blank')">` : ''}
       <button class="btn btn-danger btn-sm btn-icon" onclick="deleteEvent('${ev.id}')">✕</button>
     </div>`;
   }).join('');
+}
+
+function clearFlyerPreview() {
+  eventFlyerFile = null;
+  document.getElementById('eventFlyerInput').value = '';
+  document.getElementById('eventFlyerPreview').style.display = 'none';
+  document.getElementById('removeFlyerBtn').style.display = 'none';
 }
 
 function clearEventForm() {
@@ -763,6 +798,7 @@ function clearEventForm() {
   document.getElementById('eventVenue').value = '';
   document.getElementById('eventCity').value = '';
   document.getElementById('eventTicketUrl').value = '';
+  clearFlyerPreview();
 }
 
 async function saveEvent() {
@@ -773,13 +809,22 @@ async function saveEvent() {
   const btn = document.getElementById('saveEventBtn');
   btn.disabled = true;
 
+  // Subir flyer si existe
+  let flyer_url = null;
+  if (eventFlyerFile) {
+    try {
+      flyer_url = await uploadImage(eventFlyerFile, `${currentUser.id}/flyers/flyer-${Date.now()}`);
+    } catch(e) { showToast('Error subiendo el flyer', 'error'); btn.disabled = false; return; }
+  }
+
   const { data, error } = await sb.from('events').insert({
     user_id: currentUser.id,
     name,
     date,
     venue: document.getElementById('eventVenue').value.trim() || null,
     city: document.getElementById('eventCity').value.trim() || null,
-    ticket_url: document.getElementById('eventTicketUrl').value.trim() || null
+    ticket_url: document.getElementById('eventTicketUrl').value.trim() || null,
+    flyer_url
   }).select().single();
 
   if (error) { showToast(error.message, 'error'); }

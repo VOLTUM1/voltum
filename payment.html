@@ -25,21 +25,21 @@
 
     <div style="text-align:center;margin-bottom:32px;">
       <h1 style="font-size:1.75rem;margin-bottom:8px;">Activa tu membresía</h1>
-      <p>Un pago mensual. Press kit ilimitado. Carrera profesional.</p>
+      <p>Un cobro mensual automático. Cancela cuando quieras.</p>
     </div>
 
     <!-- Monto -->
     <div class="payment-amount">
       <div style="font-size:0.85rem;color:var(--muted);margin-bottom:8px;text-transform:uppercase;letter-spacing:1px;">Voltum Pro · Mensual</div>
       <div class="payment-amount-value">$11.990</div>
-      <div style="font-size:0.9rem;color:var(--muted);margin-top:6px;">pesos chilenos · renueva cada mes</div>
+      <div style="font-size:0.9rem;color:var(--muted);margin-top:6px;">pesos chilenos · se renueva automáticamente cada mes</div>
     </div>
 
     <!-- Beneficios -->
     <ul class="payment-benefits">
       <li>Press kit digital profesional con URL propia</li>
       <li>Fotos, banner y bio ilimitados</li>
-      <li>Historial completo de eventos</li>
+      <li>Historial completo de eventos con flyer</li>
       <li>Rider técnico integrado</li>
       <li>Links a todas tus redes y plataformas</li>
       <li>Dashboard con estadísticas de vistas</li>
@@ -47,126 +47,192 @@
       <li>Acceso a todas las funciones futuras</li>
     </ul>
 
-    <!-- Estado de membresía actual -->
+    <!-- Estado de membresía -->
     <div id="currentMembershipInfo" style="padding:14px;border-radius:var(--radius);background:var(--card);border:1px solid var(--border2);margin-bottom:24px;font-size:0.875rem;color:var(--muted);text-align:center;"></div>
 
-    <!-- Botón de pago -->
-    <div id="mpButtonContainer">
-      <div class="spinner" id="mpLoading"></div>
+    <!-- Spinner carga inicial -->
+    <div id="mpLoading" style="text-align:center;padding:12px;">
+      <div class="spinner"></div>
+    </div>
+
+    <!-- Botón suscripción -->
+    <div id="mpButtonContainer" style="display:none;">
+      <button class="btn btn-primary btn-full btn-lg" id="subscribeBtn" style="font-size:1.05rem;">
+        ⚡ Suscribirse — $11.990/mes
+      </button>
+      <p style="text-align:center;font-size:0.8rem;color:var(--muted2);margin-top:12px;">
+        Serás redirigido a Mercado Pago para autorizar el cobro automático.
+      </p>
+    </div>
+
+    <!-- Estado con suscripción activa -->
+    <div id="activeSubContainer" style="display:none;">
+      <div style="padding:16px;border-radius:var(--radius-lg);background:rgba(34,197,94,0.06);border:1px solid rgba(34,197,94,0.2);margin-bottom:16px;text-align:center;">
+        <div style="font-size:0.9rem;color:var(--green);font-weight:600;margin-bottom:4px;">✓ Renovación automática activa</div>
+        <div style="font-size:0.8rem;color:var(--muted);" id="nextChargeInfo"></div>
+      </div>
+      <button class="btn btn-outline btn-sm btn-full" id="cancelSubBtn" style="color:var(--muted);border-color:var(--border2);">
+        Cancelar suscripción
+      </button>
+      <p style="text-align:center;font-size:0.75rem;color:var(--muted2);margin-top:8px;">
+        Al cancelar, tu membresía sigue activa hasta la fecha de vencimiento.
+      </p>
     </div>
 
     <div class="trust-badges">
       <div class="trust-badge">🔒 Pago seguro</div>
       <div class="trust-badge">💳 Mercado Pago</div>
-      <div class="trust-badge">🇨🇱 Pesos chilenos</div>
+      <div class="trust-badge">🔄 Cancela cuando quieras</div>
     </div>
 
     <div style="margin-top:24px;text-align:center;">
       <p style="font-size:0.8rem;color:var(--muted2);">
-        Al pagar aceptas los términos de servicio.<br>
-        La membresía es renovable manualmente cada mes.
+        Al suscribirte aceptas los términos de servicio.<br>
+        Mercado Pago cobra automáticamente cada mes hasta que canceles.
       </p>
     </div>
   </div>
 </div>
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-<script src="https://sdk.mercadopago.com/js/v2"></script>
 <script src="js/config.js"></script>
 <script>
 (async () => {
   const user = await Auth.requireAuth();
   if (!user) return;
 
-  // Verificar membresía existente
   const { data: mem } = await sb.from('memberships').select('*').eq('user_id', user.id).single();
-  const infoEl = document.getElementById('currentMembershipInfo');
+  const { data: profile } = await sb.from('profiles').select('dj_name').eq('id', user.id).single();
+
+  const infoEl      = document.getElementById('currentMembershipInfo');
+  const loadingEl   = document.getElementById('mpLoading');
+  const btnContainer = document.getElementById('mpButtonContainer');
+  const activeContainer = document.getElementById('activeSubContainer');
 
   if (mem?.status === 'active') {
     const expires = new Date(mem.expires_at);
     const days = Math.ceil((expires - new Date()) / (1000 * 60 * 60 * 24));
     infoEl.innerHTML = `<span style="color:var(--green);">✓ Membresía activa</span> · Vence el ${expires.toLocaleDateString('es-CL')} (${days} días)`;
+
+    if (mem.subscription_id) {
+      // Tiene auto-renovación activa
+      document.getElementById('nextChargeInfo').textContent =
+        `Próximo cobro: ${expires.toLocaleDateString('es-CL')} · $11.990`;
+      loadingEl.style.display = 'none';
+      activeContainer.style.display = 'block';
+
+      document.getElementById('cancelSubBtn').addEventListener('click', () => cancelSubscription(user));
+    } else {
+      // Membresía activa pero sin auto-renovación (cancelada o pago manual)
+      infoEl.innerHTML += ' · <span style="color:var(--gold);">⚠ Sin renovación automática</span>';
+      loadingEl.style.display = 'none';
+      btnContainer.style.display = 'block';
+      setupSubscribeButton(user, profile);
+    }
   } else {
-    infoEl.textContent = 'Sin membresía activa — realiza el pago para activar tu press kit.';
+    infoEl.textContent = 'Sin membresía activa — suscríbete para activar tu press kit.';
+    loadingEl.style.display = 'none';
+    btnContainer.style.display = 'block';
+    setupSubscribeButton(user, profile);
   }
-
-  // Cargar perfil para datos del pago
-  const { data: profile } = await sb.from('profiles').select('dj_name').eq('id', user.id).single();
-
-  // Iniciar Mercado Pago
-  await initMercadoPago(user, profile);
 })();
 
-async function initMercadoPago(user, profile) {
-  const loadingEl = document.getElementById('mpLoading');
-  const container = document.getElementById('mpButtonContainer');
+function setupSubscribeButton(user, profile) {
+  const btn = document.getElementById('subscribeBtn');
+  btn.addEventListener('click', async () => {
+    btn.disabled = true;
+    btn.textContent = 'Redirigiendo a Mercado Pago...';
+
+    try {
+      const token = (await sb.auth.getSession()).data.session?.access_token;
+      const res = await fetch(VOLTUM.mercadoPago.preferenceEndpoint, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`
+        },
+        body: JSON.stringify({
+          userId: user.id,
+          userEmail: user.email,
+          djName: profile?.dj_name || 'DJ Voltum'
+        })
+      });
+
+      if (!res.ok) throw new Error('Error al crear suscripción');
+      const { init_point } = await res.json();
+      window.location.href = init_point;
+
+    } catch (err) {
+      console.error(err);
+      btn.disabled = false;
+      btn.textContent = '⚡ Suscribirse — $11.990/mes';
+      showFallback(user);
+    }
+  });
+}
+
+async function cancelSubscription(user) {
+  const btn = document.getElementById('cancelSubBtn');
+  if (!confirm('¿Seguro que quieres cancelar la renovación automática? Tu membresía seguirá activa hasta que venza.')) return;
+
+  btn.disabled = true;
+  btn.textContent = 'Cancelando...';
 
   try {
-    // Crear preferencia en el backend (Supabase Edge Function)
-    const res = await fetch(VOLTUM.mercadoPago.preferenceEndpoint, {
+    const token = (await sb.auth.getSession()).data.session?.access_token;
+    const res = await fetch(VOLTUM.mercadoPago.cancelEndpoint, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
-        'Authorization': `Bearer ${(await sb.auth.getSession()).data.session?.access_token}`
-      },
-      body: JSON.stringify({
-        userId: user.id,
-        userEmail: user.email,
-        djName: profile?.dj_name || 'DJ Voltum'
-      })
-    });
-
-    if (!res.ok) throw new Error('No se pudo inicializar el pago');
-    const { id: preferenceId } = await res.json();
-
-    loadingEl.remove();
-
-    const mp = new MercadoPago(VOLTUM.mercadoPago.publicKey, { locale: 'es-CL' });
-    mp.bricks().create('wallet', 'mpButtonContainer', {
-      initialization: { preferenceId },
-      customization: {
-        texts: { valueProp: 'smart_option' },
-        visual: { buttonBackground: 'default', borderRadius: '12px' }
+        'Authorization': `Bearer ${token}`
       }
     });
 
+    if (!res.ok) throw new Error('Error al cancelar');
+    const { expires_at } = await res.json();
+    const expDate = new Date(expires_at).toLocaleDateString('es-CL');
+    showToast(`Renovación cancelada. Tu membresía sigue activa hasta el ${expDate}`, 'success');
+    setTimeout(() => window.location.reload(), 2000);
+
   } catch (err) {
     console.error(err);
-    loadingEl.remove();
-    // Fallback: mostrar botón manual
-    container.innerHTML = `
-      <div style="padding:20px;border-radius:var(--radius-lg);background:rgba(245,158,11,0.08);border:1px solid rgba(245,158,11,0.2);margin-bottom:16px;">
-        <p style="font-size:0.875rem;color:var(--gold);margin-bottom:12px;">
-          ⚠️ Configura tu endpoint de Mercado Pago en <code>js/config.js</code> para habilitar el pago.<br>
-          Despliega la Edge Function en <code>supabase/functions/create-payment/</code>
-        </p>
-        <a href="https://www.mercadopago.cl/developers/es/docs/checkout-pro/landing" target="_blank" class="btn btn-outline btn-sm">Ver documentación →</a>
-      </div>
-      <button class="btn btn-primary btn-full btn-lg" id="testPayBtn">⚡ Simular pago (desarrollo)</button>
-    `;
-
-    document.getElementById('testPayBtn')?.addEventListener('click', async () => {
-      const btn = document.getElementById('testPayBtn');
-      btn.disabled = true; btn.textContent = 'Procesando...';
-
-      // Crear/actualizar membresía simulada
-      const starts = new Date();
-      const expires = new Date(starts);
-      expires.setMonth(expires.getMonth() + 1);
-
-      const user = await Auth.getUser();
-      await sb.from('memberships').upsert({
-        user_id: user.id,
-        status: 'active',
-        payment_id: 'TEST_' + Date.now(),
-        amount: 11990,
-        starts_at: starts.toISOString(),
-        expires_at: expires.toISOString()
-      }, { onConflict: 'user_id' });
-
-      window.location.href = 'success.html';
-    });
+    showToast('No se pudo cancelar. Intenta de nuevo.', 'error');
+    btn.disabled = false;
+    btn.textContent = 'Cancelar suscripción';
   }
+}
+
+function showFallback(user) {
+  const container = document.getElementById('mpButtonContainer');
+  container.innerHTML = `
+    <div style="padding:16px;border-radius:var(--radius-lg);background:rgba(245,158,11,0.08);border:1px solid rgba(245,158,11,0.2);margin-bottom:16px;">
+      <p style="font-size:0.875rem;color:var(--gold);margin-bottom:12px;">
+        ⚠️ Configura tu endpoint en <code>js/config.js</code> y despliega las Edge Functions para habilitar el pago.
+      </p>
+    </div>
+    <button class="btn btn-primary btn-full btn-lg" id="testPayBtn">⚡ Simular suscripción (desarrollo)</button>
+  `;
+
+  document.getElementById('testPayBtn')?.addEventListener('click', async () => {
+    const btn = document.getElementById('testPayBtn');
+    btn.disabled = true; btn.textContent = 'Procesando...';
+
+    const starts = new Date();
+    const expires = new Date(starts);
+    expires.setMonth(expires.getMonth() + 1);
+
+    await sb.from('memberships').upsert({
+      user_id: user.id,
+      status: 'active',
+      payment_id: 'TEST_' + Date.now(),
+      subscription_id: 'TEST_SUB_' + Date.now(),
+      amount: 11990,
+      starts_at: starts.toISOString(),
+      expires_at: expires.toISOString()
+    }, { onConflict: 'user_id' });
+
+    window.location.href = 'success.html';
+  });
 }
 </script>
 </body>

@@ -1,14 +1,10 @@
 // ============================================================
-// Voltum — Supabase Edge Function: create-payment
+// Voltum — Supabase Edge Function: cancel-subscription
 // ============================================================
-// Crea una suscripción recurrente en Mercado Pago (Preapproval).
-// Mercado Pago cobra automáticamente cada mes al usuario.
+// Cancela la suscripción activa del usuario en Mercado Pago.
+// La membresía sigue activa hasta la fecha de vencimiento.
 //
-// Despliega con: supabase functions deploy create-payment
-//
-// Variables de entorno requeridas (supabase secrets set):
-//   MP_ACCESS_TOKEN=APP_USR-xxxx  (tu token de Mercado Pago)
-//   APP_URL=https://tu-dominio.com
+// Despliega con: supabase functions deploy cancel-subscription
 // ============================================================
 
 import { serve } from "https://deno.land/std@0.177.0/http/server.ts";
@@ -45,44 +41,53 @@ serve(async (req: Request) => {
       });
     }
 
-    const { userEmail, djName } = await req.json();
-    const appUrl = Deno.env.get("APP_URL") ?? "http://localhost";
+    // Obtener subscription_id del usuario
+    const supabaseAdmin = createClient(
+      Deno.env.get("SUPABASE_URL") ?? "",
+      Deno.env.get("SERVICE_ROLE_KEY") ?? ""
+    );
 
-    // Crear suscripción recurrente en Mercado Pago
-    const mpResponse = await fetch("https://api.mercadopago.com/preapproval", {
-      method: "POST",
-      headers: {
-        "Authorization": `Bearer ${Deno.env.get("MP_ACCESS_TOKEN")}`,
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({
-        reason: "Voltum Pro — Press Kit Digital Mensual",
-        external_reference: user.id,
-        payer_email: userEmail || user.email,
-        auto_recurring: {
-          frequency: 1,
-          frequency_type: "months",
-          transaction_amount: 11990,
-          currency_id: "CLP",
+    const { data: membership } = await supabaseAdmin
+      .from("memberships")
+      .select("subscription_id, expires_at")
+      .eq("user_id", user.id)
+      .single();
+
+    if (!membership?.subscription_id) {
+      return new Response(JSON.stringify({ error: "No hay suscripción activa" }), {
+        status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" }
+      });
+    }
+
+    // Cancelar en Mercado Pago
+    const mpRes = await fetch(
+      `https://api.mercadopago.com/preapproval/${membership.subscription_id}`,
+      {
+        method: "PUT",
+        headers: {
+          "Authorization": `Bearer ${Deno.env.get("MP_ACCESS_TOKEN")}`,
+          "Content-Type": "application/json",
         },
-        back_url: `${appUrl}/success.html`,
-        status: "pending",
-        notification_url: `${Deno.env.get("SUPABASE_URL")}/functions/v1/payment-webhook`,
-      }),
-    });
+        body: JSON.stringify({ status: "cancelled" }),
+      }
+    );
 
-    if (!mpResponse.ok) {
-      const err = await mpResponse.text();
-      console.error("MP error:", err);
-      return new Response(JSON.stringify({ error: "Error al crear suscripción" }), {
+    if (!mpRes.ok) {
+      const err = await mpRes.text();
+      console.error("MP cancel error:", err);
+      return new Response(JSON.stringify({ error: "Error al cancelar en Mercado Pago" }), {
         status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" }
       });
     }
 
-    const subscription = await mpResponse.json();
+    // Quitar subscription_id — membresía sigue activa hasta que venza
+    await supabaseAdmin.from("memberships")
+      .update({ subscription_id: null })
+      .eq("user_id", user.id);
+
     return new Response(JSON.stringify({
-      id: subscription.id,
-      init_point: subscription.init_point,
+      ok: true,
+      expires_at: membership.expires_at,
     }), {
       headers: { ...corsHeaders, "Content-Type": "application/json" }
     });

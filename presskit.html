@@ -93,6 +93,12 @@
       <div class="pk-event-grid" id="pkEvents"></div>
     </div>
 
+    <!-- SOUNDCLOUD -->
+    <div class="presskit-section" id="soundcloudSection">
+      <div class="presskit-section-title">Últimas Tracks</div>
+      <div id="pkSoundcloud"></div>
+    </div>
+
     <!-- GALERÍA -->
     <div class="presskit-section" id="gallerySection">
       <div class="presskit-section-title">Galería</div>
@@ -144,7 +150,7 @@ Con más de 15 producciones propias publicadas en sellos como Rekids, Kompakt y 
   photo_url: null,
   banner_url: null,
   social_instagram: 'https://instagram.com/voltum.cl',
-  social_soundcloud: 'https://soundcloud.com',
+  social_soundcloud: 'https://soundcloud.com/bicep-music',
   social_spotify: 'https://spotify.com',
   social_youtube: 'https://youtube.com',
   booking_email: 'booking@djnova.cl',
@@ -177,11 +183,11 @@ NOTAS ADICIONALES
 };
 
 const DEMO_EVENTS = [
-  { name: 'Festival Sónar Santiago',  venue: 'Parque O\'Higgins', city: 'Santiago',          date: '2026-04-12', ticket_url: 'https://passline.com' },
-  { name: 'Clubnight Extended',       venue: 'Club Chocolate',    city: 'Santiago',          date: '2026-05-03', ticket_url: 'https://passline.com' },
-  { name: 'VOID Techno Night',        venue: 'Club Cha',          city: 'Santiago',          date: '2026-03-08', ticket_url: null },
-  { name: 'Berlín Residency',         venue: 'Tresor',            city: 'Berlín, Alemania',  date: '2026-02-15', ticket_url: null },
-  { name: 'Colombia Tour',            venue: 'Baum Club',         city: 'Bogotá, Colombia',  date: '2026-01-27', ticket_url: null },
+  { name: 'Festival Sónar Santiago',  venue: 'Parque O\'Higgins', city: 'Santiago',          date: '2026-04-12', ticket_url: 'https://passline.com', flyer_url: 'https://images.unsplash.com/photo-1501386761578-eac5c94b800a?w=400&q=80' },
+  { name: 'Clubnight Extended',       venue: 'Club Chocolate',    city: 'Santiago',          date: '2026-05-03', ticket_url: 'https://passline.com', flyer_url: 'https://images.unsplash.com/photo-1470229722913-7c0e2dbbafd3?w=400&q=80' },
+  { name: 'VOID Techno Night',        venue: 'Club Cha',          city: 'Santiago',          date: '2026-03-08', ticket_url: null, flyer_url: null },
+  { name: 'Berlín Residency',         venue: 'Tresor',            city: 'Berlín, Alemania',  date: '2026-02-15', ticket_url: null, flyer_url: null },
+  { name: 'Colombia Tour',            venue: 'Baum Club',         city: 'Bogotá, Colombia',  date: '2026-01-27', ticket_url: null, flyer_url: null },
 ];
 
 (async () => {
@@ -304,12 +310,24 @@ function renderPressKit(p, events) {
           <span>${[ev.venue, ev.city].filter(Boolean).join(' · ')}</span>
         </div>
         <div style="display:flex;align-items:center;gap:8px;flex-shrink:0;">
+          ${ev.flyer_url ? `<img src="${ev.flyer_url}" alt="Flyer ${ev.name}" style="height:48px;width:auto;border-radius:6px;border:1px solid var(--border2);object-fit:cover;cursor:pointer;" onclick="openFlyer('${ev.flyer_url}','${ev.name.replace(/'/g,"\\'")}')">` : ''}
           ${!isPast && ev.ticket_url ? `<a href="${ev.ticket_url}" target="_blank" rel="noopener" class="btn btn-primary btn-sm" style="font-size:0.78rem;">🎟️ Entradas</a>` : ''}
           ${isPast ? '<span class="badge badge-purple" style="font-size:0.7rem;">Pasado</span>' : '<span class="badge badge-green" style="font-size:0.7rem;">Próximo</span>'}
         </div>
       </div>`;
     }).join('');
   } else document.getElementById('eventsSection').style.display = 'none';
+
+  // SoundCloud widget
+  if (p.social_soundcloud) {
+    const scUrl = encodeURIComponent(p.social_soundcloud);
+    document.getElementById('pkSoundcloud').innerHTML = `
+      <iframe
+        width="100%" height="300" scrolling="no" frameborder="no" allow="autoplay"
+        style="border-radius:var(--radius-lg);"
+        src="https://w.soundcloud.com/player/?url=${scUrl}&color=%238b5cf6&auto_play=false&hide_related=true&show_comments=false&show_user=true&show_reposts=false&show_teaser=false&visual=true">
+      </iframe>`;
+  } else document.getElementById('soundcloudSection').style.display = 'none';
 
   // Galería
   if (p.gallery_urls?.length) {
@@ -329,6 +347,9 @@ function renderPressKit(p, events) {
     document.getElementById('pkContactBtn').href = `mailto:${p.booking_email}?subject=Booking Request - ${p.dj_name}`;
   } else document.getElementById('contactSection').style.display = 'none';
 
+  // Flyer lightbox
+  document.getElementById('flyerOverlay').addEventListener('click', closeFlyer);
+
   // Share button
   document.getElementById('shareBtn').addEventListener('click', () => {
     if (navigator.share) {
@@ -343,6 +364,25 @@ function renderPressKit(p, events) {
   document.getElementById('pkSpinner').style.display = 'none';
   document.getElementById('pkContent').classList.remove('hidden');
 }
+function openFlyer(url, name) {
+  document.getElementById('flyerImg').src = url;
+  document.getElementById('flyerImg').alt = name;
+  document.getElementById('flyerOverlay').style.display = 'flex';
+  document.body.style.overflow = 'hidden';
+}
+function closeFlyer() {
+  document.getElementById('flyerOverlay').style.display = 'none';
+  document.body.style.overflow = '';
+}
+document.addEventListener('keydown', e => { if (e.key === 'Escape') closeFlyer(); });
 </script>
+
+<!-- FLYER LIGHTBOX -->
+<div id="flyerOverlay" style="display:none;position:fixed;inset:0;z-index:999;background:rgba(0,0,0,0.85);backdrop-filter:blur(8px);align-items:center;justify-content:center;padding:24px;" onclick="closeFlyer()">
+  <div style="position:relative;max-width:min(520px,90vw);" onclick="event.stopPropagation()">
+    <img id="flyerImg" src="" alt="" style="width:100%;border-radius:var(--radius-lg);box-shadow:0 24px 64px rgba(0,0,0,0.6);">
+    <button onclick="closeFlyer()" style="position:absolute;top:-12px;right:-12px;width:32px;height:32px;border-radius:50%;background:var(--card);border:1px solid var(--border);color:var(--text);cursor:pointer;font-size:1rem;display:flex;align-items:center;justify-content:center;">✕</button>
+  </div>
+</div>
 </body>
 </html>
