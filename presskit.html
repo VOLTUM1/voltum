@@ -720,7 +720,7 @@ async function initSpotifyPlayer(spotifyUrl) {
   try {
     const res = await fetch(`${VOLTUM.supabase.url}/functions/v1/spotify-tracks`, {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json', 'apikey': VOLTUM.supabase.anonKey },
+      headers: { 'Content-Type': 'application/json', 'apikey': VOLTUM.supabase.anonKey, 'Authorization': `Bearer ${VOLTUM.supabase.anonKey}` },
       body: JSON.stringify({ artist_id: artistId }),
     });
     const data = await res.json();
