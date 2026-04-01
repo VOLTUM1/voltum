@@ -215,7 +215,7 @@
       if (token) {
         fetch(`${VOLTUM.supabase.url}/functions/v1/send-welcome-email`, {
           method: 'POST',
-          headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
+          headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}`, 'apikey': VOLTUM.supabase.anonKey },
           body: JSON.stringify({ djName })
         }).catch(() => {});
       }

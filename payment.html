@@ -160,7 +160,8 @@ function setupSubscribeButton(user, profile) {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          'Authorization': `Bearer ${token}`
+          'Authorization': `Bearer ${token}`,
+          'apikey': VOLTUM.supabase.anonKey
         },
         body: JSON.stringify({
           userId: user.id,
@@ -202,7 +203,8 @@ async function cancelSubscription(user) {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
-        'Authorization': `Bearer ${token}`
+        'Authorization': `Bearer ${token}`,
+        'apikey': VOLTUM.supabase.anonKey
       }
     });
 
