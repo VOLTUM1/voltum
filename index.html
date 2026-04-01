@@ -339,7 +339,6 @@
       .from('profiles')
       .select('id, dj_name, slug, photo_url, location, genres')
       .not('dj_name', 'is', null)
-      .not('slug', 'is', null)
       .order('created_at', { ascending: true })
       .limit(9);
 
@@ -351,7 +350,7 @@
     }
 
     profiles.forEach(dj => {
-      const pkUrl = `presskit.html?slug=${dj.slug}`;
+      const pkUrl = dj.slug ? `presskit.html?slug=${dj.slug}` : `presskit.html?id=${dj.id}`;
       const initial = (dj.dj_name || 'DJ').charAt(0).toUpperCase();
       const genres = (dj.genres || []).slice(0, 3);
 
