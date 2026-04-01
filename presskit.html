@@ -269,10 +269,8 @@ function renderPressKit(p, events) {
   // Avatar
   const avatar = document.getElementById('pkAvatar');
   if (p.photo_url) {
-    avatar.innerHTML = '';
-    avatar.style.backgroundImage = `url(${p.photo_url})`;
-    avatar.style.backgroundSize = 'cover';
-    avatar.style.backgroundPosition = 'center';
+    avatar.innerHTML = `<img src="${p.photo_url}" alt="${p.dj_name}" style="width:100%;height:100%;object-fit:cover;border-radius:50%;display:block;">`;
+    avatar.style.background = 'none';
   } else {
     avatar.textContent = (p.dj_name || 'D')[0].toUpperCase();
   }
