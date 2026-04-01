@@ -12,3 +12,6 @@ verify_jwt = false
 
 [functions.send-expiry-reminder]
 verify_jwt = false
+
+[functions.redeem-promo]
+verify_jwt = false

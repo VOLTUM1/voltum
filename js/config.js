@@ -85,7 +85,8 @@ const VOLTUM = {
     publicKey: 'APP_USR-081a5007-0ae7-4e29-aa9f-5bceefbdda78',
     // Endpoints de Supabase Edge Functions
     preferenceEndpoint: 'https://vsadzmuzzeovwqnpcgrr.supabase.co/functions/v1/create-payment',
-    cancelEndpoint: 'https://vsadzmuzzeovwqnpcgrr.supabase.co/functions/v1/cancel-subscription'
+    cancelEndpoint: 'https://vsadzmuzzeovwqnpcgrr.supabase.co/functions/v1/cancel-subscription',
+    redeemPromoEndpoint: 'https://vsadzmuzzeovwqnpcgrr.supabase.co/functions/v1/redeem-promo'
   },
   plan: {
     name: 'Voltum Pro',
