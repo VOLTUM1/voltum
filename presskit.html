@@ -458,7 +458,21 @@ let _scWidget = null;
 let _scPlayingIdx = -1;
 let _scPaused = false;
 
+function _scNormalizeUrl(url) {
+  if (!url) return null;
+  url = url.trim();
+  // Quitar @ si alguien pone @usuario
+  url = url.replace(/^@/, '');
+  // Si no empieza con http, agregar https://
+  if (!/^https?:\/\//i.test(url)) url = 'https://' + url;
+  // Normalizar www.soundcloud.com → soundcloud.com
+  url = url.replace(/^https?:\/\/www\./i, 'https://');
+  return url;
+}
+
 function initSoundCloudPlayer(scUrl) {
+  scUrl = _scNormalizeUrl(scUrl);
+  if (!scUrl) { document.getElementById('soundcloudSection').style.display = 'none'; return; }
   const container = document.getElementById('pkSoundcloud');
 
   // Skeleton mientras carga

@@ -702,6 +702,13 @@ function updateRiderPreview() {
   document.getElementById('riderPreview').textContent = text.trim();
 }
 
+function normalizeSocialUrl(url) {
+  if (!url) return null;
+  url = url.trim().replace(/^@/, '');
+  if (url && !/^https?:\/\//i.test(url)) url = 'https://' + url;
+  return url || null;
+}
+
 function getRiderText() {
   updateRiderPreview();
   return document.getElementById('riderPreview').textContent;
@@ -780,7 +787,7 @@ async function saveProfile() {
       genres: genres.length ? genres : null,
       social_instagram: document.getElementById('socialInstagram').value.trim() || null,
       social_tiktok: document.getElementById('socialTiktok').value.trim() || null,
-      social_soundcloud: document.getElementById('socialSoundcloud').value.trim() || null,
+      social_soundcloud: normalizeSocialUrl(document.getElementById('socialSoundcloud').value.trim()) || null,
       social_spotify: document.getElementById('socialSpotify').value.trim() || null,
       social_youtube: document.getElementById('socialYoutube').value.trim() || null,
       social_facebook: document.getElementById('socialFacebook').value.trim() || null,
