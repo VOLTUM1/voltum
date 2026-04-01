@@ -308,50 +308,88 @@
   </div>
 </section>
 
-<!-- TESTIMONIALS -->
-<section style="padding:100px 0;">
+<!-- NUESTROS DJs -->
+<section id="djs-section" style="padding:100px 0;">
   <div class="container">
     <div class="section-header">
-      <span class="section-badge">Testimonios</span>
-      <h2>DJs que ya confían en Voltum</h2>
+      <span class="section-badge">Comunidad</span>
+      <h2>Nuestros DJs</h2>
+      <p>Conoce a los artistas que ya tienen su press kit profesional en Voltum</p>
     </div>
-    <div class="testimonials-grid">
-      <div class="testimonial">
-        <div class="stars">★★★★★</div>
-        <p class="testimonial-text">"Antes mandaba un PDF y a veces ni lo abrían. Ahora comparto el link de Voltum y los venues responden al tiro. Conseguí 4 bookings nuevos el primer mes."</p>
-        <div class="testimonial-author">
-          <div class="testimonial-avatar">K</div>
-          <div>
-            <div class="testimonial-name">DJ Kronos</div>
-            <div class="testimonial-role">Techno · Concepción</div>
-          </div>
-        </div>
+    <div id="djsGrid" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:24px;">
+      <!-- Cargando... -->
+      <div id="djsLoading" style="grid-column:1/-1;text-align:center;padding:40px 0;">
+        <div class="spinner" style="margin:0 auto;"></div>
       </div>
-      <div class="testimonial">
-        <div class="stars">★★★★★</div>
-        <p class="testimonial-text">"El rider técnico integrado es un game changer. Los clubs llegan preparados y me ahorro media hora de coordinación antes de cada fecha."</p>
-        <div class="testimonial-author">
-          <div class="testimonial-avatar">S</div>
-          <div>
-            <div class="testimonial-name">Sasha Volt</div>
-            <div class="testimonial-role">House & Disco · Santiago</div>
-          </div>
-        </div>
-      </div>
-      <div class="testimonial">
-        <div class="stars">★★★★★</div>
-        <p class="testimonial-text">"Voltum le da un nivel de profesionalismo a mi carrera que antes solo tenían los DJs internacionales. El diseño del press kit es simplemente impecable."</p>
-        <div class="testimonial-author">
-          <div class="testimonial-avatar">R</div>
-          <div>
-            <div class="testimonial-name">Raven</div>
-            <div class="testimonial-role">Minimal Techno · Valparaíso</div>
-          </div>
-        </div>
-      </div>
+    </div>
+    <div id="djsEmpty" style="display:none;text-align:center;padding:40px 0;">
+      <p style="color:var(--muted2);font-size:0.9rem;">Próximamente los primeros DJs de la comunidad.</p>
     </div>
   </div>
 </section>
+
+<script>
+(async () => {
+  const grid = document.getElementById('djsGrid');
+  const loading = document.getElementById('djsLoading');
+  const empty = document.getElementById('djsEmpty');
+
+  try {
+    const { data: profiles } = await sb
+      .from('profiles')
+      .select('id, dj_name, slug, photo_url, location, genres')
+      .not('dj_name', 'is', null)
+      .not('slug', 'is', null)
+      .order('created_at', { ascending: true })
+      .limit(9);
+
+    loading.remove();
+
+    if (!profiles || profiles.length === 0) {
+      document.getElementById('djs-section').style.display = 'none';
+      return;
+    }
+
+    profiles.forEach(dj => {
+      const pkUrl = `presskit.html?slug=${dj.slug}`;
+      const initial = (dj.dj_name || 'DJ').charAt(0).toUpperCase();
+      const genres = (dj.genres || []).slice(0, 3);
+
+      const avatarHtml = dj.photo_url
+        ? `<img src="${dj.photo_url}" alt="${dj.dj_name}" style="width:100%;height:100%;object-fit:cover;border-radius:50%;display:block;">`
+        : `<span style="font-size:2rem;font-weight:800;color:#fff;">${initial}</span>`;
+
+      const genresHtml = genres.length
+        ? genres.map(g => `<span class="badge badge-purple" style="font-size:0.72rem;padding:3px 10px;">${g}</span>`).join('')
+        : '';
+
+      const card = document.createElement('div');
+      card.style.cssText = 'background:var(--card);border:1px solid var(--border2);border-radius:var(--radius-lg);padding:28px 24px;display:flex;flex-direction:column;align-items:center;text-align:center;transition:var(--transition);gap:12px;';
+      card.onmouseenter = () => { card.style.borderColor = 'var(--border)'; card.style.transform = 'translateY(-4px)'; };
+      card.onmouseleave = () => { card.style.borderColor = 'var(--border2)'; card.style.transform = 'translateY(0)'; };
+
+      card.innerHTML = `
+        <div style="width:80px;height:80px;border-radius:50%;background:var(--gradient);display:flex;align-items:center;justify-content:center;overflow:hidden;border:3px solid rgba(139,92,246,0.3);flex-shrink:0;">
+          ${avatarHtml}
+        </div>
+        <div>
+          <div style="font-size:1.1rem;font-weight:700;margin-bottom:4px;">${dj.dj_name}</div>
+          ${dj.location ? `<div style="font-size:0.82rem;color:var(--muted2);">📍 ${dj.location}</div>` : ''}
+        </div>
+        ${genresHtml ? `<div style="display:flex;gap:6px;flex-wrap:wrap;justify-content:center;">${genresHtml}</div>` : ''}
+        <a href="${pkUrl}" target="_blank" class="btn btn-outline btn-sm" style="margin-top:4px;width:100%;">
+          Ver Press Kit →
+        </a>`;
+
+      grid.appendChild(card);
+    });
+
+  } catch (e) {
+    loading.remove();
+    document.getElementById('djs-section').style.display = 'none';
+  }
+})();
+</script>
 
 <!-- CTA FINAL -->
 <section class="cta-section">
