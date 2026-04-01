@@ -79,6 +79,12 @@
       <a href="payment.html" class="sidebar-nav-item">
         <span class="nav-icon">💳</span> Membresía
       </a>
+      <div id="adminNavItem" style="display:none;">
+        <div style="height:1px;background:var(--border2);margin:12px 4px;"></div>
+        <a href="admin.html" class="sidebar-nav-item" style="color:var(--gold);">
+          <span class="nav-icon">🛡️</span> Panel Admin
+        </a>
+      </div>
     </nav>
     <div class="sidebar-footer">
       <button class="sidebar-nav-item btn-danger" id="logoutBtn" style="width:100%;">
@@ -364,6 +370,8 @@ let eventFlyerFile = null;
   const { data } = await sb.from('profiles').select('*').eq('id', currentUser.id).single();
   profile = data || {};
   genres = profile.genres || [];
+
+  if (profile.is_admin) document.getElementById('adminNavItem').style.display = 'block';
 
   fillForm();
   await loadEvents();

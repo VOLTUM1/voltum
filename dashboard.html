@@ -41,6 +41,12 @@
       <a href="payment.html" class="sidebar-nav-item">
         <span class="nav-icon">💳</span> Membresía
       </a>
+      <div id="adminNavItem" style="display:none;">
+        <div style="height:1px;background:var(--border2);margin:12px 4px;"></div>
+        <a href="admin.html" class="sidebar-nav-item" style="color:var(--gold);">
+          <span class="nav-icon">🛡️</span> Panel Admin
+        </a>
+      </div>
     </nav>
     <div class="sidebar-footer">
       <div id="sidebarUser" style="padding:12px;border-radius:var(--radius);background:var(--card);border:1px solid var(--border2);margin-bottom:8px;">
@@ -162,6 +168,7 @@
   const eventsCount = eventsCountRes.count || 0;
 
   document.getElementById('sidebarUserName').textContent = profile?.dj_name || user.email;
+  if (profile?.is_admin) document.getElementById('adminNavItem').style.display = 'block';
   document.getElementById('welcomeName').textContent = profile?.dj_name || 'DJ';
 
   const fields = [
