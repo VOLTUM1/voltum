@@ -61,6 +61,43 @@ serve(async (req: Request) => {
         expires_at: newExpiry.toISOString(),
       }, { onConflict: "user_id" });
 
+      // Manejar meses de descuento por código de referido
+      const { data: referral } = await supabase
+        .from("referrals")
+        .select("id, discount_months_remaining")
+        .eq("referred_user_id", userId)
+        .single();
+
+      if (referral && referral.discount_months_remaining > 0) {
+        const remaining = referral.discount_months_remaining - 1;
+        await supabase
+          .from("referrals")
+          .update({ discount_months_remaining: remaining })
+          .eq("id", referral.id);
+
+        // Si se agotaron los meses de descuento, volver al precio normal
+        if (remaining === 0) {
+          const { data: membership } = await supabase
+            .from("memberships")
+            .select("subscription_id")
+            .eq("user_id", userId)
+            .single();
+
+          if (membership?.subscription_id) {
+            await fetch(`https://api.mercadopago.com/preapproval/${membership.subscription_id}`, {
+              method: "PUT",
+              headers: {
+                "Authorization": `Bearer ${Deno.env.get("MP_ACCESS_TOKEN")}`,
+                "Content-Type": "application/json",
+              },
+              body: JSON.stringify({
+                auto_recurring: { transaction_amount: 11990 }
+              }),
+            });
+          }
+        }
+      }
+
       return new Response("ok", { status: 200 });
     }
 

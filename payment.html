@@ -190,7 +190,8 @@ function setupSubscribeButton(user, profile) {
         body: JSON.stringify({
           userId: user.id,
           userEmail: user.email,
-          djName: profile?.dj_name || 'DJ Voltum'
+          djName: profile?.dj_name || 'DJ Voltum',
+          referralCode: window._activeReferralCode || null
         })
       });
 
@@ -271,7 +272,7 @@ function setupPromoCode(user) {
   });
 
   promoBtn.addEventListener('click', async () => {
-    const code = promoInput.value.trim();
+    const code = promoInput.value.trim().toUpperCase();
     if (!code) { showPromoError('Ingresa un código'); return; }
 
     promoBtn.disabled = true;
@@ -280,6 +281,44 @@ function setupPromoCode(user) {
     promoSuccess.style.display = 'none';
 
     try {
+      // 1. Verificar si es código de REFERIDO (descuento %)
+      const { data: refCode } = await sb
+        .from('referral_codes')
+        .select('code, discount_percent, discount_months, owner_user_id')
+        .eq('code', code)
+        .eq('active', true)
+        .single();
+
+      if (refCode) {
+        if (refCode.owner_user_id === user.id) {
+          showPromoError('No puedes usar tu propio código de referido.');
+          return;
+        }
+        // Verificar que no haya usado ya un referido
+        const { data: used } = await sb.from('referrals').select('id').eq('referred_user_id', user.id).single();
+        if (used) {
+          showPromoError('Ya usaste un código de referido anteriormente.');
+          return;
+        }
+
+        // Aplicar descuento en la UI
+        window._activeReferralCode = refCode.code;
+        const discounted = Math.round(11990 * (1 - refCode.discount_percent / 100));
+        const saving = 11990 - discounted;
+
+        promoSuccess.innerHTML = `
+          🎉 <strong>Código aplicado — ${refCode.discount_percent}% off por ${refCode.discount_months} meses</strong><br>
+          <span style="font-size:0.85rem;">Pagas <strong>$${discounted.toLocaleString('es-CL')}/mes</strong> en vez de $11.990 — ahorrás $${saving.toLocaleString('es-CL')}/mes</span>`;
+        promoSuccess.style.display = 'block';
+
+        // Actualizar el botón con el precio descontado
+        document.getElementById('subscribeBtn').textContent = `⚡ Suscribirse — $${discounted.toLocaleString('es-CL')}/mes`;
+        document.querySelector('.payment-amount-value').innerHTML =
+          `<span style="text-decoration:line-through;opacity:0.4;font-size:1.5rem;">$11.990</span> <span style="color:var(--green);">$${discounted.toLocaleString('es-CL')}</span>`;
+        return;
+      }
+
+      // 2. Si no es referido, intentar como código PROMO libre (influencer)
       const session = await sb.auth.getSession();
       const token = session.data.session?.access_token;
       if (!token) throw new Error('Sesión expirada. Recarga la página.');
@@ -295,17 +334,12 @@ function setupPromoCode(user) {
       });
 
       const json = await res.json();
-
-      if (!res.ok) {
-        showPromoError(json.error || 'Código inválido');
-        return;
-      }
+      if (!res.ok) { showPromoError(json.error || 'Código inválido'); return; }
 
       const expires = new Date(json.expires_at).toLocaleDateString('es-CL');
       promoSuccess.innerHTML = `🎉 <strong>¡Código canjeado exitosamente!</strong><br>Membresía Voltum Pro activa por 1 año — hasta el <strong>${expires}</strong>.<br><span style="font-size:0.8rem;opacity:0.8;">Redirigiendo...</span>`;
       promoSuccess.style.display = 'block';
       document.getElementById('subscribeBtn').style.display = 'none';
-
       setTimeout(() => { window.location.href = 'success.html'; }, 2500);
 
     } catch (err) {

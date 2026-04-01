@@ -45,8 +45,41 @@ serve(async (req: Request) => {
       });
     }
 
-    const { userEmail, djName } = await req.json();
+    const { userEmail, djName, referralCode } = await req.json();
     const appUrl = Deno.env.get("APP_URL") ?? "http://localhost";
+
+    const supabaseAdmin = createClient(
+      Deno.env.get("SUPABASE_URL") ?? "",
+      Deno.env.get("SERVICE_ROLE_KEY") ?? ""
+    );
+
+    // Validar código de referido si viene uno
+    let discountedAmount = 11990;
+    let referralData: any = null;
+
+    if (referralCode) {
+      const { data: refCode } = await supabaseAdmin
+        .from("referral_codes")
+        .select("*")
+        .eq("code", referralCode.trim().toUpperCase())
+        .eq("active", true)
+        .single();
+
+      if (refCode && refCode.owner_user_id !== user.id) {
+        // Verificar que este usuario no haya usado ya un código
+        const { data: existingReferral } = await supabaseAdmin
+          .from("referrals")
+          .select("id")
+          .eq("referred_user_id", user.id)
+          .single();
+
+        if (!existingReferral) {
+          referralData = refCode;
+          const discount = refCode.discount_percent / 100;
+          discountedAmount = Math.round(11990 * (1 - discount));
+        }
+      }
+    }
 
     // Crear suscripción recurrente en Mercado Pago
     const mpResponse = await fetch("https://api.mercadopago.com/preapproval", {
@@ -62,7 +95,7 @@ serve(async (req: Request) => {
         auto_recurring: {
           frequency: 1,
           frequency_type: "months",
-          transaction_amount: 11990,
+          transaction_amount: discountedAmount,
           currency_id: "CLP",
         },
         back_url: `${appUrl}/success.html`,
@@ -80,9 +113,22 @@ serve(async (req: Request) => {
     }
 
     const subscription = await mpResponse.json();
+
+    // Registrar referido si aplica
+    if (referralData) {
+      await supabaseAdmin.from("referrals").insert({
+        code: referralData.code,
+        referrer_user_id: referralData.owner_user_id,
+        referred_user_id: user.id,
+        discount_months_remaining: referralData.discount_months,
+      });
+    }
+
     return new Response(JSON.stringify({
       id: subscription.id,
       init_point: subscription.init_point,
+      discounted: !!referralData,
+      amount: discountedAmount,
     }), {
       headers: { ...corsHeaders, "Content-Type": "application/json" }
     });

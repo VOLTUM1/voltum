@@ -59,6 +59,38 @@
 // alter table public.memberships enable row level security;
 // alter table public.events enable row level security;
 //
+// -- Tabla de códigos de referido
+// create table if not exists public.referral_codes (
+//   id uuid primary key default gen_random_uuid(),
+//   code text unique not null,
+//   owner_user_id uuid references auth.users on delete set null,
+//   discount_percent integer not null default 20,
+//   discount_months integer not null default 3,
+//   active boolean default true,
+//   created_at timestamptz default now()
+// );
+//
+// -- Tabla de referidos (quién usó cada código)
+// create table if not exists public.referrals (
+//   id uuid primary key default gen_random_uuid(),
+//   code text not null,
+//   referrer_user_id uuid references auth.users on delete set null,
+//   referred_user_id uuid references auth.users on delete cascade unique,
+//   discount_months_remaining integer not null default 3,
+//   created_at timestamptz default now()
+// );
+//
+// alter table public.referral_codes enable row level security;
+// alter table public.referrals enable row level security;
+//
+// create policy "Leer códigos activos" on referral_codes for select using (true);
+// create policy "Ver propios referidos" on referrals for select using (referrer_user_id = auth.uid() or public.is_admin());
+//
+// -- Insertar el código richandbleak20 (ejecutar en SQL Editor)
+// insert into public.referral_codes (code, owner_user_id, discount_percent, discount_months)
+// select 'RICHANDBLEAK20', id, 20, 3
+// from auth.users where email = 'richandbleakbookings@gmail.com';
+//
 // -- Función helper para verificar admin (ejecutar antes de las policies)
 // create or replace function public.is_admin()
 // returns boolean language sql security definer as $$
