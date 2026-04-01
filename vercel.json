@@ -1,0 +1,5 @@
+{
+  "rewrites": [
+    { "source": "/:slug((?!index|auth|dashboard|profile|payment|success|admin|presskit|404).*)", "destination": "/presskit.html?slug=:slug" }
+  ]
+}
