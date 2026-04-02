@@ -480,7 +480,7 @@ Disponible para bookings nacionales e internacionales. Rider técnico completo y
 
 <script>
   // ── SoundCloud Widget API Player ─────────────────────────────────────────────
-  let _scWidget = null, _scPlayingIdx = -1, _scPaused = false;
+  let _scWidget = null, _scPlayingIdx = -1, _scPaused = false, _scTimeout = null, _scDone = false;
 
   function _scNormalizeUrl(url) {
     if (!url) return '';
@@ -502,6 +502,9 @@ Disponible para bookings nacionales e internacionales. Rider técnico completo y
     iframe.style.cssText = 'position:fixed;width:1px;height:1px;bottom:-9999px;opacity:0;pointer-events:none;';
     iframe.src = `https://w.soundcloud.com/player/?url=${encodeURIComponent(scUrl)}&auto_play=false&buying=false&liking=false&download=false&sharing=false&show_artwork=true&show_comments=false&show_playcount=true&show_user=true&hide_related=true&show_reposts=false&show_teaser=false`;
     document.body.appendChild(iframe);
+
+    // Fallback si el Widget API no responde en 8s
+    _scTimeout = setTimeout(() => { if (!_scDone) _scFallback(scUrl); }, 8000);
 
     const script = document.createElement('script');
     script.src = 'https://w.soundcloud.com/player/api.js';
@@ -572,6 +575,8 @@ Disponible para bookings nacionales e internacionales. Rider técnico completo y
       ?.replace(/^https:\/\/w\.soundcloud\.com\/player\/\?url=/, '')
       ?.split('&')[0];
 
+    _scDone = true;
+    clearTimeout(_scTimeout);
     container.innerHTML = `<div class="sc-grid">${grid}</div>
       <div class="sc-footer">
         ${scUrl ? `<a href="${decodeURIComponent(scUrl)}" target="_blank" rel="noopener" class="btn btn-outline btn-sm" style="font-size:0.8rem;">
@@ -587,6 +592,9 @@ Disponible para bookings nacionales e internacionales. Rider técnico completo y
   }
 
   function _scFallback(scUrl) {
+    if (_scDone) return;
+    _scDone = true;
+    clearTimeout(_scTimeout);
     const container = document.getElementById('pkSoundcloud');
     container.innerHTML = `<iframe width="100%" height="450" scrolling="no" frameborder="no" allow="autoplay"
       style="border-radius:var(--radius-lg);"
