@@ -456,8 +456,17 @@ function renderPressKit(p, events) {
   ];
   const socEl = document.getElementById('pkSocials');
   const links = socials.filter(s => p[s.key]);
-  if (links.length) {
-    socEl.innerHTML = links.map(s => `<a href="${p[s.key]}" target="_blank" rel="noopener" class="pk-social-btn"><img src="https://cdn.simpleicons.org/${s.icon}/a78bfa" width="16" height="16" alt="${s.label}" style="flex-shrink:0;"> ${s.label}</a>`).join('');
+  let socialsHtml = links.map(s => `<a href="${p[s.key]}" target="_blank" rel="noopener" class="pk-social-btn"><img src="https://cdn.simpleicons.org/${s.icon}/a78bfa" width="16" height="16" alt="${s.label}" style="flex-shrink:0;"> ${s.label}</a>`).join('');
+
+  // Links personalizados
+  [p.custom_link1, p.custom_link2].forEach(url => {
+    if (!url) return;
+    let label = url.replace(/^https?:\/\//, '').replace(/\/$/, '').split('/')[0];
+    socialsHtml += `<a href="${url}" target="_blank" rel="noopener" class="pk-social-btn">🔗 ${label}</a>`;
+  });
+
+  if (socialsHtml) {
+    socEl.innerHTML = socialsHtml;
   } else document.getElementById('socialSection').style.display = 'none';
 
   // Eventos

@@ -261,6 +261,14 @@
           <div class="social-icon"><img src="https://cdn.simpleicons.org/facebook/ffffff" width="20" height="20" alt="Facebook"></div>
           <input type="text" id="socialFacebook" class="form-input" placeholder="facebook.com/tu-pagina">
         </div>
+        <div class="social-field">
+          <div class="social-icon" style="font-size:1.1rem;">🔗</div>
+          <input type="text" id="customLink1" class="form-input" placeholder="Tu sitio web, Linktree, Bandcamp, etc.">
+        </div>
+        <div class="social-field">
+          <div class="social-icon" style="font-size:1.1rem;">🔗</div>
+          <input type="text" id="customLink2" class="form-input" placeholder="Otro enlace personalizado">
+        </div>
       </div>
 
       <!-- TAB: EVENTOS -->
@@ -528,6 +536,8 @@ function fillForm() {
   document.getElementById('socialSpotify').value = profile.social_spotify || '';
   document.getElementById('socialYoutube').value = profile.social_youtube || '';
   document.getElementById('socialFacebook').value = profile.social_facebook || '';
+  document.getElementById('customLink1').value = profile.custom_link1 || '';
+  document.getElementById('customLink2').value = profile.custom_link2 || '';
   // Cargar rider desde texto guardado
   if (profile.technical_rider) loadRiderFromText(profile.technical_rider);
 
@@ -815,6 +825,8 @@ async function saveProfile() {
       social_spotify: document.getElementById('socialSpotify').value.trim() || null,
       social_youtube: document.getElementById('socialYoutube').value.trim() || null,
       social_facebook: document.getElementById('socialFacebook').value.trim() || null,
+      custom_link1: normalizeSocialUrl(document.getElementById('customLink1').value.trim()) || null,
+      custom_link2: normalizeSocialUrl(document.getElementById('customLink2').value.trim()) || null,
       technical_rider: getRiderText() || null,
       photo_url: photoUrl,
       banner_url: bannerUrl,

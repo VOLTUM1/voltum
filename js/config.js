@@ -30,8 +30,10 @@
 //   updated_at timestamptz default now()
 // );
 //
-// -- Si ya tienes la tabla, solo agrega la columna:
+// -- Si ya tienes la tabla, solo agrega las columnas:
 // alter table public.profiles add column if not exists is_admin boolean default false;
+// alter table public.profiles add column if not exists custom_link1 text;
+// alter table public.profiles add column if not exists custom_link2 text;
 //
 // create table public.memberships (
 //   id uuid primary key default gen_random_uuid(),
