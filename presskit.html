@@ -362,6 +362,48 @@ const DEMO_EVENTS = [
   { name: 'Colombia Tour',            venue: 'Baum Club',         city: 'Bogotá, Colombia',  date: '2026-01-27', ticket_url: null, flyer_url: null },
 ];
 
+// ── Catálogo de equipos con fotos ────────────────────────────
+const EQUIPMENT_CATALOG = [
+  // CDJs / Reproductores
+  { label:'CDJ-3000 Multiplayer',    cat:'Reproductor',  photo:'https://cdn.shopify.com/s/files/1/0760/8372/4568/files/CDJ_3000.png' },
+  { label:'CDJ-2000NXS2',            cat:'Reproductor',  photo:'https://cdn.shopify.com/s/files/1/0760/8372/4568/files/xdj-1000mk22.png' },
+  { label:'CDJ-2000NXS',             cat:'Reproductor',  photo:'https://cdn.shopify.com/s/files/1/0760/8372/4568/files/xdj-1000mk22.png' },
+  { label:'CDJ-900NXS',              cat:'Reproductor',  photo:'https://cdn.shopify.com/s/files/1/0760/8372/4568/files/xdj-1000mk22.png' },
+  { label:'XDJ-1000MK2',             cat:'Reproductor',  photo:'https://cdn.shopify.com/s/files/1/0760/8372/4568/files/xdj-1000mk22.png' },
+  { label:'XDJ-XZ (All-in-One)',     cat:'All-in-One',   photo:'https://cdn.shopify.com/s/files/1/0760/8372/4568/files/xdj-xz_40a58aea-1e4d-4704-916b-a8e14fde011d.png' },
+  { label:'XDJ-RX3',                 cat:'All-in-One',   photo:'https://cdn.shopify.com/s/files/1/0760/8372/4568/files/xdj-rx3.png' },
+  { label:'XDJ-RX2',                 cat:'All-in-One',   photo:'https://cdn.shopify.com/s/files/1/0760/8372/4568/files/xdj-rr.png' },
+  // Mixers
+  { label:'DJM-900NXS2',             cat:'Mixer',        photo:'https://cdn.shopify.com/s/files/1/0760/8372/4568/files/djm-750mk2.png' },
+  { label:'DJM-750MK2',              cat:'Mixer',        photo:'https://cdn.shopify.com/s/files/1/0760/8372/4568/files/djm-750mk2.png' },
+  { label:'DJM-450',                 cat:'Mixer',        photo:'https://cdn.shopify.com/s/files/1/0760/8372/4568/files/djm-450.png' },
+  { label:'DJM-V10',                 cat:'Mixer',        photo:'https://cdn.shopify.com/s/files/1/0760/8372/4568/files/djm-v10.png' },
+  { label:'DJM-A9',                  cat:'Mixer',        photo:'https://cdn.shopify.com/s/files/1/0760/8372/4568/files/djm-a9.png' },
+  { label:'DJM-S11',                 cat:'Mixer Scratch', photo:'https://cdn.shopify.com/s/files/1/0760/8372/4568/files/djm-s11.png' },
+  { label:'DJM-S9',                  cat:'Mixer Scratch', photo:'https://cdn.shopify.com/s/files/1/0760/8372/4568/files/djm-s11.png' },
+  { label:'DJM-S7',                  cat:'Mixer Scratch', photo:'https://cdn.shopify.com/s/files/1/0760/8372/4568/files/djm-s7.png' },
+  // Controladores
+  { label:'DDJ-FLX10',               cat:'Controlador',  photo:'https://cdn.shopify.com/s/files/1/0760/8372/4568/files/ddj-flx10.png' },
+  { label:'DDJ-SX3',                 cat:'Controlador',  photo:'https://cdn.shopify.com/s/files/1/0760/8372/4568/files/rev7gold.png' },
+  { label:'DDJ-REV7',                cat:'Controlador',  photo:'https://cdn.shopify.com/s/files/1/0760/8372/4568/files/rev7gold.png' },
+  { label:'DDJ-REV5',                cat:'Controlador',  photo:'https://cdn.shopify.com/s/files/1/0760/8372/4568/files/rev5-5.png' },
+  { label:'DDJ-FLN',                 cat:'Controlador',  photo:'https://cdn.shopify.com/s/files/1/0760/8372/4568/files/ddj-flx10.png' },
+  { label:'DDJ-SB3',                 cat:'Controlador',  photo:'https://cdn.shopify.com/s/files/1/0760/8372/4568/files/rev5-5.png' },
+  { label:'TORAIZ SP-16 Sampler',    cat:'Sampler',      photo:'https://cdn.shopify.com/s/files/1/0760/8372/4568/files/RMX-1000.png' },
+  { label:'DJS-1000 Sampler',        cat:'Sampler',      photo:'https://cdn.shopify.com/s/files/1/0760/8372/4568/files/DJS-1000.png' },
+];
+
+const ACCESSORIES_ICONS = {
+  'Puerto USB en cada CDJ':   { icon: '🔌', desc: 'USB en cada reproductor' },
+  'Rekordbox compatible':     { icon: '💿', desc: 'Compatible con Rekordbox' },
+  'Serato DJ compatible':     { icon: '🎛️', desc: 'Compatible con Serato DJ' },
+  'Iluminación en cabina':    { icon: '💡', desc: 'Iluminación de cabina' },
+  'Monitor de escenario':     { icon: '🔊', desc: 'Monitor en escena' },
+  'Auriculares HDJ-X10':      { icon: '🎧', desc: 'Auriculares HDJ-X10' },
+  'Soporte/mesa de DJ':       { icon: '🗄️', desc: 'Mesa o soporte de DJ' },
+  'Cubierta anti-líquidos':   { icon: '🛡️', desc: 'Cubierta anti-líquidos' },
+};
+
 (async () => {
   try {
   const params = new URLSearchParams(window.location.search);
@@ -681,47 +723,6 @@ function renderCompany(p, events) {
   document.getElementById('pkContent').classList.remove('hidden');
 }
 
-// ── Catálogo de equipos con fotos ────────────────────────────
-const EQUIPMENT_CATALOG = [
-  // CDJs / Reproductores
-  { label:'CDJ-3000 Multiplayer',    cat:'Reproductor',  photo:'https://cdn.shopify.com/s/files/1/0760/8372/4568/files/CDJ_3000.png' },
-  { label:'CDJ-2000NXS2',            cat:'Reproductor',  photo:'https://cdn.shopify.com/s/files/1/0760/8372/4568/files/xdj-1000mk22.png' },
-  { label:'CDJ-2000NXS',             cat:'Reproductor',  photo:'https://cdn.shopify.com/s/files/1/0760/8372/4568/files/xdj-1000mk22.png' },
-  { label:'CDJ-900NXS',              cat:'Reproductor',  photo:'https://cdn.shopify.com/s/files/1/0760/8372/4568/files/xdj-1000mk22.png' },
-  { label:'XDJ-1000MK2',             cat:'Reproductor',  photo:'https://cdn.shopify.com/s/files/1/0760/8372/4568/files/xdj-1000mk22.png' },
-  { label:'XDJ-XZ (All-in-One)',     cat:'All-in-One',   photo:'https://cdn.shopify.com/s/files/1/0760/8372/4568/files/xdj-xz_40a58aea-1e4d-4704-916b-a8e14fde011d.png' },
-  { label:'XDJ-RX3',                 cat:'All-in-One',   photo:'https://cdn.shopify.com/s/files/1/0760/8372/4568/files/xdj-rx3.png' },
-  { label:'XDJ-RX2',                 cat:'All-in-One',   photo:'https://cdn.shopify.com/s/files/1/0760/8372/4568/files/xdj-rr.png' },
-  // Mixers
-  { label:'DJM-900NXS2',             cat:'Mixer',        photo:'https://cdn.shopify.com/s/files/1/0760/8372/4568/files/djm-750mk2.png' },
-  { label:'DJM-750MK2',              cat:'Mixer',        photo:'https://cdn.shopify.com/s/files/1/0760/8372/4568/files/djm-750mk2.png' },
-  { label:'DJM-450',                 cat:'Mixer',        photo:'https://cdn.shopify.com/s/files/1/0760/8372/4568/files/djm-450.png' },
-  { label:'DJM-V10',                 cat:'Mixer',        photo:'https://cdn.shopify.com/s/files/1/0760/8372/4568/files/djm-v10.png' },
-  { label:'DJM-A9',                  cat:'Mixer',        photo:'https://cdn.shopify.com/s/files/1/0760/8372/4568/files/djm-a9.png' },
-  { label:'DJM-S11',                 cat:'Mixer Scratch', photo:'https://cdn.shopify.com/s/files/1/0760/8372/4568/files/djm-s11.png' },
-  { label:'DJM-S9',                  cat:'Mixer Scratch', photo:'https://cdn.shopify.com/s/files/1/0760/8372/4568/files/djm-s11.png' },
-  { label:'DJM-S7',                  cat:'Mixer Scratch', photo:'https://cdn.shopify.com/s/files/1/0760/8372/4568/files/djm-s7.png' },
-  // Controladores
-  { label:'DDJ-FLX10',               cat:'Controlador',  photo:'https://cdn.shopify.com/s/files/1/0760/8372/4568/files/ddj-flx10.png' },
-  { label:'DDJ-SX3',                 cat:'Controlador',  photo:'https://cdn.shopify.com/s/files/1/0760/8372/4568/files/rev7gold.png' },
-  { label:'DDJ-REV7',                cat:'Controlador',  photo:'https://cdn.shopify.com/s/files/1/0760/8372/4568/files/rev7gold.png' },
-  { label:'DDJ-REV5',                cat:'Controlador',  photo:'https://cdn.shopify.com/s/files/1/0760/8372/4568/files/rev5-5.png' },
-  { label:'DDJ-FLN',                 cat:'Controlador',  photo:'https://cdn.shopify.com/s/files/1/0760/8372/4568/files/ddj-flx10.png' },
-  { label:'DDJ-SB3',                 cat:'Controlador',  photo:'https://cdn.shopify.com/s/files/1/0760/8372/4568/files/rev5-5.png' },
-  { label:'TORAIZ SP-16 Sampler',    cat:'Sampler',      photo:'https://cdn.shopify.com/s/files/1/0760/8372/4568/files/RMX-1000.png' },
-  { label:'DJS-1000 Sampler',        cat:'Sampler',      photo:'https://cdn.shopify.com/s/files/1/0760/8372/4568/files/DJS-1000.png' },
-];
-
-const ACCESSORIES_ICONS = {
-  'Puerto USB en cada CDJ':   { icon: '🔌', desc: 'USB en cada reproductor' },
-  'Rekordbox compatible':     { icon: '💿', desc: 'Compatible con Rekordbox' },
-  'Serato DJ compatible':     { icon: '🎛️', desc: 'Compatible con Serato DJ' },
-  'Iluminación en cabina':    { icon: '💡', desc: 'Iluminación de cabina' },
-  'Monitor de escenario':     { icon: '🔊', desc: 'Monitor en escena' },
-  'Auriculares HDJ-X10':      { icon: '🎧', desc: 'Auriculares HDJ-X10' },
-  'Soporte/mesa de DJ':       { icon: '🗄️', desc: 'Mesa o soporte de DJ' },
-  'Cubierta anti-líquidos':   { icon: '🛡️', desc: 'Cubierta anti-líquidos' },
-};
 
 function renderRiderCards(riderText, container) {
   // Detectar equipos seleccionados por nombre
