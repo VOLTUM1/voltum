@@ -251,7 +251,7 @@
     <!-- RIDER -->
     <div class="presskit-section" id="riderSection">
       <div class="presskit-section-title">Rider técnico</div>
-      <div class="rider-content" id="pkRider"></div>
+      <div id="pkRider"></div>
     </div>
 
     <!-- CONTACT -->
@@ -519,7 +519,7 @@ function renderPressKit(p, events) {
 
   // Rider
   if (p.technical_rider) {
-    document.getElementById('pkRider').textContent = p.technical_rider;
+    renderRiderCards(p.technical_rider, document.getElementById('pkRider'));
   } else document.getElementById('riderSection').style.display = 'none';
 
   // Contact button
@@ -647,6 +647,118 @@ function renderCompany(p, events) {
 
   document.getElementById('pkSpinner').style.display = 'none';
   document.getElementById('pkContent').classList.remove('hidden');
+}
+
+// ── Catálogo de equipos con fotos ────────────────────────────
+const EQUIPMENT_CATALOG = [
+  // CDJs / Reproductores
+  { label:'CDJ-3000 Multiplayer',    cat:'Reproductor',  photo:'https://www.pioneerdj.com/-/media/pioneerdj/images/products/multiplayer/cdj-3000/black/cdj-3000-k-main.png' },
+  { label:'CDJ-2000NXS2',            cat:'Reproductor',  photo:'https://www.pioneerdj.com/-/media/pioneerdj/images/products/multiplayer/cdj-2000nxs2/black/cdj-2000nxs2-k-main.png' },
+  { label:'CDJ-2000NXS',             cat:'Reproductor',  photo:'https://www.pioneerdj.com/-/media/pioneerdj/images/products/multiplayer/cdj-2000nxs/black/cdj-2000nxs-k-main.png' },
+  { label:'CDJ-900NXS',              cat:'Reproductor',  photo:'https://www.pioneerdj.com/-/media/pioneerdj/images/products/multiplayer/cdj-900nxs/black/cdj-900nxs-k-main.png' },
+  { label:'XDJ-1000MK2',             cat:'Reproductor',  photo:'https://www.pioneerdj.com/-/media/pioneerdj/images/products/multiplayer/xdj-1000mk2/black/xdj-1000mk2-k-main.png' },
+  { label:'XDJ-XZ (All-in-One)',     cat:'All-in-One',   photo:'https://www.pioneerdj.com/-/media/pioneerdj/images/products/all-in-one-system/xdj-xz/black/xdj-xz-k-main.png' },
+  { label:'XDJ-RX3',                 cat:'All-in-One',   photo:'https://www.pioneerdj.com/-/media/pioneerdj/images/products/all-in-one-system/xdj-rx3/black/xdj-rx3-k-main.png' },
+  { label:'XDJ-RX2',                 cat:'All-in-One',   photo:'https://www.pioneerdj.com/-/media/pioneerdj/images/products/all-in-one-system/xdj-rx2/black/xdj-rx2-k-main.png' },
+  // Mixers
+  { label:'DJM-900NXS2',             cat:'Mixer',        photo:'https://www.pioneerdj.com/-/media/pioneerdj/images/products/mixer/djm-900nxs2/black/djm-900nxs2-k-main.png' },
+  { label:'DJM-750MK2',              cat:'Mixer',        photo:'https://www.pioneerdj.com/-/media/pioneerdj/images/products/mixer/djm-750mk2/black/djm-750mk2-k-main.png' },
+  { label:'DJM-450',                 cat:'Mixer',        photo:'https://www.pioneerdj.com/-/media/pioneerdj/images/products/mixer/djm-450/black/djm-450-k-main.png' },
+  { label:'DJM-V10',                 cat:'Mixer',        photo:'https://www.pioneerdj.com/-/media/pioneerdj/images/products/mixer/djm-v10/black/djm-v10-k-main.png' },
+  { label:'DJM-A9',                  cat:'Mixer',        photo:'https://www.pioneerdj.com/-/media/pioneerdj/images/products/mixer/djm-a9/black/djm-a9-k-main.png' },
+  { label:'DJM-S11',                 cat:'Mixer Scratch', photo:'https://www.pioneerdj.com/-/media/pioneerdj/images/products/mixer/djm-s11/black/djm-s11-k-main.png' },
+  { label:'DJM-S9',                  cat:'Mixer Scratch', photo:'https://www.pioneerdj.com/-/media/pioneerdj/images/products/mixer/djm-s9/black/djm-s9-k-main.png' },
+  { label:'DJM-S7',                  cat:'Mixer Scratch', photo:'https://www.pioneerdj.com/-/media/pioneerdj/images/products/mixer/djm-s7/black/djm-s7-k-main.png' },
+  // Controladores
+  { label:'DDJ-FLX10',               cat:'Controlador',  photo:'https://www.pioneerdj.com/-/media/pioneerdj/images/products/controller/ddj-flx10/black/ddj-flx10-k-main.png' },
+  { label:'DDJ-SX3',                 cat:'Controlador',  photo:'https://www.pioneerdj.com/-/media/pioneerdj/images/products/controller/ddj-sx3/black/ddj-sx3-k-main.png' },
+  { label:'DDJ-REV7',                cat:'Controlador',  photo:'https://www.pioneerdj.com/-/media/pioneerdj/images/products/controller/ddj-rev7/black/ddj-rev7-k-main.png' },
+  { label:'DDJ-REV5',                cat:'Controlador',  photo:'https://www.pioneerdj.com/-/media/pioneerdj/images/products/controller/ddj-rev5/black/ddj-rev5-k-main.png' },
+  { label:'DDJ-FLN',                 cat:'Controlador',  photo:'https://www.pioneerdj.com/-/media/pioneerdj/images/products/controller/ddj-fln/black/ddj-fln-k-main.png' },
+  { label:'DDJ-SB3',                 cat:'Controlador',  photo:'https://www.pioneerdj.com/-/media/pioneerdj/images/products/controller/ddj-sb3/black/ddj-sb3-k-main.png' },
+  { label:'TORAIZ SP-16 Sampler',    cat:'Sampler',      photo:'https://www.pioneerdj.com/-/media/pioneerdj/images/products/sampler/toraiz-sp-16/silver/toraiz-sp-16-s-main.png' },
+  { label:'DJS-1000 Sampler',        cat:'Sampler',      photo:'https://www.pioneerdj.com/-/media/pioneerdj/images/products/sampler/djs-1000/black/djs-1000-k-main.png' },
+];
+
+const ACCESSORIES_ICONS = {
+  'Puerto USB en cada CDJ':   { icon: '🔌', desc: 'USB en cada reproductor' },
+  'Rekordbox compatible':     { icon: '💿', desc: 'Compatible con Rekordbox' },
+  'Serato DJ compatible':     { icon: '🎛️', desc: 'Compatible con Serato DJ' },
+  'Iluminación en cabina':    { icon: '💡', desc: 'Iluminación de cabina' },
+  'Monitor de escenario':     { icon: '🔊', desc: 'Monitor en escena' },
+  'Auriculares HDJ-X10':      { icon: '🎧', desc: 'Auriculares HDJ-X10' },
+  'Soporte/mesa de DJ':       { icon: '🗄️', desc: 'Mesa o soporte de DJ' },
+  'Cubierta anti-líquidos':   { icon: '🛡️', desc: 'Cubierta anti-líquidos' },
+};
+
+function renderRiderCards(riderText, container) {
+  // Detectar equipos seleccionados por nombre
+  const equipment = EQUIPMENT_CATALOG.filter(eq => riderText.includes(eq.label));
+
+  // Detectar accesorios y notas adicionales
+  const accessoryLines = [];
+  const noteLines = [];
+  let inNotes = false;
+  riderText.split('\n').forEach(line => {
+    const clean = line.replace(/^—\s*/, '').trim();
+    if (!clean) return;
+    if (line.includes('NOTAS ADICIONALES')) { inNotes = true; return; }
+    if (inNotes) { noteLines.push(clean); return; }
+    if (ACCESSORIES_ICONS[clean]) accessoryLines.push(clean);
+  });
+
+  let html = '';
+
+  // Grid de equipos con foto
+  if (equipment.length) {
+    html += `<div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(160px,1fr));gap:12px;margin-bottom:${accessoryLines.length || noteLines.length ? '24px' : '0'};">`;
+    html += equipment.map(eq => `
+      <div style="background:var(--bg3);border:1px solid var(--border2);border-radius:var(--radius-lg);overflow:hidden;transition:var(--transition);"
+           onmouseover="this.style.borderColor='var(--border)';this.style.transform='translateY(-2px)'"
+           onmouseout="this.style.borderColor='var(--border2)';this.style.transform='translateY(0)'">
+        <div style="background:#0a0a14;padding:16px 12px;display:flex;align-items:center;justify-content:center;height:110px;">
+          <img src="${eq.photo}"
+               alt="${eq.label}"
+               style="max-width:100%;max-height:100%;object-fit:contain;display:block;filter:drop-shadow(0 4px 12px rgba(139,92,246,0.2));"
+               onerror="this.parentElement.innerHTML='<span style=\\'font-size:2rem;opacity:0.3;\\'>🎛️</span>'">
+        </div>
+        <div style="padding:10px 12px;border-top:1px solid var(--border2);">
+          <div style="font-size:0.8rem;font-weight:700;color:var(--text);line-height:1.3;margin-bottom:3px;">${eq.label}</div>
+          <div style="font-size:0.7rem;color:var(--purple-l);font-weight:600;text-transform:uppercase;letter-spacing:0.5px;">${eq.cat}</div>
+        </div>
+      </div>`).join('');
+    html += `</div>`;
+  }
+
+  // Accesorios y requerimientos como badges
+  if (accessoryLines.length) {
+    html += `<div style="margin-bottom:${noteLines.length ? '20px' : '0'};">
+      <div style="font-size:0.72rem;font-weight:700;letter-spacing:1px;text-transform:uppercase;color:var(--muted2);margin-bottom:10px;">Requerimientos técnicos</div>
+      <div style="display:flex;flex-wrap:wrap;gap:8px;">
+        ${accessoryLines.map(a => {
+          const acc = ACCESSORIES_ICONS[a] || { icon: '⚙️', desc: a };
+          return `<span style="display:inline-flex;align-items:center;gap:6px;padding:6px 12px;border-radius:100px;background:rgba(255,255,255,0.04);border:1px solid var(--border2);font-size:0.82rem;color:var(--muted);">
+            ${acc.icon} ${acc.desc}
+          </span>`;
+        }).join('')}
+      </div>
+    </div>`;
+  }
+
+  // Notas adicionales
+  if (noteLines.length) {
+    html += `<div style="padding:14px 18px;background:rgba(255,255,255,0.03);border:1px solid var(--border2);border-radius:var(--radius-lg);margin-top:4px;">
+      <div style="font-size:0.72rem;font-weight:700;letter-spacing:1px;text-transform:uppercase;color:var(--muted2);margin-bottom:8px;">Notas adicionales</div>
+      <div style="font-size:0.875rem;color:var(--muted);line-height:1.7;">${noteLines.join('<br>')}</div>
+    </div>`;
+  }
+
+  // Si no se detectó nada estructurado, mostrar el texto como estaba
+  if (!equipment.length && !accessoryLines.length && !noteLines.length) {
+    html = `<pre style="font-size:0.875rem;color:var(--muted);line-height:1.8;white-space:pre-wrap;font-family:inherit;">${riderText}</pre>`;
+  }
+
+  container.innerHTML = html;
 }
 
 function openFlyer(url, name) {
