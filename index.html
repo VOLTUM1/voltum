@@ -27,7 +27,7 @@
     </a>
     <div class="nav-links">
       <a href="#features" class="btn btn-ghost btn-sm">Características</a>
-      <a href="#how" class="btn btn-ghost btn-sm">Cómo funciona</a>
+      <a href="buscar.html" class="btn btn-ghost btn-sm">🔍 Buscar DJs</a>
       <a href="#pricing" class="btn btn-ghost btn-sm">Precios</a>
       <a href="presskit.html?demo=true" class="btn btn-outline btn-sm">Ver Demo</a>
       <!-- Mostrado si NO está logueado -->
@@ -325,14 +325,18 @@
       <h2>Nuestros DJs</h2>
       <p>Conoce a los artistas que ya tienen su press kit profesional en Voltum</p>
     </div>
+    <!-- Filtro rápido por género -->
+    <div id="djGenreFilter" style="display:flex;flex-wrap:wrap;gap:8px;justify-content:center;margin-bottom:32px;"></div>
     <div id="djsGrid" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:24px;">
-      <!-- Cargando... -->
       <div id="djsLoading" style="grid-column:1/-1;text-align:center;padding:40px 0;">
         <div class="spinner" style="margin:0 auto;"></div>
       </div>
     </div>
     <div id="djsEmpty" style="display:none;text-align:center;padding:40px 0;">
       <p style="color:var(--muted2);font-size:0.9rem;">Próximamente los primeros DJs de la comunidad.</p>
+    </div>
+    <div style="text-align:center;margin-top:36px;">
+      <a href="buscar.html" class="btn btn-outline btn-lg">Ver todos los DJs →</a>
     </div>
   </div>
 </section>
@@ -341,58 +345,87 @@
 (async () => {
   const grid = document.getElementById('djsGrid');
   const loading = document.getElementById('djsLoading');
-  const empty = document.getElementById('djsEmpty');
+  const filterBar = document.getElementById('djGenreFilter');
+  let allDJs = [], activeGenreFilter = null;
 
-  try {
-    const { data: profiles } = await sb
-      .from('profiles')
-      .select('id, dj_name, slug, photo_url, location, genres')
-      .not('dj_name', 'is', null)
-      .order('created_at', { ascending: true })
-      .limit(9);
+  function buildCard(dj) {
+    const pkUrl = dj.slug ? `presskit.html?slug=${dj.slug}` : `presskit.html?id=${dj.id}`;
+    const initial = (dj.dj_name || 'DJ').charAt(0).toUpperCase();
+    const djGenres = (dj.genres || []).slice(0, 3);
+    const avatarHtml = dj.photo_url
+      ? `<img src="${dj.photo_url}" alt="${dj.dj_name}" style="width:100%;height:100%;object-fit:cover;border-radius:50%;display:block;">`
+      : `<span style="font-size:2rem;font-weight:800;color:#fff;">${initial}</span>`;
+    const genresHtml = djGenres.map(g =>
+      `<span class="badge badge-purple" style="font-size:0.72rem;padding:3px 10px;${activeGenreFilter===g?'background:rgba(139,92,246,0.3);border-color:var(--purple);':''}">${g}</span>`
+    ).join('');
+    const card = document.createElement('div');
+    card.style.cssText = 'background:var(--card);border:1px solid var(--border2);border-radius:var(--radius-lg);padding:28px 24px;display:flex;flex-direction:column;align-items:center;text-align:center;transition:var(--transition);gap:12px;';
+    card.onmouseenter = () => { card.style.borderColor='var(--border)'; card.style.transform='translateY(-4px)'; };
+    card.onmouseleave = () => { card.style.borderColor='var(--border2)'; card.style.transform='translateY(0)'; };
+    card.innerHTML = `
+      <div style="width:80px;height:80px;border-radius:50%;background:var(--gradient);display:flex;align-items:center;justify-content:center;overflow:hidden;border:3px solid rgba(139,92,246,0.3);flex-shrink:0;">${avatarHtml}</div>
+      <div>
+        <div style="font-size:1.1rem;font-weight:700;margin-bottom:4px;">${dj.dj_name}</div>
+        ${dj.location ? `<div style="font-size:0.82rem;color:var(--muted2);">📍 ${dj.location}</div>` : ''}
+      </div>
+      ${genresHtml ? `<div style="display:flex;gap:6px;flex-wrap:wrap;justify-content:center;">${genresHtml}</div>` : ''}
+      <a href="${pkUrl}" target="_blank" class="btn btn-outline btn-sm" style="margin-top:4px;width:100%;">Ver Press Kit →</a>`;
+    return card;
+  }
 
-    loading.remove();
-
-    if (!profiles || profiles.length === 0) {
-      document.getElementById('djs-section').style.display = 'none';
-      return;
-    }
-
-    profiles.forEach(dj => {
-      const pkUrl = dj.slug ? `presskit.html?slug=${dj.slug}` : `presskit.html?id=${dj.id}`;
-      const initial = (dj.dj_name || 'DJ').charAt(0).toUpperCase();
-      const genres = (dj.genres || []).slice(0, 3);
-
-      const avatarHtml = dj.photo_url
-        ? `<img src="${dj.photo_url}" alt="${dj.dj_name}" style="width:100%;height:100%;object-fit:cover;border-radius:50%;display:block;">`
-        : `<span style="font-size:2rem;font-weight:800;color:#fff;">${initial}</span>`;
-
-      const genresHtml = genres.length
-        ? genres.map(g => `<span class="badge badge-purple" style="font-size:0.72rem;padding:3px 10px;">${g}</span>`).join('')
-        : '';
-
-      const card = document.createElement('div');
-      card.style.cssText = 'background:var(--card);border:1px solid var(--border2);border-radius:var(--radius-lg);padding:28px 24px;display:flex;flex-direction:column;align-items:center;text-align:center;transition:var(--transition);gap:12px;';
-      card.onmouseenter = () => { card.style.borderColor = 'var(--border)'; card.style.transform = 'translateY(-4px)'; };
-      card.onmouseleave = () => { card.style.borderColor = 'var(--border2)'; card.style.transform = 'translateY(0)'; };
-
-      card.innerHTML = `
-        <div style="width:80px;height:80px;border-radius:50%;background:var(--gradient);display:flex;align-items:center;justify-content:center;overflow:hidden;border:3px solid rgba(139,92,246,0.3);flex-shrink:0;">
-          ${avatarHtml}
-        </div>
-        <div>
-          <div style="font-size:1.1rem;font-weight:700;margin-bottom:4px;">${dj.dj_name}</div>
-          ${dj.location ? `<div style="font-size:0.82rem;color:var(--muted2);">📍 ${dj.location}</div>` : ''}
-        </div>
-        ${genresHtml ? `<div style="display:flex;gap:6px;flex-wrap:wrap;justify-content:center;">${genresHtml}</div>` : ''}
-        <a href="${pkUrl}" target="_blank" class="btn btn-outline btn-sm" style="margin-top:4px;width:100%;">
-          Ver Press Kit →
-        </a>`;
-
+  function renderFiltered() {
+    const existing = grid.querySelectorAll('.dj-card-item');
+    existing.forEach(c => c.remove());
+    const filtered = activeGenreFilter
+      ? allDJs.filter(dj => dj.genres?.includes(activeGenreFilter))
+      : allDJs;
+    filtered.forEach(dj => {
+      const card = buildCard(dj);
+      card.classList.add('dj-card-item');
       grid.appendChild(card);
     });
+    if (!filtered.length) {
+      document.getElementById('djsEmpty').style.display = 'block';
+    } else {
+      document.getElementById('djsEmpty').style.display = 'none';
+    }
+  }
 
-  } catch (e) {
+  function buildFilterBar(djs) {
+    const genreCount = {};
+    djs.forEach(dj => (dj.genres||[]).forEach(g => { genreCount[g] = (genreCount[g]||0)+1; }));
+    const topGenres = Object.entries(genreCount).sort((a,b)=>b[1]-a[1]).slice(0,8).map(([g])=>g);
+    if (!topGenres.length) { filterBar.style.display='none'; return; }
+
+    filterBar.innerHTML = `<button onclick="setDjGenre(null)" style="padding:6px 14px;border-radius:100px;border:1px solid var(--border);background:rgba(139,92,246,0.15);color:var(--purple-l);font-size:0.8rem;font-weight:600;cursor:pointer;font-family:inherit;" id="djFilterAll">Todos</button>` +
+      topGenres.map(g => `<button onclick="setDjGenre('${g.replace(/'/g,"\\'")}')
+        " id="djFilter_${g.replace(/\W/g,'_')}"
+        style="padding:6px 14px;border-radius:100px;border:1px solid var(--border2);background:none;color:var(--muted);font-size:0.8rem;cursor:pointer;font-family:inherit;transition:all 0.18s;"
+        onmouseover="this.style.borderColor='var(--purple)';this.style.color='var(--text)'"
+        onmouseout="this.style.borderColor='var(--border2)';this.style.color='var(--muted)'">${g}</button>`).join('');
+  }
+
+  window.setDjGenre = function(g) {
+    activeGenreFilter = g;
+    renderFiltered();
+  };
+
+  try {
+    const { data: activeMems } = await sb.from('memberships').select('user_id').eq('status','active').gt('expires_at', new Date().toISOString());
+    const activeIds = (activeMems||[]).map(m=>m.user_id);
+
+    let q = sb.from('profiles').select('id, dj_name, slug, photo_url, location, genres').eq('is_company',false).not('dj_name','is',null).order('profile_views',{ascending:false}).limit(9);
+    if (activeIds.length) q = q.in('id', activeIds);
+    const { data: profiles } = await q;
+
+    loading.remove();
+    if (!profiles || !profiles.length) { document.getElementById('djs-section').style.display='none'; return; }
+
+    allDJs = profiles;
+    buildFilterBar(profiles);
+    renderFiltered();
+
+  } catch(e) {
     loading.remove();
     document.getElementById('djs-section').style.display = 'none';
   }

@@ -1,0 +1,664 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Buscar DJs — Voltum</title>
+  <meta name="description" content="Encuentra DJs profesionales por género musical, ciudad y nombre. Todos con press kit verificado en Voltum.">
+  <link rel="stylesheet" href="css/styles.css">
+  <style>
+    /* ── HERO ─────────────────────────────────────────── */
+    .search-hero {
+      position: relative; overflow: hidden;
+      padding: 100px 0 60px;
+      background: radial-gradient(ellipse 80% 60% at 50% -10%, rgba(139,92,246,0.25) 0%, transparent 70%),
+                  radial-gradient(ellipse 60% 40% at 80% 60%, rgba(34,211,238,0.1) 0%, transparent 60%),
+                  var(--bg);
+    }
+    .search-hero::before {
+      content:''; position:absolute; inset:0; opacity:0.03;
+      background-image: linear-gradient(var(--border2) 1px, transparent 1px),
+                        linear-gradient(90deg, var(--border2) 1px, transparent 1px);
+      background-size: 50px 50px;
+    }
+    .search-hero-title {
+      font-size: clamp(2rem, 5vw, 3.2rem);
+      font-weight: 900; text-align: center;
+      letter-spacing: -1.5px; line-height: 1.1;
+      margin-bottom: 12px;
+    }
+    .search-hero-sub {
+      text-align:center; color:var(--muted); font-size:1.05rem;
+      margin-bottom: 36px; max-width: 500px; margin-inline: auto;
+    }
+
+    /* ── BUSCADOR INPUT ───────────────────────────────── */
+    .search-box {
+      max-width: 640px; margin: 0 auto 48px;
+      position: relative;
+    }
+    .search-box input {
+      width: 100%; padding: 18px 24px 18px 56px;
+      font-size: 1.05rem; border-radius: 100px;
+      background: rgba(255,255,255,0.05);
+      border: 1px solid var(--border);
+      color: var(--text); font-family: inherit; outline: none;
+      transition: all 0.2s; box-sizing: border-box;
+      backdrop-filter: blur(12px);
+    }
+    .search-box input:focus {
+      border-color: var(--purple);
+      background: rgba(139,92,246,0.07);
+      box-shadow: 0 0 0 4px rgba(139,92,246,0.12), 0 8px 32px rgba(139,92,246,0.15);
+    }
+    .search-box input::placeholder { color: var(--muted2); }
+    .search-icon {
+      position:absolute; left:20px; top:50%; transform:translateY(-50%);
+      font-size:1.2rem; pointer-events:none;
+    }
+    .search-clear {
+      position:absolute; right:16px; top:50%; transform:translateY(-50%);
+      background:none; border:none; color:var(--muted2); cursor:pointer;
+      font-size:1.1rem; padding:4px 8px; display:none; border-radius:50%;
+      transition:var(--transition);
+    }
+    .search-clear:hover { color:var(--text); background:rgba(255,255,255,0.08); }
+
+    /* ── GÉNERO CHIPS ─────────────────────────────────── */
+    .genre-section { max-width: 900px; margin: 0 auto 48px; }
+    .genre-section-label {
+      font-size: 0.75rem; font-weight: 700; letter-spacing: 1.5px;
+      text-transform: uppercase; color: var(--muted2);
+      margin-bottom: 14px; text-align: center;
+    }
+    .genre-chips {
+      display: flex; flex-wrap: wrap; gap: 8px; justify-content: center;
+    }
+    .genre-chip {
+      padding: 7px 16px; border-radius: 100px;
+      border: 1px solid var(--border2);
+      background: rgba(255,255,255,0.03);
+      color: var(--muted); font-size: 0.82rem; font-weight: 500;
+      cursor: pointer; transition: all 0.18s; white-space: nowrap;
+      user-select: none;
+    }
+    .genre-chip:hover {
+      border-color: var(--purple); color: var(--text);
+      background: rgba(139,92,246,0.08);
+    }
+    .genre-chip.active {
+      border-color: var(--purple); color: var(--purple-l);
+      background: rgba(139,92,246,0.15);
+      box-shadow: 0 0 12px rgba(139,92,246,0.2);
+    }
+    .genre-chip.active::before { content: '✓ '; }
+    .show-more-btn {
+      padding: 7px 16px; border-radius: 100px;
+      border: 1px dashed var(--border2);
+      background: none; color: var(--muted2); font-size: 0.82rem;
+      cursor: pointer; transition: var(--transition); font-family: inherit;
+    }
+    .show-more-btn:hover { color: var(--text); border-color: var(--border); }
+
+    /* ── FILTROS SECUNDARIOS ──────────────────────────── */
+    .secondary-filters {
+      max-width: 900px; margin: 0 auto 40px;
+      display: flex; gap: 12px; flex-wrap: wrap; align-items: center; justify-content: center;
+    }
+    .filter-pill {
+      display: flex; align-items: center; gap: 8px;
+      padding: 8px 16px; border-radius: 100px;
+      border: 1px solid var(--border2); background: rgba(255,255,255,0.03);
+      color: var(--muted); font-size: 0.85rem; cursor: pointer;
+      transition: var(--transition); font-family: inherit;
+    }
+    .filter-pill select {
+      background: none; border: none; color: var(--muted);
+      font-family: inherit; font-size: 0.85rem; cursor: pointer; outline: none;
+      padding: 0;
+    }
+    .filter-pill select option { background: #12121e; color: var(--text); }
+
+    /* ── RESULTADOS ───────────────────────────────────── */
+    .results-section { max-width: 1100px; margin: 0 auto; padding: 0 20px 80px; }
+    .results-header {
+      display: flex; justify-content: space-between; align-items: center;
+      margin-bottom: 24px; flex-wrap: wrap; gap: 12px;
+    }
+    .results-count {
+      font-size: 0.875rem; color: var(--muted);
+    }
+    .results-count strong { color: var(--text); }
+    .sort-select {
+      background: rgba(255,255,255,0.04); border: 1px solid var(--border2);
+      border-radius: var(--radius); color: var(--muted); padding: 8px 12px;
+      font-family: inherit; font-size: 0.82rem; cursor: pointer; outline: none;
+    }
+    .sort-select option { background: #12121e; color: var(--text); }
+
+    /* ── DJ CARDS ─────────────────────────────────────── */
+    .dj-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+      gap: 20px;
+    }
+    .dj-card {
+      background: var(--card);
+      border: 1px solid var(--border2);
+      border-radius: var(--radius-xl);
+      overflow: hidden;
+      transition: transform 0.22s ease, border-color 0.22s ease, box-shadow 0.22s ease;
+      cursor: pointer;
+      animation: cardIn 0.4s ease both;
+    }
+    @keyframes cardIn {
+      from { opacity:0; transform:translateY(20px); }
+      to   { opacity:1; transform:translateY(0); }
+    }
+    .dj-card:hover {
+      transform: translateY(-6px);
+      border-color: rgba(139,92,246,0.4);
+      box-shadow: 0 16px 40px rgba(139,92,246,0.12), 0 4px 12px rgba(0,0,0,0.3);
+    }
+    .card-banner {
+      height: 80px;
+      background: linear-gradient(135deg, #1a0533 0%, #050514 50%, #0a1a2e 100%);
+      background-size: cover; background-position: center;
+      position: relative;
+    }
+    .card-banner::after {
+      content:''; position:absolute; inset:0;
+      background: linear-gradient(to bottom, transparent 40%, rgba(8,8,15,0.8) 100%);
+    }
+    .card-avatar {
+      width: 72px; height: 72px; border-radius: 50%;
+      background: var(--gradient);
+      border: 3px solid var(--bg);
+      display: flex; align-items: center; justify-content: center;
+      font-size: 1.6rem; font-weight: 800; color: #fff;
+      overflow: hidden; flex-shrink: 0;
+      position: absolute; bottom: -36px; left: 20px; z-index: 1;
+    }
+    .card-body {
+      padding: 44px 20px 20px;
+    }
+    .card-name {
+      font-size: 1.1rem; font-weight: 700; margin-bottom: 4px;
+      white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+    }
+    .card-meta {
+      font-size: 0.8rem; color: var(--muted2); margin-bottom: 12px;
+      display: flex; align-items: center; gap: 6px; flex-wrap: wrap;
+    }
+    .card-genres {
+      display: flex; flex-wrap: wrap; gap: 5px; margin-bottom: 16px; min-height: 24px;
+    }
+    .card-genre-tag {
+      padding: 3px 10px; border-radius: 100px; font-size: 0.72rem; font-weight: 600;
+      background: rgba(139,92,246,0.12); border: 1px solid rgba(139,92,246,0.25);
+      color: var(--purple-l);
+    }
+    .card-genre-tag.match {
+      background: rgba(139,92,246,0.25); border-color: var(--purple);
+      box-shadow: 0 0 8px rgba(139,92,246,0.2);
+    }
+    .card-footer {
+      display: flex; gap: 8px;
+    }
+    .card-views {
+      display: flex; align-items: center; gap: 4px;
+      font-size: 0.75rem; color: var(--muted2); padding: 0 8px;
+    }
+
+    /* ── SKELETON ─────────────────────────────────────── */
+    .skeleton { animation: shimmer 1.5s infinite; }
+    @keyframes shimmer {
+      0%   { background-position: -400px 0; }
+      100% { background-position: 400px 0; }
+    }
+    .skel-card {
+      background: var(--card); border: 1px solid var(--border2);
+      border-radius: var(--radius-xl); overflow: hidden;
+    }
+    .skel-banner { height: 80px; background: linear-gradient(90deg, var(--bg3) 25%, var(--card) 50%, var(--bg3) 75%); background-size: 800px 100%; animation: shimmer 1.5s infinite; }
+    .skel-body { padding: 44px 20px 20px; }
+    .skel-line { border-radius: 100px; background: linear-gradient(90deg, var(--bg3) 25%, var(--card) 50%, var(--bg3) 75%); background-size: 800px 100%; animation: shimmer 1.5s infinite; margin-bottom: 10px; }
+
+    /* ── EMPTY STATE ──────────────────────────────────── */
+    .empty-search {
+      text-align: center; padding: 80px 24px;
+      grid-column: 1/-1;
+    }
+    .empty-search-icon {
+      font-size: 3.5rem; margin-bottom: 20px;
+      filter: grayscale(0.3);
+    }
+    .empty-search h3 { font-size: 1.3rem; margin-bottom: 10px; }
+    .empty-search p  { color: var(--muted); max-width: 360px; margin: 0 auto 24px; font-size: 0.95rem; }
+
+    /* ── EQUALIZER ANIMADO ────────────────────────────── */
+    .eq-hero {
+      display: flex; gap: 3px; align-items: flex-end;
+      height: 32px; margin: 0 auto 24px; width: fit-content;
+    }
+    .eq-hero span {
+      width: 4px; border-radius: 2px;
+      background: var(--gradient);
+      animation: eqBounce 1.2s ease-in-out infinite;
+    }
+    .eq-hero span:nth-child(1) { height:18px; animation-delay:0s; }
+    .eq-hero span:nth-child(2) { height:28px; animation-delay:0.15s; }
+    .eq-hero span:nth-child(3) { height:12px; animation-delay:0.3s; }
+    .eq-hero span:nth-child(4) { height:24px; animation-delay:0.1s; }
+    .eq-hero span:nth-child(5) { height:32px; animation-delay:0.25s; }
+    .eq-hero span:nth-child(6) { height:16px; animation-delay:0.05s; }
+    .eq-hero span:nth-child(7) { height:20px; animation-delay:0.2s; }
+    @keyframes eqBounce {
+      0%,100% { transform: scaleY(1); }
+      50%      { transform: scaleY(0.3); }
+    }
+
+    /* ── MOBILE ───────────────────────────────────────── */
+    @media (max-width: 768px) {
+      .search-hero { padding: 80px 16px 40px; }
+      .search-box  { margin-bottom: 28px; }
+      .genre-chips { gap: 6px; }
+      .genre-chip  { padding: 6px 12px; font-size: 0.78rem; }
+      .dj-grid     { grid-template-columns: 1fr 1fr; gap: 12px; }
+      .results-section { padding: 0 12px 60px; }
+    }
+    @media (max-width: 480px) {
+      .dj-grid { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+
+<!-- NAVBAR -->
+<nav class="navbar" id="navbar">
+  <div class="container">
+    <a href="index.html" class="logo">
+      VOLTUM
+    </a>
+    <div class="nav-links">
+      <a href="buscar.html" class="btn btn-ghost btn-sm" style="color:var(--purple-l);">🔍 Buscar DJs</a>
+      <a href="index.html#pricing" class="btn btn-ghost btn-sm">Precios</a>
+      <a href="presskit.html?demo=true" class="btn btn-outline btn-sm">Ver Demo</a>
+      <a href="auth.html" class="btn btn-ghost btn-sm" id="navLoginBtn">Iniciar sesión</a>
+      <a href="auth.html" class="btn btn-primary btn-sm" id="navRegisterBtn">Comenzar gratis</a>
+      <a href="dashboard.html" class="btn btn-outline btn-sm hidden" id="navDashBtn">Mi Dashboard</a>
+    </div>
+    <button class="nav-hamburger" id="navHamburger" aria-label="Menú">
+      <span></span><span></span><span></span>
+    </button>
+  </div>
+</nav>
+<div class="nav-mobile-menu" id="navMobileMenu">
+  <a href="buscar.html" style="color:var(--purple-l);">🔍 Buscar DJs</a>
+  <a href="index.html#pricing">Precios</a>
+  <a href="presskit.html?demo=true" class="btn btn-outline">Ver Demo</a>
+  <a href="auth.html" class="btn btn-primary" id="navRegisterBtnM">⚡ Comenzar gratis</a>
+</div>
+
+<!-- HERO -->
+<section class="search-hero">
+  <div class="container-sm" style="position:relative;z-index:1;">
+    <div class="eq-hero">
+      <span></span><span></span><span></span><span></span>
+      <span></span><span></span><span></span>
+    </div>
+    <h1 class="search-hero-title">
+      Encuentra tu <span class="gradient-text">próximo DJ</span>
+    </h1>
+    <p class="search-hero-sub">
+      Explora los artistas verificados en Voltum. Filtra por género, ciudad o nombre.
+    </p>
+
+    <!-- BUSCADOR -->
+    <div class="search-box">
+      <span class="search-icon">🔍</span>
+      <input type="text" id="searchInput" placeholder="Buscar por nombre de DJ..." autocomplete="off" spellcheck="false">
+      <button class="search-clear" id="clearSearch" title="Limpiar">✕</button>
+    </div>
+
+    <!-- GÉNEROS -->
+    <div class="genre-section">
+      <div class="genre-section-label">Filtrar por género</div>
+      <div class="genre-chips" id="genreChips"></div>
+    </div>
+
+    <!-- FILTROS SECUNDARIOS -->
+    <div class="secondary-filters">
+      <div class="filter-pill">
+        📍
+        <select id="cityFilter">
+          <option value="">Todas las ciudades</option>
+        </select>
+      </div>
+      <div class="filter-pill">
+        🎚️
+        <select id="sortFilter">
+          <option value="views">Más vistos</option>
+          <option value="name">Nombre A–Z</option>
+          <option value="recent">Más recientes</option>
+        </select>
+      </div>
+      <button class="filter-pill" id="clearFilters" style="border:none;color:var(--muted2);cursor:pointer;font-family:inherit;display:none;">
+        ✕ Limpiar filtros
+      </button>
+    </div>
+  </div>
+</section>
+
+<!-- RESULTADOS -->
+<div class="results-section">
+  <div class="results-header">
+    <div class="results-count" id="resultsCount">Cargando DJs...</div>
+  </div>
+  <div class="dj-grid" id="djGrid">
+    <!-- Skeletons -->
+    ${Array(8).fill(0).map(() => `
+    <div class="skel-card">
+      <div class="skel-banner"></div>
+      <div class="skel-body">
+        <div class="skel-line" style="height:18px;width:60%;"></div>
+        <div class="skel-line" style="height:13px;width:40%;"></div>
+        <div style="display:flex;gap:6px;margin-bottom:16px;">
+          <div class="skel-line" style="height:22px;width:70px;margin:0;"></div>
+          <div class="skel-line" style="height:22px;width:60px;margin:0;"></div>
+        </div>
+        <div class="skel-line" style="height:36px;width:100%;border-radius:8px;"></div>
+      </div>
+    </div>`).join('')}
+  </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="js/config.js"></script>
+<script>
+// ── Géneros destacados (los más comunes en el circuito) ────────
+const FEATURED_GENRES = [
+  'Techno','House','Tech House','Deep House','Melodic House & Techno',
+  'Progressive House','Trance','Drum & Bass','Trap','Reggaeton',
+  'Hip-Hop','Electro','Nu-Disco','Open Format','Mainstage','Club',
+  'Minimal Techno','Hardstyle','Dubstep','Afro House'
+];
+
+const ALL_GENRES_SEARCH = [
+  'Techno','House','Minimal Techno','Deep House','Tech House',
+  'Melodic House & Techno','Progressive House','Trance','Progressive Trance',
+  'Psy-Trance','Hard Trance','Uplifting Trance','Vocal Trance',
+  'Drum & Bass','Jungle','Dubstep','Riddim','Trap','Future Bass',
+  'Hardstyle','Hardcore','Gabber','Industrial Techno','Dark Techno',
+  'Ambient Techno','Dub Techno','EBM','Industrial',
+  'Electro','Electro House','Dutch House','Big Room','Festival EDM',
+  'Disco','Nu-Disco','Funk','Soul','Afro House','Tribal House',
+  'Latin House','Reggaeton','Dembow','Cumbia Digital','Moombahton',
+  'Hip-Hop','R&B','Neo Soul','Breakbeat','UK Garage','Speed Garage',
+  'Grime','UK Bass','Future Garage','Jersey Club',
+  'Ambient','Downtempo','Chillout','Lo-Fi','Trip-Hop',
+  'IDM','Glitch','Noise','Experimental','Avant-garde',
+  'Pop','Indie Pop','Synth-Pop','Dance-Pop','Nu-Rave',
+  'Rock Electrónico','Industrial Rock','Darkwave','Gothic','New Wave',
+  'Flamenco Fusión','Jazz Electrónico','Bossa Nova Electrónica',
+  'World Music','Ethnic Fusion','Middle Eastern','Afrobeat',
+  'Mainstage','Club','Open Format'
+].sort();
+
+let allDJs = [];
+let selectedGenres = [];
+let searchQuery = '';
+let cityFilter = '';
+let sortBy = 'views';
+let showAllGenres = false;
+
+// ── Render chips ───────────────────────────────────────────────
+function renderGenreChips() {
+  const container = document.getElementById('genreChips');
+  const genresToShow = showAllGenres ? ALL_GENRES_SEARCH : FEATURED_GENRES;
+
+  container.innerHTML = genresToShow.map(g => `
+    <button class="genre-chip ${selectedGenres.includes(g) ? 'active' : ''}"
+            onclick="toggleGenre('${g.replace(/'/g,"\\'")}')">
+      ${g}
+    </button>
+  `).join('') + `
+    <button class="show-more-btn" onclick="toggleShowMore()">
+      ${showAllGenres ? '▲ Ver menos' : `+ ${ALL_GENRES_SEARCH.length - FEATURED_GENRES.length} más`}
+    </button>`;
+}
+
+function toggleShowMore() {
+  showAllGenres = !showAllGenres;
+  renderGenreChips();
+}
+
+function toggleGenre(g) {
+  if (selectedGenres.includes(g)) {
+    selectedGenres = selectedGenres.filter(x => x !== g);
+  } else {
+    selectedGenres.push(g);
+  }
+  renderGenreChips();
+  applyFilters();
+  updateClearBtn();
+}
+
+// ── Filtros ────────────────────────────────────────────────────
+function applyFilters() {
+  let result = [...allDJs];
+
+  // Nombre
+  if (searchQuery) {
+    const q = searchQuery.toLowerCase();
+    result = result.filter(dj =>
+      dj.dj_name?.toLowerCase().includes(q) ||
+      dj.location?.toLowerCase().includes(q)
+    );
+  }
+
+  // Géneros (OR — muestra si tiene al menos uno)
+  if (selectedGenres.length) {
+    result = result.filter(dj =>
+      dj.genres?.some(g => selectedGenres.includes(g))
+    );
+  }
+
+  // Ciudad
+  if (cityFilter) {
+    result = result.filter(dj =>
+      dj.location?.toLowerCase().includes(cityFilter.toLowerCase())
+    );
+  }
+
+  // Ordenar
+  if (sortBy === 'views') result.sort((a,b) => (b.profile_views||0) - (a.profile_views||0));
+  if (sortBy === 'name')  result.sort((a,b) => (a.dj_name||'').localeCompare(b.dj_name||''));
+  if (sortBy === 'recent') {} // ya vienen ordenados por created_at desc
+
+  renderCards(result);
+}
+
+function updateClearBtn() {
+  const hasFilters = selectedGenres.length > 0 || searchQuery || cityFilter;
+  document.getElementById('clearFilters').style.display = hasFilters ? 'flex' : 'none';
+}
+
+// ── Render cards ───────────────────────────────────────────────
+function renderCards(djs) {
+  const grid = document.getElementById('djGrid');
+  const count = document.getElementById('resultsCount');
+
+  count.innerHTML = djs.length === 0
+    ? 'Sin resultados'
+    : `<strong>${djs.length}</strong> DJ${djs.length !== 1 ? 's' : ''} encontrado${djs.length !== 1 ? 's' : ''}${selectedGenres.length ? ` en <strong>${selectedGenres.join(', ')}</strong>` : ''}`;
+
+  if (!djs.length) {
+    grid.innerHTML = `
+      <div class="empty-search">
+        <div class="empty-search-icon">🎧</div>
+        <h3>Sin resultados para tu búsqueda</h3>
+        <p>Intenta con otro género o quita algunos filtros para ver más DJs.</p>
+        <button class="btn btn-outline" onclick="clearAll()">Limpiar filtros</button>
+      </div>`;
+    return;
+  }
+
+  grid.innerHTML = djs.map((dj, i) => {
+    const pkUrl = dj.slug ? `presskit.html?slug=${dj.slug}` : `presskit.html?id=${dj.id}`;
+    const initial = (dj.dj_name || 'DJ').charAt(0).toUpperCase();
+    const djGenres = (dj.genres || []).slice(0, 4);
+    const delay = Math.min(i * 40, 300);
+
+    const bannerStyle = dj.banner_url
+      ? `background-image:url(${dj.banner_url});background-size:cover;background-position:center;`
+      : `background:linear-gradient(135deg,#1a0533 0%,#050514 50%,#0a1a2e 100%);`;
+
+    const avatarContent = dj.photo_url
+      ? `<img src="${dj.photo_url}" alt="${dj.dj_name}" style="width:100%;height:100%;object-fit:cover;">`
+      : initial;
+
+    const genreTags = djGenres.map(g => `
+      <span class="card-genre-tag ${selectedGenres.includes(g) ? 'match' : ''}">${g}</span>
+    `).join('');
+
+    return `
+    <div class="dj-card" style="animation-delay:${delay}ms;" onclick="window.open('${pkUrl}','_blank')">
+      <div class="card-banner" style="${bannerStyle}">
+        <div class="card-avatar">${avatarContent}</div>
+      </div>
+      <div class="card-body">
+        <div class="card-name">${dj.dj_name || '—'}</div>
+        <div class="card-meta">
+          ${dj.location ? `<span>📍 ${dj.location}</span>` : ''}
+          ${dj.profile_views ? `<span style="color:var(--muted2);">· 👁 ${dj.profile_views}</span>` : ''}
+        </div>
+        <div class="card-genres">${genreTags || '<span style="color:var(--muted2);font-size:0.78rem;">Sin géneros definidos</span>'}</div>
+        <div class="card-footer">
+          <a href="${pkUrl}" target="_blank" rel="noopener" class="btn btn-primary btn-sm" style="flex:1;text-align:center;"
+             onclick="event.stopPropagation()">
+            Ver Press Kit →
+          </a>
+        </div>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+// ── Limpiar todo ───────────────────────────────────────────────
+function clearAll() {
+  selectedGenres = [];
+  searchQuery = '';
+  cityFilter = '';
+  document.getElementById('searchInput').value = '';
+  document.getElementById('cityFilter').value = '';
+  document.getElementById('clearSearch').style.display = 'none';
+  renderGenreChips();
+  applyFilters();
+  updateClearBtn();
+}
+
+// ── Cargar DJs desde Supabase ──────────────────────────────────
+(async () => {
+  try {
+    // 1. Obtener IDs con membresía activa
+    const { data: activeMems } = await sb
+      .from('memberships')
+      .select('user_id')
+      .eq('status', 'active')
+      .gt('expires_at', new Date().toISOString());
+
+    const activeIds = (activeMems || []).map(m => m.user_id);
+
+    // 2. Obtener perfiles de DJs activos
+    let query = sb
+      .from('profiles')
+      .select('id, dj_name, slug, photo_url, banner_url, location, genres, profile_views, bio, created_at')
+      .eq('is_company', false)
+      .not('dj_name', 'is', null)
+      .order('profile_views', { ascending: false });
+
+    if (activeIds.length) {
+      query = query.in('id', activeIds);
+    }
+
+    const { data: djs, error } = await query.limit(200);
+    if (error) throw error;
+
+    allDJs = djs || [];
+
+    // Poblar ciudades únicas
+    const cities = [...new Set(allDJs.map(d => d.location).filter(Boolean))].sort();
+    const citySelect = document.getElementById('cityFilter');
+    cities.forEach(c => {
+      const opt = document.createElement('option');
+      opt.value = c; opt.textContent = c;
+      citySelect.appendChild(opt);
+    });
+
+    renderGenreChips();
+    applyFilters();
+
+  } catch(err) {
+    console.error(err);
+    document.getElementById('djGrid').innerHTML = `
+      <div class="empty-search">
+        <div class="empty-search-icon">⚠️</div>
+        <h3>Error cargando DJs</h3>
+        <p>Recarga la página e intenta de nuevo.</p>
+      </div>`;
+    document.getElementById('resultsCount').textContent = 'Error al cargar';
+  }
+})();
+
+// ── Eventos ────────────────────────────────────────────────────
+document.getElementById('searchInput').addEventListener('input', e => {
+  searchQuery = e.target.value.trim();
+  document.getElementById('clearSearch').style.display = searchQuery ? 'block' : 'none';
+  applyFilters();
+  updateClearBtn();
+});
+
+document.getElementById('clearSearch').addEventListener('click', () => {
+  document.getElementById('searchInput').value = '';
+  searchQuery = '';
+  document.getElementById('clearSearch').style.display = 'none';
+  applyFilters();
+  updateClearBtn();
+});
+
+document.getElementById('cityFilter').addEventListener('change', e => {
+  cityFilter = e.target.value;
+  applyFilters();
+  updateClearBtn();
+});
+
+document.getElementById('sortFilter').addEventListener('change', e => {
+  sortBy = e.target.value;
+  applyFilters();
+});
+
+document.getElementById('clearFilters').addEventListener('click', clearAll);
+
+// Navbar hamburger
+const ham = document.getElementById('navHamburger');
+const menu = document.getElementById('navMobileMenu');
+if (ham && menu) {
+  ham.addEventListener('click', () => {
+    ham.classList.toggle('open');
+    menu.classList.toggle('open');
+  });
+}
+
+// Navbar auth state
+(async () => {
+  const { data: { user } } = await sb.auth.getUser();
+  if (user) {
+    document.getElementById('navLoginBtn')?.classList.add('hidden');
+    document.getElementById('navRegisterBtn')?.classList.add('hidden');
+    document.getElementById('navDashBtn')?.classList.remove('hidden');
+  }
+})();
+</script>
+</body>
+</html>
