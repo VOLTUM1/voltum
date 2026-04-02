@@ -411,12 +411,18 @@
   };
 
   try {
-    const { data: activeMems } = await sb.from('memberships').select('user_id').eq('status','active').gt('expires_at', new Date().toISOString());
-    const activeIds = (activeMems||[]).map(m=>m.user_id);
+    const { data: activeMems } = await sb.rpc('get_active_dj_ids');
+    const activeIds = (activeMems || []);
 
-    let q = sb.from('profiles').select('id, dj_name, slug, photo_url, location, genres').eq('is_company',false).not('dj_name','is',null).order('profile_views',{ascending:false}).limit(9);
-    if (activeIds.length) q = q.in('id', activeIds);
-    const { data: profiles } = await q;
+    if (!activeIds.length) { document.getElementById('djs-section').style.display='none'; return; }
+
+    const { data: profiles } = await sb.from('profiles')
+      .select('id, dj_name, slug, photo_url, location, genres')
+      .eq('is_company', false)
+      .not('dj_name', 'is', null)
+      .in('id', activeIds)
+      .order('profile_views', { ascending: false })
+      .limit(9);
 
     loading.remove();
     if (!profiles || !profiles.length) { document.getElementById('djs-section').style.display='none'; return; }
