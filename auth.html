@@ -159,7 +159,11 @@
 (async () => {
   // Si ya está logueado, redirigir
   const user = await Auth.getUser();
-  if (user) { window.location.href = 'dashboard.html'; return; }
+  if (user) {
+    const { data: p } = await sb.from('profiles').select('is_company').eq('id', user.id).single();
+    window.location.href = p?.is_company ? 'company-dashboard.html' : 'dashboard.html';
+    return;
+  }
 
   // Tabs
   const tabs = document.querySelectorAll('.auth-tab');
@@ -204,12 +208,13 @@
     const btn = document.getElementById('loginBtn');
     btn.disabled = true; btn.textContent = 'Ingresando...';
 
-    const { error } = await sb.auth.signInWithPassword({ email, password });
+    const { data: signInData, error } = await sb.auth.signInWithPassword({ email, password });
     if (error) {
       showToast(error.message === 'Invalid login credentials' ? 'Email o contraseña incorrectos' : error.message, 'error');
       btn.disabled = false; btn.textContent = 'Iniciar sesión →';
     } else {
-      window.location.href = 'dashboard.html';
+      const { data: p } = await sb.from('profiles').select('is_company').eq('id', signInData.user.id).single();
+      window.location.href = p?.is_company ? 'company-dashboard.html' : 'dashboard.html';
     }
   });
 
@@ -283,7 +288,9 @@
       }
 
       showToast('¡Cuenta creada! Redirigiendo...', 'success');
-      setTimeout(() => { window.location.href = 'dashboard.html'; }, 1200);
+      setTimeout(() => {
+        window.location.href = accountType === 'empresa' ? 'company-dashboard.html' : 'dashboard.html';
+      }, 1200);
     }
   });
 

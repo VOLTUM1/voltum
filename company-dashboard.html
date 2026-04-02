@@ -1,0 +1,424 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Voltum — Panel Empresa</title>
+  <link rel="stylesheet" href="css/styles.css">
+  <style>
+    /* ── Layout ── */
+    .sidebar { width: 240px; min-height: 100vh; background: var(--bg2); border-right: 1px solid var(--border2); display: flex; flex-direction: column; position: fixed; top: 0; left: 0; z-index: 50; }
+    .sidebar-logo { padding: 24px 20px 20px; font-weight: 800; font-size: 1.1rem; letter-spacing: 0.05em; border-bottom: 1px solid var(--border2); }
+    .sidebar-nav { padding: 16px 12px; flex: 1; display: flex; flex-direction: column; gap: 2px; }
+    .nav-item { display: flex; align-items: center; gap: 10px; padding: 10px 12px; border-radius: var(--radius); color: var(--muted); font-size: 0.875rem; font-weight: 500; text-decoration: none; transition: var(--transition); cursor: pointer; border: none; background: none; width: 100%; text-align: left; }
+    .nav-item:hover { background: var(--bg3); color: var(--text); }
+    .nav-item.active { background: rgba(139,92,246,0.12); color: var(--purple-l); }
+    .nav-item svg { flex-shrink: 0; opacity: 0.7; }
+    .nav-item.active svg { opacity: 1; }
+    .sidebar-footer { padding: 16px 20px; border-top: 1px solid var(--border2); display: flex; align-items: center; gap: 10px; }
+    .sidebar-avatar { width: 34px; height: 34px; border-radius: 50%; background: rgba(139,92,246,0.2); border: 1px solid var(--border); display: flex; align-items: center; justify-content: center; font-weight: 700; font-size: 0.85rem; color: var(--purple-l); flex-shrink: 0; }
+    .sidebar-user-info { min-width: 0; }
+    .sidebar-user-name { font-size: 0.85rem; font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .sidebar-user-role { font-size: 0.72rem; color: var(--muted2); }
+
+    .main-content { margin-left: 240px; padding: 32px; min-height: 100vh; max-width: 1100px; }
+
+    /* ── Stats ── */
+    .stats-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(180px, 1fr)); gap: 16px; margin-bottom: 28px; }
+    .stat-card-v2 { background: var(--card); border: 1px solid var(--border2); border-radius: var(--radius-lg); padding: 20px; display: flex; align-items: center; gap: 14px; position: relative; overflow: hidden; transition: var(--transition); }
+    .stat-card-v2::before { content: ''; position: absolute; top: 0; left: 0; right: 0; height: 2px; background: transparent; transition: var(--transition); }
+    .stat-card-v2:hover::before { background: var(--purple); }
+    .stat-icon-box { width: 40px; height: 40px; border-radius: var(--radius); display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+    .stat-icon-box.purple { background: rgba(139,92,246,0.15); color: var(--purple-l); }
+    .stat-icon-box.blue   { background: rgba(34,211,238,0.12); color: #22d3ee; }
+    .stat-icon-box.green  { background: rgba(34,197,94,0.12);  color: #4ade80; }
+    .stat-icon-box.gold   { background: rgba(251,191,36,0.12); color: #fbbf24; }
+    .stat-value-v2 { font-size: 1.6rem; font-weight: 800; background: linear-gradient(135deg, var(--text) 0%, var(--muted) 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; line-height: 1; }
+    .stat-label-v2 { font-size: 0.78rem; color: var(--muted2); margin-top: 4px; }
+
+    /* ── Section header ── */
+    .section-title { font-size: 0.72rem; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase; color: var(--muted2); margin-bottom: 6px; }
+    .dash-header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 28px; gap: 16px; flex-wrap: wrap; }
+
+    /* ── Bookings table ── */
+    .bookings-card { background: var(--card); border: 1px solid var(--border2); border-radius: var(--radius-xl); overflow: hidden; }
+    .bookings-card-header { padding: 20px 24px 16px; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid var(--border2); flex-wrap: wrap; gap: 12px; }
+    .booking-row { display: grid; grid-template-columns: 1fr 1fr 120px 110px 80px; gap: 12px; align-items: center; padding: 16px 24px; border-bottom: 1px solid var(--border2); transition: var(--transition); }
+    .booking-row:last-child { border-bottom: none; }
+    .booking-row:hover { background: var(--bg3); }
+    .booking-dj { font-weight: 600; font-size: 0.9rem; }
+    .booking-dj-sub { font-size: 0.75rem; color: var(--muted2); margin-top: 2px; }
+    .booking-date { font-size: 0.85rem; color: var(--text); }
+    .booking-date-sub { font-size: 0.75rem; color: var(--muted2); margin-top: 2px; }
+    .booking-venue { font-size: 0.83rem; color: var(--muted); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .booking-budget { font-size: 0.83rem; color: var(--muted); }
+
+    .status-badge { display: inline-flex; align-items: center; gap: 5px; padding: 4px 10px; border-radius: 100px; font-size: 0.72rem; font-weight: 600; white-space: nowrap; }
+    .status-pendiente { background: rgba(251,191,36,0.12); color: #fbbf24; border: 1px solid rgba(251,191,36,0.25); }
+    .status-aceptado  { background: rgba(34,197,94,0.1);  color: #4ade80;  border: 1px solid rgba(34,197,94,0.2); }
+    .status-rechazado { background: rgba(239,68,68,0.1);  color: #f87171;  border: 1px solid rgba(239,68,68,0.2); }
+    .status-cancelado { background: rgba(107,114,128,0.1); color: var(--muted); border: 1px solid var(--border2); }
+
+    .empty-state { padding: 60px 24px; text-align: center; }
+    .empty-state-icon { font-size: 2.5rem; margin-bottom: 16px; opacity: 0.4; }
+
+    /* ── Profile incomplete banner ── */
+    .setup-banner { background: rgba(139,92,246,0.08); border: 1px solid rgba(139,92,246,0.25); border-radius: var(--radius-lg); padding: 16px 20px; display: flex; align-items: center; gap: 14px; margin-bottom: 24px; }
+
+    /* ── Quick actions ── */
+    .quick-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 14px; margin-bottom: 28px; }
+    .quick-card { background: var(--card); border: 1px solid var(--border2); border-radius: var(--radius-lg); padding: 20px; display: flex; flex-direction: column; gap: 10px; text-decoration: none; transition: var(--transition); position: relative; }
+    .quick-card:hover { border-color: var(--border); transform: translateY(-2px); background: var(--card-hover); }
+    .quick-card-arrow { position: absolute; top: 16px; right: 16px; color: var(--muted2); font-size: 1rem; transition: var(--transition); }
+    .quick-card:hover .quick-card-arrow { color: var(--purple-l); transform: translate(2px, -2px); }
+    .quick-icon { width: 38px; height: 38px; border-radius: var(--radius); display: flex; align-items: center; justify-content: center; }
+
+    /* ── Responsive ── */
+    @media (max-width: 768px) {
+      .sidebar { display: none; }
+      .main-content { margin-left: 0; padding: 20px 16px; }
+      .booking-row { grid-template-columns: 1fr 1fr; }
+      .booking-row > :nth-child(3), .booking-row > :nth-child(4) { display: none; }
+    }
+  </style>
+</head>
+<body>
+
+<!-- SIDEBAR -->
+<aside class="sidebar">
+  <div class="sidebar-logo">VOLTUM</div>
+  <nav class="sidebar-nav">
+    <a class="nav-item active" href="company-dashboard.html">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/></svg>
+      Panel
+    </a>
+    <a class="nav-item" href="company-profile.html">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+      Mi empresa
+    </a>
+    <a class="nav-item" href="buscar.html">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+      Buscar DJs
+    </a>
+  </nav>
+  <div class="sidebar-footer">
+    <div class="sidebar-avatar" id="sidebarAvatar">E</div>
+    <div class="sidebar-user-info">
+      <div class="sidebar-user-name" id="sidebarUserName">Empresa</div>
+      <div class="sidebar-user-role">
+        <a href="#" id="logoutBtn" style="color:var(--muted2);font-size:0.72rem;text-decoration:none;">Cerrar sesión</a>
+      </div>
+    </div>
+  </div>
+</aside>
+
+<!-- MAIN -->
+<main class="main-content" id="mainContent">
+  <div class="spinner" id="loadingSpinner"></div>
+  <div id="dashContent" class="hidden">
+
+    <!-- SETUP BANNER (si perfil incompleto) -->
+    <div id="setupBanner" class="setup-banner" style="display:none;">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="var(--purple-l)" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+      <div style="flex:1;">
+        <div style="font-weight:600;font-size:0.9rem;">Completa el perfil de tu empresa</div>
+        <div style="font-size:0.8rem;color:var(--muted);margin-top:2px;">Los DJs verán esta información cuando reciban tu solicitud de booking.</div>
+      </div>
+      <a href="company-profile.html" class="btn btn-primary btn-sm">Completar →</a>
+    </div>
+
+    <!-- HEADER -->
+    <div class="dash-header">
+      <div>
+        <div class="section-title" style="margin-bottom:6px;">Panel de empresa</div>
+        <h1 style="font-size:1.75rem;font-weight:800;margin-bottom:4px;">
+          Hola, <span id="welcomeName" class="gradient-text"></span> 👋
+        </h1>
+        <p style="font-size:0.9rem;color:var(--muted);">Gestiona tus bookings y encuentra nuevos DJs</p>
+      </div>
+      <a href="buscar.html" class="btn btn-primary btn-sm" style="align-self:flex-start;">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+        Buscar DJs
+      </a>
+    </div>
+
+    <!-- STATS -->
+    <div class="stats-grid">
+      <div class="stat-card-v2">
+        <div class="stat-icon-box purple">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M8 6h13M8 12h13M8 18h13M3 6h.01M3 12h.01M3 18h.01"/></svg>
+        </div>
+        <div>
+          <div class="stat-value-v2" id="statTotal">—</div>
+          <div class="stat-label-v2">Solicitudes enviadas</div>
+        </div>
+      </div>
+      <div class="stat-card-v2">
+        <div class="stat-icon-box gold">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+        </div>
+        <div>
+          <div class="stat-value-v2" id="statPending">—</div>
+          <div class="stat-label-v2">Pendientes</div>
+        </div>
+      </div>
+      <div class="stat-card-v2">
+        <div class="stat-icon-box green">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"/></svg>
+        </div>
+        <div>
+          <div class="stat-value-v2" id="statAccepted">—</div>
+          <div class="stat-label-v2">Aceptados</div>
+        </div>
+      </div>
+      <div class="stat-card-v2">
+        <div class="stat-icon-box blue">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+        </div>
+        <div>
+          <div class="stat-value-v2" id="statDJs">—</div>
+          <div class="stat-label-v2">DJs contactados</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ACCIONES RÁPIDAS -->
+    <div class="section-title" style="margin-bottom:12px;">Acciones rápidas</div>
+    <div class="quick-grid" style="margin-bottom:32px;">
+      <a class="quick-card" href="buscar.html">
+        <span class="quick-card-arrow">↗</span>
+        <div class="quick-icon" style="background:rgba(139,92,246,0.12);color:var(--purple-l);">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+        </div>
+        <div style="font-weight:600;font-size:0.9rem;">Buscar DJs</div>
+        <div style="font-size:0.78rem;color:var(--muted2);">Explora perfiles y solicita bookings</div>
+      </a>
+      <a class="quick-card" href="company-profile.html">
+        <span class="quick-card-arrow">↗</span>
+        <div class="quick-icon" style="background:rgba(34,211,238,0.1);color:#22d3ee;">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
+        </div>
+        <div style="font-weight:600;font-size:0.9rem;">Editar perfil</div>
+        <div style="font-size:0.78rem;color:var(--muted2);">Nombre, tipo de venue, contacto</div>
+      </a>
+    </div>
+
+    <!-- BOOKINGS -->
+    <div class="section-title" style="margin-bottom:12px;">Mis solicitudes de booking</div>
+    <div class="bookings-card">
+      <div class="bookings-card-header">
+        <div style="font-weight:700;">Historial de solicitudes</div>
+        <div style="display:flex;gap:8px;flex-wrap:wrap;" id="filterBtns">
+          <button class="btn btn-outline btn-sm filter-btn active" data-filter="all">Todas</button>
+          <button class="btn btn-outline btn-sm filter-btn" data-filter="pendiente">Pendientes</button>
+          <button class="btn btn-outline btn-sm filter-btn" data-filter="aceptado">Aceptadas</button>
+          <button class="btn btn-outline btn-sm filter-btn" data-filter="rechazado">Rechazadas</button>
+        </div>
+      </div>
+
+      <!-- Header columnas -->
+      <div class="booking-row" style="padding-top:10px;padding-bottom:10px;border-bottom:1px solid var(--border2);">
+        <div style="font-size:0.72rem;font-weight:700;text-transform:uppercase;letter-spacing:0.08em;color:var(--muted2);">DJ</div>
+        <div style="font-size:0.72rem;font-weight:700;text-transform:uppercase;letter-spacing:0.08em;color:var(--muted2);">Evento</div>
+        <div style="font-size:0.72rem;font-weight:700;text-transform:uppercase;letter-spacing:0.08em;color:var(--muted2);">Venue</div>
+        <div style="font-size:0.72rem;font-weight:700;text-transform:uppercase;letter-spacing:0.08em;color:var(--muted2);">Presupuesto</div>
+        <div style="font-size:0.72rem;font-weight:700;text-transform:uppercase;letter-spacing:0.08em;color:var(--muted2);">Estado</div>
+      </div>
+
+      <div id="bookingsList">
+        <div class="empty-state">
+          <div class="empty-state-icon">📋</div>
+          <div style="font-weight:600;margin-bottom:8px;">Sin solicitudes aún</div>
+          <div style="font-size:0.85rem;color:var(--muted);margin-bottom:20px;">Busca un DJ y envía tu primera solicitud de booking</div>
+          <a href="buscar.html" class="btn btn-primary btn-sm">Buscar DJs →</a>
+        </div>
+      </div>
+    </div>
+
+  </div><!-- /dashContent -->
+</main>
+
+<!-- MODAL DETALLE BOOKING -->
+<div id="bookingModal" style="display:none;position:fixed;inset:0;z-index:200;background:rgba(0,0,0,0.7);align-items:center;justify-content:center;padding:24px;">
+  <div style="background:var(--bg2);border:1px solid var(--border);border-radius:var(--radius-xl);width:100%;max-width:520px;padding:28px;position:relative;max-height:90vh;overflow-y:auto;">
+    <button onclick="closeModal()" style="position:absolute;top:16px;right:16px;background:none;border:none;color:var(--muted);font-size:1.4rem;cursor:pointer;line-height:1;">✕</button>
+    <div id="modalContent"></div>
+  </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="js/config.js"></script>
+<script>
+(async () => {
+  const user = await Auth.requireAuth();
+  if (!user) return;
+
+  // Verificar que es empresa
+  const { data: profile } = await sb.from('profiles').select('dj_name, is_company, is_admin').eq('id', user.id).single();
+  if (!profile?.is_company && !profile?.is_admin) {
+    window.location.href = 'dashboard.html'; return;
+  }
+
+  document.getElementById('loadingSpinner').style.display = 'none';
+  document.getElementById('dashContent').classList.remove('hidden');
+
+  const companyName = profile.dj_name || user.email;
+  document.getElementById('welcomeName').textContent = companyName;
+  document.getElementById('sidebarUserName').textContent = companyName;
+  document.getElementById('sidebarAvatar').textContent = companyName.charAt(0).toUpperCase();
+
+  document.getElementById('logoutBtn').addEventListener('click', async e => {
+    e.preventDefault();
+    await sb.auth.signOut();
+    window.location.href = 'auth.html';
+  });
+
+  // Obtener perfil de empresa
+  const { data: company } = await sb.from('companies').select('*').eq('user_id', user.id).single();
+  if (!company?.name) {
+    document.getElementById('setupBanner').style.display = 'flex';
+  }
+
+  // Obtener bookings
+  let bookingsQuery = company
+    ? await sb.from('bookings').select(`
+        *,
+        dj:profiles!bookings_dj_user_id_fkey(dj_name, photo_url, slug)
+      `).eq('company_id', company.id).order('created_at', { ascending: false })
+    : { data: [] };
+
+  const bookings = bookingsQuery.data || [];
+
+  // Stats
+  document.getElementById('statTotal').textContent = bookings.length;
+  document.getElementById('statPending').textContent = bookings.filter(b => b.status === 'pendiente').length;
+  document.getElementById('statAccepted').textContent = bookings.filter(b => b.status === 'aceptado').length;
+  const uniqueDJs = new Set(bookings.map(b => b.dj_user_id));
+  document.getElementById('statDJs').textContent = uniqueDJs.size;
+
+  // Render bookings
+  renderBookings(bookings, 'all');
+
+  // Filtros
+  document.querySelectorAll('.filter-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+      document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+      renderBookings(bookings, btn.dataset.filter);
+    });
+  });
+
+  function renderBookings(list, filter) {
+    const filtered = filter === 'all' ? list : list.filter(b => b.status === filter);
+    const el = document.getElementById('bookingsList');
+
+    if (!filtered.length) {
+      el.innerHTML = `<div class="empty-state">
+        <div class="empty-state-icon">${filter === 'all' ? '📋' : '🔍'}</div>
+        <div style="font-weight:600;margin-bottom:8px;">${filter === 'all' ? 'Sin solicitudes aún' : 'Sin solicitudes ' + filter + 's'}</div>
+        ${filter === 'all' ? `<div style="font-size:0.85rem;color:var(--muted);margin-bottom:20px;">Busca un DJ y envía tu primera solicitud</div><a href="buscar.html" class="btn btn-primary btn-sm">Buscar DJs →</a>` : ''}
+      </div>`;
+      return;
+    }
+
+    el.innerHTML = filtered.map(b => {
+      const date = b.event_date ? new Date(b.event_date + 'T12:00:00').toLocaleDateString('es-CL', { day: 'numeric', month: 'short', year: 'numeric' }) : '—';
+      const budget = b.budget ? formatPrice(b.budget) : '—';
+      const djName = b.dj?.dj_name || 'DJ desconocido';
+      const statusMap = { pendiente: 'status-pendiente', aceptado: 'status-aceptado', rechazado: 'status-rechazado', cancelado: 'status-cancelado' };
+      const statusLabel = { pendiente: '● Pendiente', aceptado: '✓ Aceptado', rechazado: '✕ Rechazado', cancelado: '— Cancelado' };
+      return `
+      <div class="booking-row" onclick="openBookingDetail(${JSON.stringify(b).replace(/"/g, '&quot;')})" style="cursor:pointer;">
+        <div>
+          <div class="booking-dj">${djName}</div>
+          <div class="booking-dj-sub">${b.event_type || ''}</div>
+        </div>
+        <div>
+          <div class="booking-date">${date}</div>
+          <div class="booking-date-sub">${b.event_time || ''}</div>
+        </div>
+        <div class="booking-venue">${b.venue_name || b.city || '—'}</div>
+        <div class="booking-budget">${budget}</div>
+        <div><span class="status-badge ${statusMap[b.status] || ''}">${statusLabel[b.status] || b.status}</span></div>
+      </div>`;
+    }).join('');
+  }
+
+  window.openBookingDetail = function(b) {
+    const date = b.event_date ? new Date(b.event_date + 'T12:00:00').toLocaleDateString('es-CL', { day: 'numeric', month: 'long', year: 'numeric' }) : '—';
+    const budget = b.budget ? formatPrice(b.budget) : '—';
+    const djName = b.dj?.dj_name || 'DJ desconocido';
+    const statusMap = { pendiente: 'status-pendiente', aceptado: 'status-aceptado', rechazado: 'status-rechazado', cancelado: 'status-cancelado' };
+    const statusLabel = { pendiente: '● Pendiente', aceptado: '✓ Aceptado', rechazado: '✕ Rechazado', cancelado: '— Cancelado' };
+
+    document.getElementById('modalContent').innerHTML = `
+      <div style="display:flex;align-items:center;gap:12px;margin-bottom:20px;">
+        <div style="width:44px;height:44px;border-radius:50%;background:rgba(139,92,246,0.15);display:flex;align-items:center;justify-content:center;font-weight:700;color:var(--purple-l);font-size:1.1rem;">${djName.charAt(0)}</div>
+        <div>
+          <div style="font-weight:700;font-size:1.05rem;">${djName}</div>
+          <span class="status-badge ${statusMap[b.status] || ''}" style="margin-top:4px;">${statusLabel[b.status] || b.status}</span>
+        </div>
+      </div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:16px;">
+        <div style="background:var(--bg3);border-radius:var(--radius);padding:12px;">
+          <div style="font-size:0.72rem;color:var(--muted2);text-transform:uppercase;letter-spacing:0.06em;margin-bottom:4px;">Fecha</div>
+          <div style="font-weight:600;">${date}</div>
+        </div>
+        <div style="background:var(--bg3);border-radius:var(--radius);padding:12px;">
+          <div style="font-size:0.72rem;color:var(--muted2);text-transform:uppercase;letter-spacing:0.06em;margin-bottom:4px;">Horario</div>
+          <div style="font-weight:600;">${b.event_time || '—'}</div>
+        </div>
+        <div style="background:var(--bg3);border-radius:var(--radius);padding:12px;">
+          <div style="font-size:0.72rem;color:var(--muted2);text-transform:uppercase;letter-spacing:0.06em;margin-bottom:4px;">Tipo de evento</div>
+          <div style="font-weight:600;">${b.event_type || '—'}</div>
+        </div>
+        <div style="background:var(--bg3);border-radius:var(--radius);padding:12px;">
+          <div style="font-size:0.72rem;color:var(--muted2);text-transform:uppercase;letter-spacing:0.06em;margin-bottom:4px;">Presupuesto</div>
+          <div style="font-weight:600;">${budget}</div>
+        </div>
+        <div style="background:var(--bg3);border-radius:var(--radius);padding:12px;">
+          <div style="font-size:0.72rem;color:var(--muted2);text-transform:uppercase;letter-spacing:0.06em;margin-bottom:4px;">Venue</div>
+          <div style="font-weight:600;">${b.venue_name || '—'}</div>
+        </div>
+        <div style="background:var(--bg3);border-radius:var(--radius);padding:12px;">
+          <div style="font-size:0.72rem;color:var(--muted2);text-transform:uppercase;letter-spacing:0.06em;margin-bottom:4px;">Ciudad</div>
+          <div style="font-weight:600;">${b.city || '—'}</div>
+        </div>
+      </div>
+      ${b.message ? `<div style="background:var(--bg3);border-radius:var(--radius);padding:14px;margin-bottom:16px;">
+        <div style="font-size:0.72rem;color:var(--muted2);text-transform:uppercase;letter-spacing:0.06em;margin-bottom:6px;">Mensaje enviado</div>
+        <div style="font-size:0.875rem;color:var(--text);line-height:1.6;">${b.message}</div>
+      </div>` : ''}
+      ${b.dj_response ? `<div style="background:rgba(139,92,246,0.06);border:1px solid rgba(139,92,246,0.2);border-radius:var(--radius);padding:14px;margin-bottom:16px;">
+        <div style="font-size:0.72rem;color:var(--purple-l);text-transform:uppercase;letter-spacing:0.06em;margin-bottom:6px;">Respuesta del DJ</div>
+        <div style="font-size:0.875rem;color:var(--text);line-height:1.6;">${b.dj_response}</div>
+      </div>` : ''}
+      <div style="display:flex;gap:8px;justify-content:flex-end;margin-top:8px;">
+        ${b.status === 'pendiente' ? `<button onclick="cancelBooking('${b.id}')" class="btn btn-outline btn-sm" style="color:var(--red);border-color:rgba(239,68,68,0.3);">Cancelar solicitud</button>` : ''}
+        ${b.dj?.slug ? `<a href="presskit.html?slug=${b.dj.slug}" target="_blank" class="btn btn-outline btn-sm">Ver press kit →</a>` : ''}
+        <button onclick="closeModal()" class="btn btn-primary btn-sm">Cerrar</button>
+      </div>`;
+
+    document.getElementById('bookingModal').style.display = 'flex';
+  };
+
+  window.cancelBooking = async function(id) {
+    if (!confirm('¿Cancelar esta solicitud de booking?')) return;
+    await sb.from('bookings').update({ status: 'cancelado' }).eq('id', id);
+    showToast('Solicitud cancelada', 'success');
+    closeModal();
+    setTimeout(() => window.location.reload(), 800);
+  };
+
+  window.closeModal = function() {
+    document.getElementById('bookingModal').style.display = 'none';
+  };
+
+  document.getElementById('bookingModal').addEventListener('click', e => {
+    if (e.target === document.getElementById('bookingModal')) closeModal();
+  });
+})();
+</script>
+<script defer src="/_vercel/insights/script.js"></script>
+</body>
+</html>

@@ -1,0 +1,204 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Voltum — Perfil Empresa</title>
+  <link rel="stylesheet" href="css/styles.css">
+  <style>
+    .sidebar { width: 240px; min-height: 100vh; background: var(--bg2); border-right: 1px solid var(--border2); display: flex; flex-direction: column; position: fixed; top: 0; left: 0; z-index: 50; }
+    .sidebar-logo { padding: 24px 20px 20px; font-weight: 800; font-size: 1.1rem; letter-spacing: 0.05em; border-bottom: 1px solid var(--border2); }
+    .sidebar-nav { padding: 16px 12px; flex: 1; display: flex; flex-direction: column; gap: 2px; }
+    .nav-item { display: flex; align-items: center; gap: 10px; padding: 10px 12px; border-radius: var(--radius); color: var(--muted); font-size: 0.875rem; font-weight: 500; text-decoration: none; transition: var(--transition); }
+    .nav-item:hover { background: var(--bg3); color: var(--text); }
+    .nav-item.active { background: rgba(139,92,246,0.12); color: var(--purple-l); }
+    .sidebar-footer { padding: 16px 20px; border-top: 1px solid var(--border2); display: flex; align-items: center; gap: 10px; }
+    .sidebar-avatar { width: 34px; height: 34px; border-radius: 50%; background: rgba(139,92,246,0.2); border: 1px solid var(--border); display: flex; align-items: center; justify-content: center; font-weight: 700; font-size: 0.85rem; color: var(--purple-l); flex-shrink: 0; }
+    .sidebar-user-name { font-size: 0.85rem; font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+
+    .main-content { margin-left: 240px; padding: 32px; min-height: 100vh; max-width: 800px; }
+    .section-title { font-size: 0.72rem; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase; color: var(--muted2); margin-bottom: 6px; }
+    .form-card { background: var(--card); border: 1px solid var(--border2); border-radius: var(--radius-xl); padding: 28px; margin-bottom: 20px; }
+    .form-card-title { font-weight: 700; font-size: 1rem; margin-bottom: 20px; padding-bottom: 14px; border-bottom: 1px solid var(--border2); }
+    .form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+    @media (max-width: 600px) {
+      .sidebar { display: none; }
+      .main-content { margin-left: 0; padding: 20px 16px; }
+      .form-grid { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+
+<aside class="sidebar">
+  <div class="sidebar-logo">VOLTUM</div>
+  <nav class="sidebar-nav">
+    <a class="nav-item" href="company-dashboard.html">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/></svg>
+      Panel
+    </a>
+    <a class="nav-item active" href="company-profile.html">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+      Mi empresa
+    </a>
+    <a class="nav-item" href="buscar.html">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+      Buscar DJs
+    </a>
+  </nav>
+  <div class="sidebar-footer">
+    <div class="sidebar-avatar" id="sidebarAvatar">E</div>
+    <div>
+      <div class="sidebar-user-name" id="sidebarUserName">Empresa</div>
+      <a href="#" id="logoutBtn" style="color:var(--muted2);font-size:0.72rem;text-decoration:none;">Cerrar sesión</a>
+    </div>
+  </div>
+</aside>
+
+<main class="main-content">
+  <div class="spinner" id="loadingSpinner"></div>
+  <div id="pageContent" class="hidden">
+
+    <div style="margin-bottom:28px;">
+      <div class="section-title" style="margin-bottom:6px;">Configuración</div>
+      <h1 style="font-size:1.6rem;font-weight:800;">Perfil de empresa</h1>
+      <p style="font-size:0.9rem;color:var(--muted);margin-top:4px;">Esta información la verán los DJs cuando reciban tu solicitud de booking</p>
+    </div>
+
+    <!-- INFO BÁSICA -->
+    <div class="form-card">
+      <div class="form-card-title">Información básica</div>
+      <div class="form-grid">
+        <div class="form-group">
+          <label class="form-label">Nombre de la empresa *</label>
+          <input type="text" id="companyName" class="form-input" placeholder="ej: Northsound Producciones">
+        </div>
+        <div class="form-group">
+          <label class="form-label">Tipo de empresa</label>
+          <select id="companyType" class="form-input" style="cursor:pointer;">
+            <option value="">Selecciona...</option>
+            <option value="Productora">Productora</option>
+            <option value="Agencia de booking">Agencia de booking</option>
+            <option value="Club / Venue">Club / Venue</option>
+            <option value="Festival">Festival</option>
+            <option value="Sello discográfico">Sello discográfico</option>
+            <option value="Bar">Bar</option>
+            <option value="Corporativo">Corporativo</option>
+            <option value="Otra">Otra</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Ciudad</label>
+          <input type="text" id="companyCity" class="form-input" placeholder="ej: Santiago">
+        </div>
+        <div class="form-group">
+          <label class="form-label">Sitio web</label>
+          <input type="url" id="companyWebsite" class="form-input" placeholder="https://...">
+        </div>
+      </div>
+      <div class="form-group" style="margin-top:4px;">
+        <label class="form-label">Descripción breve</label>
+        <textarea id="companyBio" class="form-input" rows="3" placeholder="Cuéntanos brevemente sobre tu empresa, qué tipo de eventos organizan..." style="resize:vertical;"></textarea>
+      </div>
+    </div>
+
+    <!-- CONTACTO -->
+    <div class="form-card">
+      <div class="form-card-title">Contacto</div>
+      <div class="form-grid">
+        <div class="form-group">
+          <label class="form-label">Nombre del contacto</label>
+          <input type="text" id="contactName" class="form-input" placeholder="ej: Matías González">
+        </div>
+        <div class="form-group">
+          <label class="form-label">Teléfono / WhatsApp</label>
+          <input type="tel" id="contactPhone" class="form-input" placeholder="+56 9 xxxx xxxx">
+        </div>
+        <div class="form-group">
+          <label class="form-label">Instagram</label>
+          <input type="text" id="companyInstagram" class="form-input" placeholder="@tuempresa">
+        </div>
+      </div>
+    </div>
+
+    <div style="display:flex;justify-content:flex-end;gap:12px;">
+      <a href="company-dashboard.html" class="btn btn-outline">Cancelar</a>
+      <button id="saveBtn" class="btn btn-primary">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/><polyline points="7 3 7 8 15 8"/></svg>
+        Guardar cambios
+      </button>
+    </div>
+
+  </div>
+</main>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="js/config.js"></script>
+<script>
+(async () => {
+  const user = await Auth.requireAuth();
+  if (!user) return;
+
+  const { data: profile } = await sb.from('profiles').select('dj_name, is_company').eq('id', user.id).single();
+  if (!profile?.is_company) { window.location.href = 'dashboard.html'; return; }
+
+  document.getElementById('loadingSpinner').style.display = 'none';
+  document.getElementById('pageContent').classList.remove('hidden');
+
+  const name = profile.dj_name || user.email;
+  document.getElementById('sidebarUserName').textContent = name;
+  document.getElementById('sidebarAvatar').textContent = name.charAt(0).toUpperCase();
+
+  document.getElementById('logoutBtn').addEventListener('click', async e => {
+    e.preventDefault();
+    await sb.auth.signOut();
+    window.location.href = 'auth.html';
+  });
+
+  // Cargar datos existentes
+  const { data: company } = await sb.from('companies').select('*').eq('user_id', user.id).single();
+  if (company) {
+    document.getElementById('companyName').value     = company.name || '';
+    document.getElementById('companyType').value     = company.type || '';
+    document.getElementById('companyCity').value     = company.city || '';
+    document.getElementById('companyWebsite').value  = company.website || '';
+    document.getElementById('companyBio').value      = company.bio || '';
+    document.getElementById('contactName').value     = company.contact_name || '';
+    document.getElementById('contactPhone').value    = company.contact_phone || '';
+    document.getElementById('companyInstagram').value = company.instagram || '';
+  }
+
+  // Guardar
+  document.getElementById('saveBtn').addEventListener('click', async () => {
+    const name = document.getElementById('companyName').value.trim();
+    if (!name) { showToast('El nombre de la empresa es obligatorio', 'error'); return; }
+
+    const btn = document.getElementById('saveBtn');
+    btn.disabled = true; btn.textContent = 'Guardando...';
+
+    const { error } = await sb.from('companies').upsert({
+      user_id:       user.id,
+      name:          name,
+      type:          document.getElementById('companyType').value || null,
+      city:          document.getElementById('companyCity').value.trim() || null,
+      website:       document.getElementById('companyWebsite').value.trim() || null,
+      bio:           document.getElementById('companyBio').value.trim() || null,
+      contact_name:  document.getElementById('contactName').value.trim() || null,
+      contact_phone: document.getElementById('contactPhone').value.trim() || null,
+      instagram:     document.getElementById('companyInstagram').value.trim().replace(/^@/, '') || null,
+    }, { onConflict: 'user_id' });
+
+    // También actualizar dj_name en profiles para que el sidebar muestre el nombre correcto
+    await sb.from('profiles').update({ dj_name: name }).eq('id', user.id);
+
+    btn.disabled = false;
+    btn.innerHTML = '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/><polyline points="7 3 7 8 15 8"/></svg> Guardar cambios';
+
+    if (error) { showToast('Error al guardar: ' + error.message, 'error'); }
+    else { showToast('Perfil guardado correctamente ✓', 'success'); }
+  });
+})();
+</script>
+<script defer src="/_vercel/insights/script.js"></script>
+</body>
+</html>
