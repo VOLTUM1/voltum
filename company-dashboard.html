@@ -283,7 +283,7 @@
   let bookingsQuery = company
     ? await sb.from('bookings').select(`
         *,
-        dj:profiles!bookings_dj_user_id_fkey(dj_name, photo_url, slug)
+        dj:profiles!bookings_dj_user_id_fkey(dj_name, photo_url, slug, bank_name, bank_account_type, bank_account_number, bank_rut, bank_holder_name, bank_email)
       `).eq('company_id', company.id).order('created_at', { ascending: false })
     : { data: [] };
 
@@ -392,6 +392,24 @@
       ${b.dj_response ? `<div style="background:rgba(139,92,246,0.06);border:1px solid rgba(139,92,246,0.2);border-radius:var(--radius);padding:14px;margin-bottom:16px;">
         <div style="font-size:0.72rem;color:var(--purple-l);text-transform:uppercase;letter-spacing:0.06em;margin-bottom:6px;">Respuesta del DJ</div>
         <div style="font-size:0.875rem;color:var(--text);line-height:1.6;">${b.dj_response}</div>
+      </div>` : ''}
+      ${b.status === 'aceptado' && b.dj?.bank_name ? `
+      <div style="background:rgba(34,197,94,0.06);border:1px solid rgba(34,197,94,0.2);border-radius:var(--radius);padding:16px;margin-bottom:16px;">
+        <div style="font-size:0.72rem;color:#4ade80;text-transform:uppercase;letter-spacing:0.08em;font-weight:700;margin-bottom:12px;display:flex;align-items:center;gap:6px;">
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><rect x="1" y="4" width="22" height="16" rx="2"/><line x1="1" y1="10" x2="23" y2="10"/></svg>
+          Datos para transferencia
+        </div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;font-size:0.82rem;">
+          <div><span style="color:var(--muted2);">Banco</span><br><strong>${b.dj.bank_name}</strong></div>
+          <div><span style="color:var(--muted2);">Tipo de cuenta</span><br><strong>${b.dj.bank_account_type || '—'}</strong></div>
+          <div><span style="color:var(--muted2);">N° de cuenta</span><br><strong>${b.dj.bank_account_number || '—'}</strong></div>
+          <div><span style="color:var(--muted2);">RUT titular</span><br><strong>${b.dj.bank_rut || '—'}</strong></div>
+          <div><span style="color:var(--muted2);">Nombre titular</span><br><strong>${b.dj.bank_holder_name || '—'}</strong></div>
+          <div><span style="color:var(--muted2);">Email transferencia</span><br><strong>${b.dj.bank_email || '—'}</strong></div>
+        </div>
+      </div>` : b.status === 'aceptado' ? `
+      <div style="background:rgba(251,191,36,0.06);border:1px solid rgba(251,191,36,0.2);border-radius:var(--radius);padding:12px 14px;margin-bottom:16px;font-size:0.82rem;color:var(--muted);">
+        ⚠️ El DJ aún no ha cargado sus datos bancarios. Contáctalo directamente para coordinar el pago.
       </div>` : ''}
       <div style="display:flex;gap:8px;justify-content:flex-end;margin-top:8px;">
         ${b.status === 'pendiente' ? `<button onclick="cancelBooking('${b.id}')" class="btn btn-outline btn-sm" style="color:var(--red);border-color:rgba(239,68,68,0.3);">Cancelar solicitud</button>` : ''}

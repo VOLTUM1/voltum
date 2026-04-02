@@ -169,6 +169,10 @@
           <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M19.07 4.93l-1.41 1.41M4.93 4.93l1.41 1.41M12 2v2M12 20v2M4.93 19.07l1.41-1.41M19.07 19.07l-1.41-1.41M2 12h2M20 12h2"/></svg>
           Rider
         </button>
+        <button class="profile-tab" data-tab="payment" id="tabPayment">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="1" y="4" width="22" height="16" rx="2" ry="2"/><line x1="1" y1="10" x2="23" y2="10"/></svg>
+          Pago
+        </button>
       </div>
 
       <!-- TAB: BÁSICO -->
@@ -483,6 +487,75 @@
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script src="js/config.js"></script>
+      <!-- TAB: DATOS DE PAGO -->
+      <div class="tab-content card hidden" id="tab-payment">
+        <h3 style="font-size:1rem;margin-bottom:4px;">Datos para transferencia</h3>
+        <p style="font-size:0.875rem;margin-bottom:20px;">Esta información se entrega automáticamente a la empresa cuando confirmas un booking. No es pública en tu press kit.</p>
+
+        <div style="background:rgba(139,92,246,0.06);border:1px solid rgba(139,92,246,0.2);border-radius:var(--radius);padding:14px 16px;margin-bottom:24px;font-size:0.82rem;color:var(--muted);display:flex;gap:10px;align-items:flex-start;">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--purple-l)" stroke-width="2" style="flex-shrink:0;margin-top:1px;"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+          Solo visible para empresas que tengan un booking aceptado contigo.
+        </div>
+
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;">
+          <div class="form-group" style="margin-bottom:0;">
+            <label class="form-label">Banco</label>
+            <select id="bankName" class="form-input" style="cursor:pointer;">
+              <option value="">Selecciona tu banco...</option>
+              <optgroup label="Bancos principales">
+                <option>Banco de Chile</option>
+                <option>Banco Santander</option>
+                <option>BancoEstado</option>
+                <option>BCI</option>
+                <option>Itaú</option>
+                <option>Scotiabank</option>
+              </optgroup>
+              <optgroup label="Otros bancos">
+                <option>Banco Falabella</option>
+                <option>Banco Ripley</option>
+                <option>Banco Security</option>
+                <option>Banco Consorcio</option>
+                <option>BICE</option>
+                <option>Banco Internacional</option>
+                <option>Banco BTG Pactual</option>
+                <option>Coopeuch</option>
+              </optgroup>
+              <optgroup label="Billeteras digitales">
+                <option>Tenpo</option>
+                <option>Mercado Pago</option>
+                <option>MACH</option>
+              </optgroup>
+            </select>
+          </div>
+          <div class="form-group" style="margin-bottom:0;">
+            <label class="form-label">Tipo de cuenta</label>
+            <select id="bankAccountType" class="form-input" style="cursor:pointer;">
+              <option value="">Selecciona...</option>
+              <option>Cuenta Corriente</option>
+              <option>Cuenta Vista</option>
+              <option>Cuenta de Ahorro</option>
+              <option>Cuenta RUT</option>
+            </select>
+          </div>
+          <div class="form-group" style="margin-bottom:0;">
+            <label class="form-label">Número de cuenta</label>
+            <input type="text" id="bankAccountNumber" class="form-input" placeholder="ej: 0012345678">
+          </div>
+          <div class="form-group" style="margin-bottom:0;">
+            <label class="form-label">RUT del titular</label>
+            <input type="text" id="bankRut" class="form-input" placeholder="ej: 12.345.678-9">
+          </div>
+          <div class="form-group" style="margin-bottom:0;">
+            <label class="form-label">Nombre del titular</label>
+            <input type="text" id="bankHolderName" class="form-input" placeholder="Nombre completo">
+          </div>
+          <div class="form-group" style="margin-bottom:0;">
+            <label class="form-label">Email para transferencia</label>
+            <input type="email" id="bankEmail" class="form-input" placeholder="correo@banco.cl">
+          </div>
+        </div>
+      </div>
+
 <script>
 let currentUser = null;
 let targetUserId = null; // currentUser.id normalmente; otro ID si admin edita un cliente
@@ -683,6 +756,19 @@ function fillForm() {
   galleryUrls = profile.gallery_urls || [];
   renderGallery();
   renderGenres();
+
+  // Datos bancarios (solo para DJs)
+  if (!profile.is_company) {
+    document.getElementById('bankName').value          = profile.bank_name || '';
+    document.getElementById('bankAccountType').value   = profile.bank_account_type || '';
+    document.getElementById('bankAccountNumber').value = profile.bank_account_number || '';
+    document.getElementById('bankRut').value           = profile.bank_rut || '';
+    document.getElementById('bankHolderName').value    = profile.bank_holder_name || '';
+    document.getElementById('bankEmail').value         = profile.bank_email || '';
+  } else {
+    // Ocultar tab pago para empresas
+    document.getElementById('tabPayment').style.display = 'none';
+  }
 }
 
 function switchTab(name) {
@@ -966,6 +1052,12 @@ async function saveProfile() {
       photo_url: photoUrl,
       banner_url: bannerUrl,
       gallery_urls: galleryUrls.length ? galleryUrls : null,
+      bank_name:           !profile.is_company ? (document.getElementById('bankName').value || null) : profile.bank_name,
+      bank_account_type:   !profile.is_company ? (document.getElementById('bankAccountType').value || null) : profile.bank_account_type,
+      bank_account_number: !profile.is_company ? (document.getElementById('bankAccountNumber').value.trim() || null) : profile.bank_account_number,
+      bank_rut:            !profile.is_company ? (document.getElementById('bankRut').value.trim() || null) : profile.bank_rut,
+      bank_holder_name:    !profile.is_company ? (document.getElementById('bankHolderName').value.trim() || null) : profile.bank_holder_name,
+      bank_email:          !profile.is_company ? (document.getElementById('bankEmail').value.trim() || null) : profile.bank_email,
       updated_at: new Date().toISOString()
     };
 
