@@ -369,17 +369,28 @@ const DEMO_EVENTS = [
     }
 
     if (profileData) {
+      // Verificar membresía activa — requisito para publicar el press kit
+      const { data: mem } = await sb.from('memberships').select('status, expires_at').eq('user_id', profileData.id).single();
+      const isActive = mem?.status === 'active' && new Date(mem.expires_at) > new Date();
+
+      if (!isActive) {
+        document.getElementById('pkSpinner').innerHTML = `
+          <div style="text-align:center;padding:60px 24px;max-width:480px;margin:0 auto;">
+            <div style="font-size:3rem;margin-bottom:16px;">🔒</div>
+            <h2 style="margin-bottom:12px;">Press kit no disponible</h2>
+            <p style="color:var(--muted);margin-bottom:28px;">Este press kit no está activo en este momento.</p>
+            <a href="index.html" class="btn btn-primary">Ir al inicio</a>
+          </div>`;
+        return;
+      }
+
+      document.getElementById('pkMemberBadge').style.display = 'inline-flex';
+
       const { data: evs } = await sb.from('events').select('*').eq('user_id', profileData.id).order('date', { ascending: false });
       eventsData = evs || [];
 
       // Incrementar vistas (fire & forget)
       sb.from('profiles').update({ profile_views: (profileData.profile_views || 0) + 1 }).eq('id', profileData.id).then(() => {});
-
-      // Verificar membresía activa
-      const { data: mem } = await sb.from('memberships').select('status').eq('user_id', profileData.id).single();
-      if (mem?.status === 'active') {
-        document.getElementById('pkMemberBadge').style.display = 'inline-flex';
-      }
     }
   }
 
