@@ -164,6 +164,15 @@
     .sc-nowplaying-title { color: var(--text); font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
     .sc-nowplaying-label { color: var(--purple-l); font-size: 0.75rem; flex-shrink: 0; }
 
+    /* ── Booking modal ── */
+    .booking-modal { display:none; position:fixed; inset:0; z-index:300; background:rgba(0,0,0,0.8); align-items:center; justify-content:center; padding:16px; }
+    .booking-modal.open { display:flex; }
+    .booking-modal-box { background:var(--bg2); border:1px solid var(--border); border-radius:var(--radius-xl); width:100%; max-width:560px; max-height:90vh; overflow-y:auto; padding:28px; position:relative; }
+    .bk-grid { display:grid; grid-template-columns:1fr 1fr; gap:14px; }
+    .bk-header { display:flex; align-items:center; gap:12px; margin-bottom:22px; padding-bottom:18px; border-bottom:1px solid var(--border2); }
+    .bk-dj-avatar { width:44px; height:44px; border-radius:50%; background:rgba(139,92,246,0.15); display:flex; align-items:center; justify-content:center; font-weight:700; color:var(--purple-l); font-size:1.1rem; flex-shrink:0; }
+    @media (max-width:480px) { .bk-grid { grid-template-columns:1fr; } }
+
     /* ── Responsive mobile fixes ── */
     @media (max-width: 600px) {
       .pk-nav { padding: 12px 16px; }
@@ -277,8 +286,14 @@
     <!-- CONTACT -->
     <div class="presskit-section" id="contactSection" style="text-align:center;padding:48px 24px;border-radius:var(--radius-xl);background:linear-gradient(135deg,rgba(139,92,246,0.08),rgba(34,211,238,0.04));border:1px solid var(--border);">
       <h2 style="margin-bottom:12px;">¿Te interesa hacer un booking?</h2>
-      <p style="margin-bottom:28px;font-size:1rem;">Escríbenos directamente para coordinar fechas y condiciones.</p>
-      <a href="#" id="pkContactBtn" class="btn btn-primary btn-lg">📬 Contactar para booking</a>
+      <p style="margin-bottom:28px;font-size:1rem;">Solicita directamente a través de Voltum o escríbenos por email.</p>
+      <div style="display:flex;gap:12px;justify-content:center;flex-wrap:wrap;">
+        <button onclick="handleBookingClick()" class="btn btn-primary btn-lg">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+          Solicitar booking
+        </button>
+        <a href="#" id="pkContactBtn" class="btn btn-outline btn-lg">📬 Enviar email</a>
+      </div>
     </div>
 
     <!-- VOLTUM FOOTER -->
@@ -295,6 +310,106 @@
 <div class="demo-badge hidden" id="demoBadge">
   <span class="equalizer"><span></span><span></span><span></span><span></span></span>
   <span>Modo Demo — <a href="auth.html" style="color:var(--purple-l);">Crea el tuyo gratis →</a></span>
+</div>
+
+<!-- BOOKING MODAL -->
+<div class="booking-modal" id="bookingModal">
+  <div class="booking-modal-box" onclick="event.stopPropagation()">
+    <button onclick="closeBookingModal()" style="position:absolute;top:16px;right:16px;background:none;border:none;color:var(--muted);font-size:1.4rem;cursor:pointer;line-height:1;">✕</button>
+
+    <div class="bk-header">
+      <div class="bk-dj-avatar" id="bkDjAvatar">D</div>
+      <div>
+        <div style="font-size:0.72rem;color:var(--muted2);text-transform:uppercase;letter-spacing:0.08em;margin-bottom:3px;">Solicitud de booking para</div>
+        <div style="font-weight:800;font-size:1.1rem;" id="bkDjName">DJ</div>
+      </div>
+    </div>
+
+    <!-- No logueado -->
+    <div id="bkNoAuth" style="display:none;text-align:center;padding:20px 0;">
+      <div style="font-size:2rem;margin-bottom:12px;">🏢</div>
+      <div style="font-weight:700;margin-bottom:8px;">Regístrate como empresa</div>
+      <div style="font-size:0.875rem;color:var(--muted);margin-bottom:24px;">Para solicitar bookings necesitas una cuenta de empresa en Voltum.</div>
+      <a href="auth.html?tab=register" class="btn btn-primary">Crear cuenta empresa →</a>
+    </div>
+
+    <!-- Es DJ, no empresa -->
+    <div id="bkIsDJ" style="display:none;text-align:center;padding:20px 0;">
+      <div style="font-size:2rem;margin-bottom:12px;">🎧</div>
+      <div style="font-weight:700;margin-bottom:8px;">Esta función es para empresas</div>
+      <div style="font-size:0.875rem;color:var(--muted);">Los bookings solo pueden ser solicitados por cuentas de empresa.</div>
+    </div>
+
+    <!-- Sin perfil empresa completo -->
+    <div id="bkNoCompany" style="display:none;text-align:center;padding:20px 0;">
+      <div style="font-size:2rem;margin-bottom:12px;">⚠️</div>
+      <div style="font-weight:700;margin-bottom:8px;">Completa tu perfil de empresa</div>
+      <div style="font-size:0.875rem;color:var(--muted);margin-bottom:24px;">Antes de enviar bookings, completa el nombre y datos de tu empresa.</div>
+      <a href="company-profile.html" class="btn btn-primary">Completar perfil →</a>
+    </div>
+
+    <!-- Formulario -->
+    <form id="bkForm" style="display:none;" onsubmit="submitBooking(event)">
+      <div class="bk-grid" style="margin-bottom:14px;">
+        <div class="form-group" style="margin-bottom:0;">
+          <label class="form-label">Fecha del evento *</label>
+          <input type="date" id="bkDate" class="form-input" required>
+        </div>
+        <div class="form-group" style="margin-bottom:0;">
+          <label class="form-label">Horario de inicio</label>
+          <input type="time" id="bkTime" class="form-input">
+        </div>
+        <div class="form-group" style="margin-bottom:0;">
+          <label class="form-label">Tipo de evento *</label>
+          <select id="bkEventType" class="form-input" required style="cursor:pointer;">
+            <option value="">Selecciona...</option>
+            <option>Club night</option>
+            <option>Festival</option>
+            <option>Evento privado</option>
+            <option>Corporativo</option>
+            <option>Bar / Restorán</option>
+            <option>Aniversario</option>
+            <option>Otro</option>
+          </select>
+        </div>
+        <div class="form-group" style="margin-bottom:0;">
+          <label class="form-label">Duración (horas)</label>
+          <input type="number" id="bkDuration" class="form-input" placeholder="ej: 3" min="1" max="12" step="0.5">
+        </div>
+        <div class="form-group" style="margin-bottom:0;">
+          <label class="form-label">Nombre del venue</label>
+          <input type="text" id="bkVenue" class="form-input" placeholder="ej: Club Blondie">
+        </div>
+        <div class="form-group" style="margin-bottom:0;">
+          <label class="form-label">Ciudad</label>
+          <input type="text" id="bkCity" class="form-input" placeholder="ej: Santiago">
+        </div>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Presupuesto (CLP)</label>
+        <input type="number" id="bkBudget" class="form-input" placeholder="ej: 150000" min="0" step="1000">
+      </div>
+      <div class="form-group">
+        <label class="form-label">Mensaje para el DJ</label>
+        <textarea id="bkMessage" class="form-input" rows="3" placeholder="Cuéntale sobre el evento, el ambiente que buscan, expectativas..." style="resize:vertical;"></textarea>
+      </div>
+      <div style="display:flex;gap:10px;justify-content:flex-end;margin-top:8px;">
+        <button type="button" onclick="closeBookingModal()" class="btn btn-outline">Cancelar</button>
+        <button type="submit" id="bkSubmitBtn" class="btn btn-primary">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>
+          Enviar solicitud
+        </button>
+      </div>
+    </form>
+
+    <!-- Enviado OK -->
+    <div id="bkSuccess" style="display:none;text-align:center;padding:20px 0;">
+      <div style="font-size:2.5rem;margin-bottom:16px;">✅</div>
+      <div style="font-weight:700;font-size:1.1rem;margin-bottom:8px;">¡Solicitud enviada!</div>
+      <div style="font-size:0.875rem;color:var(--muted);margin-bottom:24px;">El DJ recibirá tu solicitud y podrá aceptarla o rechazarla desde su panel.</div>
+      <a href="company-dashboard.html" class="btn btn-primary btn-sm">Ver mis bookings →</a>
+    </div>
+  </div>
 </div>
 
 <!-- FLYER LIGHTBOX -->
@@ -617,6 +732,9 @@ function renderPressKit(p, events) {
     }
   });
 
+  // Booking btn
+  initBookingBtn(p.id, p.dj_name, false);
+
   // Mostrar
   document.getElementById('pkSpinner').style.display = 'none';
   document.getElementById('pkContent').classList.remove('hidden');
@@ -722,6 +840,9 @@ function renderCompany(p, events) {
     }
   });
 
+  // Ocultar booking btn en perfiles de empresa
+  document.getElementById('contactSection').querySelector('button')?.style.setProperty('display','none');
+
   document.getElementById('pkSpinner').style.display = 'none';
   document.getElementById('pkContent').classList.remove('hidden');
 }
@@ -808,7 +929,7 @@ function closeFlyer() {
   document.getElementById('flyerOverlay').style.display = 'none';
   document.body.style.overflow = '';
 }
-document.addEventListener('keydown', e => { if (e.key === 'Escape') closeFlyer(); });
+// keydown Escape handled below with booking modal
 
 // ── SoundCloud Custom Player ─────────────────────────────────────────────────
 let _scWidget = null;
@@ -1090,6 +1211,106 @@ function _spSetPlaying(idx, title) {
     if (bar) bar.style.width = '0%';
   }
 }
+
+// ── Booking System ────────────────────────────────────────────────────────────
+let _bkDjUserId = null;
+let _bkDjName   = null;
+let _bkIsDemo   = false;
+let _bkCompany  = null;
+
+function initBookingBtn(djUserId, djName, isDemo) {
+  _bkDjUserId = djUserId;
+  _bkDjName   = djName;
+  _bkIsDemo   = isDemo;
+}
+
+async function handleBookingClick() {
+  if (_bkIsDemo) {
+    // Demo: invitar a registrarse
+    _showBookingModal();
+    _bkShowState('noAuth');
+    return;
+  }
+
+  const { data: { user } } = await sb.auth.getUser();
+  _showBookingModal();
+
+  if (!user) { _bkShowState('noAuth'); return; }
+
+  const { data: profile } = await sb.from('profiles').select('is_company').eq('id', user.id).single();
+  if (!profile?.is_company) { _bkShowState('isDJ'); return; }
+
+  const { data: company } = await sb.from('companies').select('*').eq('user_id', user.id).single();
+  if (!company?.name) { _bkShowState('noCompany'); return; }
+
+  _bkCompany = company;
+
+  // Setear header del modal
+  document.getElementById('bkDjAvatar').textContent = (_bkDjName || 'D')[0].toUpperCase();
+  document.getElementById('bkDjName').textContent   = _bkDjName || 'DJ';
+
+  // Fecha mínima = hoy
+  const today = new Date().toISOString().split('T')[0];
+  document.getElementById('bkDate').min = today;
+
+  _bkShowState('form');
+}
+
+function _showBookingModal() {
+  document.getElementById('bookingModal').classList.add('open');
+  document.body.style.overflow = 'hidden';
+  // Setear header siempre
+  document.getElementById('bkDjAvatar').textContent = (_bkDjName || 'D')[0].toUpperCase();
+  document.getElementById('bkDjName').textContent   = _bkDjName || 'DJ';
+}
+
+function closeBookingModal() {
+  document.getElementById('bookingModal').classList.remove('open');
+  document.body.style.overflow = '';
+}
+
+function _bkShowState(state) {
+  ['noAuth','isDJ','noCompany','form','success'].forEach(s => {
+    document.getElementById('bk' + s.charAt(0).toUpperCase() + s.slice(1)).style.display = s === state ? 'block' : 'none';
+  });
+  if (state === 'form') document.getElementById('bkForm').style.display = 'block';
+  else document.getElementById('bkForm').style.display = 'none';
+}
+
+async function submitBooking(e) {
+  e.preventDefault();
+  if (!_bkCompany || !_bkDjUserId) return;
+
+  const btn = document.getElementById('bkSubmitBtn');
+  btn.disabled = true; btn.textContent = 'Enviando...';
+
+  const { error } = await sb.from('bookings').insert({
+    dj_user_id:   _bkDjUserId,
+    company_id:   _bkCompany.id,
+    event_date:   document.getElementById('bkDate').value,
+    event_time:   document.getElementById('bkTime').value || null,
+    event_type:   document.getElementById('bkEventType').value || null,
+    duration_hrs: document.getElementById('bkDuration').value ? parseFloat(document.getElementById('bkDuration').value) : null,
+    venue_name:   document.getElementById('bkVenue').value.trim() || null,
+    city:         document.getElementById('bkCity').value.trim() || null,
+    budget:       document.getElementById('bkBudget').value ? parseInt(document.getElementById('bkBudget').value) : null,
+    message:      document.getElementById('bkMessage').value.trim() || null,
+  });
+
+  btn.disabled = false;
+  btn.innerHTML = '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg> Enviar solicitud';
+
+  if (error) {
+    showToast('Error al enviar: ' + error.message, 'error');
+  } else {
+    _bkShowState('success');
+  }
+}
+
+document.getElementById('bookingModal').addEventListener('click', e => {
+  if (e.target === document.getElementById('bookingModal')) closeBookingModal();
+});
+document.addEventListener('keydown', e => { if (e.key === 'Escape') { closeBookingModal(); closeFlyer(); } });
 </script>
 
   <script defer src="/_vercel/insights/script.js"></script>
