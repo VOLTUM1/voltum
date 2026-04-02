@@ -503,15 +503,27 @@
   const mAction = document.getElementById('membershipAction');
   const pulse   = document.getElementById('membPulse');
 
-  if (membership?.status === 'active') {
-    const expires = new Date(membership.expires_at);
-    const days = Math.ceil((expires - new Date()) / (1000 * 60 * 60 * 24));
-    document.getElementById('statDays').textContent = days > 0 ? days : '0';
+  const now = new Date();
+  const hasExpiry   = membership?.expires_at;
+  const expiryDate  = hasExpiry ? new Date(membership.expires_at) : null;
+  const isActive    = membership?.status === 'active' && expiryDate && expiryDate > now;
+  const isExpired   = membership && expiryDate && expiryDate <= now;
+
+  if (isActive) {
+    const days = Math.ceil((expiryDate - now) / (1000 * 60 * 60 * 24));
+    document.getElementById('statDays').textContent = days;
     banner.classList.remove('inactive'); banner.classList.add('active');
     pulse.classList.remove('gold'); pulse.classList.add('green');
-    mTitle.textContent = '⚡ Voltum Pro — Membresía activa';
-    mSub.textContent   = `Vence el ${expires.toLocaleDateString('es-CL')} · ${days} días restantes`;
-    mAction.innerHTML  = `<span class="badge badge-green" style="white-space:nowrap;">● Activa</span>`;
+    mTitle.textContent = 'Estás al día ✓';
+    mSub.textContent   = `Membresía activa hasta el ${expiryDate.toLocaleDateString('es-CL', { day: 'numeric', month: 'long', year: 'numeric' })} · ${days} días restantes`;
+    mAction.innerHTML  = `<span class="badge badge-green" style="white-space:nowrap;font-size:0.8rem;">● Activa</span>`;
+  } else if (isExpired) {
+    document.getElementById('statDays').textContent = '0';
+    banner.classList.remove('active'); banner.classList.add('inactive');
+    pulse.classList.remove('green'); pulse.classList.add('gold');
+    mTitle.textContent = 'Membresía vencida';
+    mSub.textContent   = `Venció el ${expiryDate.toLocaleDateString('es-CL', { day: 'numeric', month: 'long', year: 'numeric' })} — renueva para volver a estar visible`;
+    mAction.innerHTML  = `<a href="payment.html" class="btn btn-primary btn-sm" style="white-space:nowrap;">Renovar →</a>`;
   } else {
     document.getElementById('statDays').textContent = '—';
     mTitle.textContent = 'Sin membresía activa';
