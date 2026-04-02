@@ -494,22 +494,28 @@ Disponible para bookings nacionales e internacionales. Rider técnico completo y
     scUrl = _scNormalizeUrl(scUrl);
     if (!scUrl) return;
     const container = document.getElementById('pkSoundcloud');
-    container.innerHTML = `<div class="sc-grid" id="scSkeleton">${[1,2,3,4,5,6].map(()=>`<div class="sc-skeleton" style="height:200px;"></div>`).join('')}</div>`;
 
-    const iframe = document.createElement('iframe');
-    iframe.id = 'sc-widget-frame';
-    iframe.allow = 'autoplay';
-    iframe.style.cssText = 'position:fixed;width:1px;height:1px;bottom:-9999px;opacity:0;pointer-events:none;';
-    iframe.src = `https://w.soundcloud.com/player/?url=${encodeURIComponent(scUrl)}&auto_play=false&buying=false&liking=false&download=false&sharing=false&show_artwork=true&show_comments=false&show_playcount=true&show_user=true&hide_related=true&show_reposts=false&show_teaser=false`;
-    document.body.appendChild(iframe);
+    // Mostrar iframe visual INMEDIATAMENTE — siempre algo visible
+    container.innerHTML = `<iframe width="100%" height="450" scrolling="no" frameborder="no" allow="autoplay"
+      style="border-radius:var(--radius-lg);"
+      src="https://w.soundcloud.com/player/?url=${encodeURIComponent(scUrl)}&color=%238b5cf6&auto_play=false&hide_related=true&show_comments=false&show_user=true&show_reposts=false&visual=true">
+    </iframe>`;
 
-    // Fallback si el Widget API no responde en 8s
-    _scTimeout = setTimeout(() => { if (!_scDone) _scFallback(scUrl); }, 8000);
+    // En paralelo, intentar el Widget API para las cards personalizadas
+    const widgetIframe = document.createElement('iframe');
+    widgetIframe.id = 'sc-widget-frame';
+    widgetIframe.allow = 'autoplay';
+    widgetIframe.style.cssText = 'position:fixed;width:1px;height:1px;bottom:-9999px;opacity:0;pointer-events:none;';
+    widgetIframe.src = `https://w.soundcloud.com/player/?url=${encodeURIComponent(scUrl)}&auto_play=false&buying=false&liking=false&download=false&sharing=false&show_artwork=true&show_comments=false&show_playcount=true&show_user=true&hide_related=true&show_reposts=false&show_teaser=false`;
+    document.body.appendChild(widgetIframe);
+
+    // Detener intento tras 10s
+    _scTimeout = setTimeout(() => { _scDone = true; }, 10000);
 
     const script = document.createElement('script');
     script.src = 'https://w.soundcloud.com/player/api.js';
-    script.onload = () => _bindSCWidget(iframe, scUrl);
-    script.onerror = () => _scFallback(scUrl);
+    script.onload = () => _bindSCWidget(widgetIframe, scUrl);
+    script.onerror = () => { _scDone = true; };
     document.head.appendChild(script);
   }
 
@@ -592,14 +598,9 @@ Disponible para bookings nacionales e internacionales. Rider técnico completo y
   }
 
   function _scFallback(scUrl) {
-    if (_scDone) return;
+    // El iframe ya está visible desde el inicio, no hay nada que hacer
     _scDone = true;
     clearTimeout(_scTimeout);
-    const container = document.getElementById('pkSoundcloud');
-    container.innerHTML = `<iframe width="100%" height="450" scrolling="no" frameborder="no" allow="autoplay"
-      style="border-radius:var(--radius-lg);"
-      src="https://w.soundcloud.com/player/?url=${encodeURIComponent(scUrl)}&color=%238b5cf6&auto_play=false&hide_related=true&show_comments=false&show_user=true&show_reposts=false&visual=false&show_artwork=true">
-    </iframe>`;
   }
 
   function _scFormatDur(ms) {
