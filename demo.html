@@ -1,0 +1,448 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>AXEL NOIR — Press Kit · Voltum</title>
+  <meta name="description" content="Press kit digital profesional de AXEL NOIR, DJ & productor de techno oscuro desde Santiago, Chile.">
+  <meta property="og:type" content="profile">
+  <meta property="og:site_name" content="Voltum">
+  <meta property="og:title" content="AXEL NOIR — Press Kit · Voltum">
+  <meta property="og:description" content="DJ & productor de techno oscuro desde Santiago, Chile.">
+  <meta property="og:image" content="https://images.unsplash.com/photo-1571266028243-e4733b0f0bb0?w=1200&q=80">
+  <meta name="twitter:card" content="summary_large_image">
+  <link rel="stylesheet" href="css/styles.css">
+  <style>
+    /* ── Nav ── */
+    .pk-nav {
+      position: fixed; top: 0; left: 0; right: 0; z-index: 100;
+      padding: 14px 24px; display: flex; justify-content: space-between; align-items: center;
+      background: rgba(5,5,8,0.75); backdrop-filter: blur(20px);
+      border-bottom: 1px solid var(--border2);
+    }
+
+    /* ── Social pills ── */
+    .pk-social-grid { display: flex; flex-wrap: wrap; gap: 10px; }
+    .pk-social-btn {
+      display: inline-flex; align-items: center; gap: 8px;
+      padding: 10px 18px; border-radius: var(--radius);
+      background: var(--card); border: 1px solid var(--border2);
+      color: var(--muted); font-size: 0.875rem; font-weight: 500;
+      transition: var(--transition); text-decoration: none;
+    }
+    .pk-social-btn:hover { border-color: var(--border); color: var(--text); background: var(--card-hover); }
+
+    /* ── Events ── */
+    .pk-event-grid { display: grid; gap: 10px; }
+    .pk-event {
+      display: flex; gap: 16px; padding: 16px 20px;
+      border-radius: var(--radius-lg); background: var(--card);
+      border: 1px solid var(--border2); align-items: center; flex-wrap: wrap;
+    }
+
+    /* ── Demo badge ── */
+    .demo-badge {
+      position: fixed; bottom: 24px; left: 50%; transform: translateX(-50%);
+      padding: 12px 28px; border-radius: 100px; z-index: 200;
+      background: rgba(139,92,246,0.15); border: 1px solid var(--border);
+      backdrop-filter: blur(12px); white-space: nowrap;
+      display: flex; align-items: center; gap: 12px; font-size: 0.9rem;
+    }
+
+    /* ── Rider grid ── */
+    .rider-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+      gap: 14px;
+    }
+    .rider-card {
+      background: var(--card); border: 1px solid var(--border2);
+      border-radius: var(--radius-lg); overflow: hidden; text-align: center;
+      transition: var(--transition);
+    }
+    .rider-card:hover { border-color: var(--border); transform: translateY(-2px); }
+    .rider-card img { width: 100%; aspect-ratio: 1; object-fit: contain; background: #0d0d1a; padding: 12px; display: block; }
+    .rider-card-label { padding: 8px 10px 10px; }
+    .rider-card-name { font-size: 0.8rem; font-weight: 600; color: var(--text); }
+    .rider-card-cat  { font-size: 0.7rem; color: var(--muted2); margin-top: 2px; }
+
+    /* ── Gallery ── */
+    .gallery-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+      gap: 12px;
+    }
+    .gallery-item {
+      border-radius: var(--radius-lg); overflow: hidden;
+      aspect-ratio: 1; cursor: pointer; transition: var(--transition);
+      border: 1px solid var(--border2);
+    }
+    .gallery-item img { width: 100%; height: 100%; object-fit: cover; display: block; transition: transform 0.3s; }
+    .gallery-item:hover img { transform: scale(1.05); }
+
+    /* ── Lightbox ── */
+    .lightbox {
+      display: none; position: fixed; inset: 0; z-index: 500;
+      background: rgba(0,0,0,0.92); align-items: center; justify-content: center;
+      padding: 24px;
+    }
+    .lightbox.open { display: flex; }
+    .lightbox img { max-width: 100%; max-height: 90vh; border-radius: var(--radius-lg); object-fit: contain; }
+    .lightbox-close {
+      position: absolute; top: 20px; right: 24px;
+      font-size: 2rem; color: var(--muted); cursor: pointer; background: none; border: none;
+      transition: var(--transition);
+    }
+    .lightbox-close:hover { color: var(--text); }
+
+    /* ── Spotify embed ── */
+    .sp-embed { border-radius: var(--radius-lg); overflow: hidden; }
+
+    /* ── SoundCloud embed ── */
+    .sc-embed { border-radius: var(--radius-lg); overflow: hidden; }
+
+    /* ── Share toast ── */
+    .toast {
+      position: fixed; bottom: 90px; left: 50%; transform: translateX(-50%) translateY(20px);
+      padding: 12px 24px; border-radius: var(--radius); z-index: 300;
+      background: var(--card); border: 1px solid var(--border);
+      backdrop-filter: blur(12px); font-size: 0.9rem; color: var(--text);
+      opacity: 0; transition: all 0.3s; pointer-events: none;
+    }
+    .toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+
+    /* ── Responsive ── */
+    @media (max-width: 600px) {
+      .pk-nav { padding: 12px 16px; }
+      .demo-badge { font-size: 0.8rem; padding: 10px 18px; bottom: 16px; max-width: calc(100vw - 32px); white-space: normal; text-align: center; }
+      .gallery-grid { grid-template-columns: repeat(auto-fill, minmax(130px, 1fr)); }
+      .rider-grid   { grid-template-columns: repeat(auto-fill, minmax(120px, 1fr)); }
+      .pk-social-btn { font-size: 0.8rem; padding: 8px 12px; }
+      .pk-event { gap: 10px; }
+    }
+    @media (max-width: 400px) {
+      .gallery-grid { grid-template-columns: repeat(2, 1fr); }
+      .rider-grid   { grid-template-columns: repeat(2, 1fr); }
+    }
+  </style>
+</head>
+<body class="presskit-page">
+
+<!-- NAV -->
+<nav class="pk-nav">
+  <a href="index.html" class="logo" style="font-size:1.1rem;">⚡ VOLTUM</a>
+  <div style="display:flex;gap:8px;">
+    <button onclick="shareKit()" class="btn btn-outline btn-sm">📤 Compartir</button>
+  </div>
+</nav>
+
+<!-- BANNER -->
+<div class="presskit-banner" style="background-image:url('https://images.unsplash.com/photo-1571266028243-e4733b0f0bb0?w=1400&q=80');background-size:cover;background-position:center;">
+  <div class="presskit-banner-overlay"></div>
+</div>
+
+<!-- HEADER -->
+<div style="max-width:900px;margin:0 auto;padding:0 24px;">
+  <div class="presskit-header">
+    <div class="presskit-avatar" style="background-image:url('https://images.unsplash.com/photo-1493225457124-a3eb161ffa5f?w=300&q=80');background-size:cover;background-position:center;"></div>
+    <div style="padding-bottom:12px;flex:1;">
+      <div style="display:flex;align-items:center;gap:12px;flex-wrap:wrap;margin-bottom:6px;">
+        <h1 class="presskit-name">AXEL NOIR</h1>
+        <span class="badge badge-purple">⚡ Voltum Pro</span>
+      </div>
+      <p style="color:var(--muted);font-size:1rem;">📍 Metropolitana, Santiago</p>
+      <div style="margin-top:12px;" class="genres-display">
+        <span class="genre-tag">Techno</span>
+        <span class="genre-tag">Dark Techno</span>
+        <span class="genre-tag">Industrial</span>
+        <span class="genre-tag">Hard Techno</span>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- BODY -->
+<div class="presskit-body">
+
+  <!-- BIO -->
+  <div class="presskit-section">
+    <div class="presskit-section-title">Biografía</div>
+    <p style="line-height:1.85;font-size:1rem;color:var(--text);white-space:pre-line;">AXEL NOIR es un DJ y productor de techno oscuro radicado en Santiago, Chile. Con más de 8 años en la escena underground, ha desarrollado un estilo particular que combina texturas industriales, líneas de bajo hipnóticas y beats contundentes que dominan los soundsystems de los mejores clubes del país.
+
+Residente del mítico Club Oscuro y fundador del colectivo BLACKVOID, ha compartido escenario con artistas internacionales de la talla de KiNK, Paula Temple y Objekt. Su producción debut "Void Protocol" acumuló más de 200.000 streams en el primer mes.
+
+Disponible para bookings nacionales e internacionales. Rider técnico completo y material de prensa disponibles en este press kit.</p>
+  </div>
+
+  <!-- SOCIAL LINKS -->
+  <div class="presskit-section">
+    <div class="presskit-section-title">Plataformas & Redes</div>
+    <div class="pk-social-grid">
+      <a href="#" class="pk-social-btn" onclick="return false">
+        <img src="https://cdn.simpleicons.org/instagram/E1306C" width="16" height="16" alt=""> Instagram
+      </a>
+      <a href="#" class="pk-social-btn" onclick="return false">
+        <img src="https://cdn.simpleicons.org/soundcloud/FF5500" width="16" height="16" alt=""> SoundCloud
+      </a>
+      <a href="#" class="pk-social-btn" onclick="return false">
+        <img src="https://cdn.simpleicons.org/spotify/1DB954" width="16" height="16" alt=""> Spotify
+      </a>
+      <a href="#" class="pk-social-btn" onclick="return false">
+        <img src="https://cdn.simpleicons.org/youtube/FF0000" width="16" height="16" alt=""> YouTube
+      </a>
+      <a href="#" class="pk-social-btn" onclick="return false">
+        <img src="https://cdn.simpleicons.org/tiktok/ffffff" width="16" height="16" alt=""> TikTok
+      </a>
+    </div>
+  </div>
+
+  <!-- EVENTS -->
+  <div class="presskit-section">
+    <div class="presskit-section-title">Fechas & Eventos</div>
+    <div class="pk-event-grid">
+
+      <div class="pk-event">
+        <div style="min-width:52px;text-align:center;">
+          <div style="font-size:1.4rem;font-weight:800;color:var(--purple-l);line-height:1;">18</div>
+          <div style="font-size:0.72rem;text-transform:uppercase;color:var(--muted2);font-weight:600;">ABR</div>
+        </div>
+        <div style="flex:1;min-width:0;">
+          <div style="font-weight:700;font-size:1rem;color:var(--text);">VOID FESTIVAL</div>
+          <div style="font-size:0.85rem;color:var(--muted);margin-top:2px;">Club Oscuro · Santiago</div>
+        </div>
+        <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;justify-content:flex-end;">
+          <span class="badge badge-green">Próximo</span>
+          <a href="#" onclick="return false" class="btn btn-primary btn-sm">🎟️ Entradas</a>
+        </div>
+      </div>
+
+      <div class="pk-event">
+        <div style="min-width:52px;text-align:center;">
+          <div style="font-size:1.4rem;font-weight:800;color:var(--purple-l);line-height:1;">10</div>
+          <div style="font-size:0.72rem;text-transform:uppercase;color:var(--muted2);font-weight:600;">MAY</div>
+        </div>
+        <div style="flex:1;min-width:0;">
+          <div style="font-weight:700;font-size:1rem;color:var(--text);">BLACKVOID NIGHT</div>
+          <div style="font-size:0.85rem;color:var(--muted);margin-top:2px;">La Fábrica · Valparaíso</div>
+        </div>
+        <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;justify-content:flex-end;">
+          <span class="badge badge-green">Próximo</span>
+        </div>
+      </div>
+
+      <div class="pk-event" style="opacity:0.65;">
+        <div style="min-width:52px;text-align:center;">
+          <div style="font-size:1.4rem;font-weight:800;color:var(--purple-l);line-height:1;">15</div>
+          <div style="font-size:0.72rem;text-transform:uppercase;color:var(--muted2);font-weight:600;">MAR</div>
+        </div>
+        <div style="flex:1;min-width:0;">
+          <div style="font-weight:700;font-size:1rem;color:var(--text);">TECHNO SUBTERRÁNEO</div>
+          <div style="font-size:0.85rem;color:var(--muted);margin-top:2px;">Club Espacio · Santiago</div>
+        </div>
+        <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;justify-content:flex-end;">
+          <span class="badge badge-purple">Pasado</span>
+        </div>
+      </div>
+
+      <div class="pk-event" style="opacity:0.65;">
+        <div style="min-width:52px;text-align:center;">
+          <div style="font-size:1.4rem;font-weight:800;color:var(--purple-l);line-height:1;">02</div>
+          <div style="font-size:0.72rem;text-transform:uppercase;color:var(--muted2);font-weight:600;">FEB</div>
+        </div>
+        <div style="flex:1;min-width:0;">
+          <div style="font-weight:700;font-size:1rem;color:var(--text);">PANORAMA FESTIVAL</div>
+          <div style="font-size:0.85rem;color:var(--muted);margin-top:2px;">Parque Bicentenario · Santiago</div>
+        </div>
+        <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;justify-content:flex-end;">
+          <span class="badge badge-purple">Pasado</span>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- SOUNDCLOUD -->
+  <div class="presskit-section">
+    <div class="presskit-section-title">Últimas Tracks</div>
+    <div class="sc-embed">
+      <iframe
+        width="100%"
+        height="450"
+        scrolling="no"
+        frameborder="no"
+        allow="autoplay"
+        style="border-radius:var(--radius-lg);"
+        src="https://w.soundcloud.com/player/?url=https%3A//soundcloud.com/techno_sets/sets/dark-techno-mix-2024&color=%238B5CF6&auto_play=false&hide_related=false&show_comments=false&show_user=true&show_reposts=false&show_teaser=false&visual=true">
+      </iframe>
+    </div>
+  </div>
+
+  <!-- SPOTIFY -->
+  <div class="presskit-section">
+    <div class="presskit-section-title" style="display:flex;align-items:center;gap:10px;">
+      <img src="https://cdn.simpleicons.org/spotify/1db954" width="18" height="18" alt="Spotify"> Top Tracks en Spotify
+    </div>
+    <div class="sp-embed">
+      <iframe
+        style="border-radius:var(--radius-lg);"
+        src="https://open.spotify.com/embed/playlist/37i9dQZF1DX6J5NfMJS675?utm_source=generator&theme=0"
+        width="100%"
+        height="352"
+        frameBorder="0"
+        allowfullscreen=""
+        allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture"
+        loading="lazy">
+      </iframe>
+    </div>
+  </div>
+
+  <!-- GALERÍA -->
+  <div class="presskit-section">
+    <div class="presskit-section-title">Galería</div>
+    <div class="gallery-grid">
+      <div class="gallery-item" onclick="openLightbox('https://images.unsplash.com/photo-1516450360452-9312f5e86fc7?w=1200&q=80')">
+        <img src="https://images.unsplash.com/photo-1516450360452-9312f5e86fc7?w=400&q=80" alt="Live set" loading="lazy">
+      </div>
+      <div class="gallery-item" onclick="openLightbox('https://images.unsplash.com/photo-1598387993441-a364f854cfba?w=1200&q=80')">
+        <img src="https://images.unsplash.com/photo-1598387993441-a364f854cfba?w=400&q=80" alt="DJ booth" loading="lazy">
+      </div>
+      <div class="gallery-item" onclick="openLightbox('https://images.unsplash.com/photo-1571266028243-e4733b0f0bb0?w=1200&q=80')">
+        <img src="https://images.unsplash.com/photo-1571266028243-e4733b0f0bb0?w=400&q=80" alt="Club night" loading="lazy">
+      </div>
+      <div class="gallery-item" onclick="openLightbox('https://images.unsplash.com/photo-1604014237800-1c9102c219da?w=1200&q=80')">
+        <img src="https://images.unsplash.com/photo-1604014237800-1c9102c219da?w=400&q=80" alt="Studio" loading="lazy">
+      </div>
+      <div class="gallery-item" onclick="openLightbox('https://images.unsplash.com/photo-1470229722913-7c0e2dbbafd3?w=1200&q=80')">
+        <img src="https://images.unsplash.com/photo-1470229722913-7c0e2dbbafd3?w=400&q=80" alt="Crowd" loading="lazy">
+      </div>
+      <div class="gallery-item" onclick="openLightbox('https://images.unsplash.com/photo-1511671782779-c97d3d27a1d4?w=1200&q=80')">
+        <img src="https://images.unsplash.com/photo-1511671782779-c97d3d27a1d4?w=400&q=80" alt="Decks" loading="lazy">
+      </div>
+    </div>
+  </div>
+
+  <!-- RIDER TÉCNICO -->
+  <div class="presskit-section">
+    <div class="presskit-section-title">Rider técnico</div>
+
+    <div style="margin-bottom:20px;">
+      <p style="font-size:0.85rem;color:var(--muted2);margin-bottom:14px;font-weight:600;text-transform:uppercase;letter-spacing:0.05em;">Reproductores</p>
+      <div class="rider-grid">
+        <div class="rider-card">
+          <img src="https://cdn.shopify.com/s/files/1/0760/8372/4568/files/CDJ_3000.png" alt="CDJ-3000" loading="lazy">
+          <div class="rider-card-label">
+            <div class="rider-card-name">CDJ-3000</div>
+            <div class="rider-card-cat">Reproductor</div>
+          </div>
+        </div>
+        <div class="rider-card">
+          <img src="https://cdn.shopify.com/s/files/1/0760/8372/4568/files/xdj-1000mk22.png" alt="CDJ-2000NXS2" loading="lazy">
+          <div class="rider-card-label">
+            <div class="rider-card-name">CDJ-2000NXS2</div>
+            <div class="rider-card-cat">Reproductor</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div style="margin-bottom:20px;">
+      <p style="font-size:0.85rem;color:var(--muted2);margin-bottom:14px;font-weight:600;text-transform:uppercase;letter-spacing:0.05em;">Mixer</p>
+      <div class="rider-grid">
+        <div class="rider-card">
+          <img src="https://cdn.shopify.com/s/files/1/0760/8372/4568/files/djm-a9.png" alt="DJM-A9" loading="lazy">
+          <div class="rider-card-label">
+            <div class="rider-card-name">DJM-A9</div>
+            <div class="rider-card-cat">Mixer</div>
+          </div>
+        </div>
+        <div class="rider-card">
+          <img src="https://cdn.shopify.com/s/files/1/0760/8372/4568/files/djm-v10.png" alt="DJM-V10" loading="lazy">
+          <div class="rider-card-label">
+            <div class="rider-card-name">DJM-V10</div>
+            <div class="rider-card-cat">Mixer (alternativa)</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div>
+      <p style="font-size:0.85rem;color:var(--muted2);margin-bottom:14px;font-weight:600;text-transform:uppercase;letter-spacing:0.05em;">Efectos</p>
+      <div class="rider-grid">
+        <div class="rider-card">
+          <img src="https://cdn.shopify.com/s/files/1/0760/8372/4568/files/DJS-1000.png" alt="DJS-1000" loading="lazy">
+          <div class="rider-card-label">
+            <div class="rider-card-name">DJS-1000</div>
+            <div class="rider-card-cat">Sampler</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div style="margin-top:20px;padding:16px 20px;border-radius:var(--radius-lg);background:rgba(139,92,246,0.06);border:1px solid var(--border2);">
+      <p style="font-size:0.85rem;color:var(--muted);line-height:1.7;">
+        <strong style="color:var(--text);">Notas del rider:</strong><br>
+        Setup preferido: 2× CDJ-3000 + DJM-A9. Se requiere monitor de retorno en booth (al menos 12").
+        Conexión por USB o Link. No se requiere laptop. Confirmar disponibilidad de equipo con al menos 7 días de anticipación.
+      </p>
+    </div>
+  </div>
+
+  <!-- CONTACTO -->
+  <div class="presskit-section" style="text-align:center;padding:48px 24px;border-radius:var(--radius-xl);background:linear-gradient(135deg,rgba(139,92,246,0.08),rgba(34,211,238,0.04));border:1px solid var(--border);">
+    <h2 style="margin-bottom:12px;">¿Te interesa hacer un booking?</h2>
+    <p style="margin-bottom:28px;font-size:1rem;">Escríbenos directamente para coordinar fechas y condiciones.</p>
+    <a href="mailto:axelnoir.bookings@gmail.com" class="btn btn-primary btn-lg">📬 Contactar para booking</a>
+  </div>
+
+  <!-- FOOTER VOLTUM -->
+  <div style="text-align:center;margin-top:48px;padding-top:32px;border-top:1px solid var(--border2);padding-bottom:100px;">
+    <a href="index.html" style="display:inline-flex;align-items:center;gap:8px;color:var(--muted2);font-size:0.8rem;text-decoration:none;">
+      Press kit creado con <span style="font-weight:700;color:var(--purple-l);">⚡ VOLTUM</span>
+    </a>
+  </div>
+
+</div><!-- /presskit-body -->
+
+<!-- DEMO BADGE -->
+<div class="demo-badge">
+  <span class="equalizer"><span></span><span></span><span></span><span></span></span>
+  <span>Modo Demo — <a href="auth.html" style="color:var(--purple-l);">Crea el tuyo gratis →</a></span>
+</div>
+
+<!-- LIGHTBOX -->
+<div class="lightbox" id="lightbox" onclick="closeLightbox()">
+  <button class="lightbox-close" onclick="closeLightbox()">✕</button>
+  <img id="lightboxImg" src="" alt="">
+</div>
+
+<!-- TOAST -->
+<div class="toast" id="shareToast">✅ Enlace copiado al portapapeles</div>
+
+<script>
+  function openLightbox(src) {
+    document.getElementById('lightboxImg').src = src;
+    document.getElementById('lightbox').classList.add('open');
+    document.body.style.overflow = 'hidden';
+  }
+  function closeLightbox() {
+    document.getElementById('lightbox').classList.remove('open');
+    document.body.style.overflow = '';
+  }
+  document.addEventListener('keydown', e => { if (e.key === 'Escape') closeLightbox(); });
+
+  function shareKit() {
+    const url = window.location.href;
+    if (navigator.share) {
+      navigator.share({ title: 'AXEL NOIR — Press Kit', url });
+    } else {
+      navigator.clipboard.writeText(url).then(() => {
+        const t = document.getElementById('shareToast');
+        t.classList.add('show');
+        setTimeout(() => t.classList.remove('show'), 3000);
+      });
+    }
+  }
+</script>
+
+</body>
+</html>
