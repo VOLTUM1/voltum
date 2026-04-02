@@ -605,14 +605,9 @@ function clearAll() {
 // ── Cargar DJs desde Supabase ──────────────────────────────────
 (async () => {
   try {
-    // 1. Obtener IDs con membresía activa
-    const { data: activeMems } = await sb
-      .from('memberships')
-      .select('user_id')
-      .eq('status', 'active')
-      .gt('expires_at', new Date().toISOString());
-
-    const activeIds = (activeMems || []).map(m => m.user_id);
+    // 1. Obtener IDs con membresía activa (RPC con SECURITY DEFINER para saltar RLS)
+    const { data: activeMems } = await sb.rpc('get_active_dj_ids');
+    const activeIds = (activeMems || []);
 
     // Si no hay ningún DJ con membresía activa, no mostrar nada
     if (!activeIds.length) {
