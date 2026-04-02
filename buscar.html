@@ -614,19 +614,23 @@ function clearAll() {
 
     const activeIds = (activeMems || []).map(m => m.user_id);
 
-    // 2. Obtener perfiles de DJs activos
-    let query = sb
+    // Si no hay ningún DJ con membresía activa, no mostrar nada
+    if (!activeIds.length) {
+      allDJs = [];
+      renderGenreChips();
+      applyFilters();
+      return;
+    }
+
+    // 2. Obtener perfiles de DJs con membresía activa
+    const { data: djs, error } = await sb
       .from('profiles')
       .select('id, dj_name, slug, photo_url, banner_url, location, region, comuna, genres, profile_views, bio, created_at')
       .eq('is_company', false)
       .not('dj_name', 'is', null)
-      .order('profile_views', { ascending: false });
-
-    if (activeIds.length) {
-      query = query.in('id', activeIds);
-    }
-
-    const { data: djs, error } = await query.limit(200);
+      .in('id', activeIds)
+      .order('profile_views', { ascending: false })
+      .limit(200);
     if (error) throw error;
 
     allDJs = djs || [];
