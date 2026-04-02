@@ -6,25 +6,174 @@
   <title>Voltum — Dashboard</title>
   <link rel="stylesheet" href="css/styles.css">
   <style>
-    .progress-bar { height: 6px; background: var(--border2); border-radius: 100px; overflow: hidden; margin-top: 8px; }
-    .progress-fill { height: 100%; background: var(--gradient); border-radius: 100px; transition: width 0.8s ease; }
-    .activity-item { display:flex; align-items:center; gap:12px; padding:12px 0; border-bottom:1px solid var(--border2); }
-    .activity-item:last-child { border-bottom:none; }
-    .activity-dot { width:8px; height:8px; border-radius:50%; background:var(--purple); flex-shrink:0; }
-    .activity-text { flex:1; font-size:0.875rem; }
-    .activity-time { font-size:0.75rem; color:var(--muted2); }
-    .copy-link-area { display:flex; gap:8px; align-items:center; }
-    .copy-link-area input { flex:1; }
+    /* ── Stat cards ── */
+    .stat-card-v2 {
+      background: var(--card);
+      border: 1px solid var(--border2);
+      border-radius: var(--radius-lg);
+      padding: 22px 24px;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      transition: var(--transition);
+      position: relative;
+      overflow: hidden;
+    }
+    .stat-card-v2::before {
+      content: '';
+      position: absolute;
+      top: 0; left: 0; right: 0;
+      height: 2px;
+      background: var(--gradient);
+      opacity: 0;
+      transition: opacity 0.3s;
+    }
+    .stat-card-v2:hover { border-color: var(--border); }
+    .stat-card-v2:hover::before { opacity: 1; }
+    .stat-icon-box {
+      width: 40px; height: 40px; border-radius: 12px;
+      display: flex; align-items: center; justify-content: center;
+      flex-shrink: 0;
+    }
+    .stat-icon-box.purple { background: rgba(139,92,246,0.15); color: var(--purple-l); }
+    .stat-icon-box.cyan   { background: rgba(34,211,238,0.12);  color: var(--cyan); }
+    .stat-icon-box.green  { background: rgba(16,185,129,0.12);  color: var(--green); }
+    .stat-icon-box.gold   { background: rgba(245,158,11,0.12);  color: var(--gold); }
+    .stat-value-v2 {
+      font-size: 2rem; font-weight: 800; font-family: 'Space Mono', monospace;
+      background: var(--gradient); -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent; background-clip: text;
+      line-height: 1;
+    }
+    .stat-label-v2 { font-size: 0.8rem; color: var(--muted2); font-weight: 500; text-transform: uppercase; letter-spacing: 0.04em; }
+
+    /* ── Membership banner v2 ── */
+    .memb-banner-v2 {
+      border-radius: var(--radius-xl);
+      padding: 20px 24px;
+      display: flex; align-items: center; gap: 16px; flex-wrap: wrap;
+      margin-bottom: 32px;
+      border: 1px solid var(--border);
+    }
+    .memb-banner-v2.active {
+      background: linear-gradient(135deg, rgba(16,185,129,0.08), rgba(34,211,238,0.04));
+      border-color: rgba(16,185,129,0.25);
+    }
+    .memb-banner-v2.inactive {
+      background: linear-gradient(135deg, rgba(139,92,246,0.06), rgba(245,158,11,0.04));
+      border-color: rgba(245,158,11,0.2);
+    }
+    .memb-pulse {
+      width: 10px; height: 10px; border-radius: 50%; flex-shrink: 0;
+    }
+    .memb-pulse.green { background: var(--green); box-shadow: 0 0 0 3px rgba(16,185,129,0.25); animation: pulse-ring 2s infinite; }
+    .memb-pulse.gold  { background: var(--gold);  box-shadow: 0 0 0 3px rgba(245,158,11,0.25); }
+    @keyframes pulse-ring {
+      0%,100% { box-shadow: 0 0 0 3px rgba(16,185,129,0.25); }
+      50%      { box-shadow: 0 0 0 6px rgba(16,185,129,0.1); }
+    }
+
+    /* ── Link card ── */
+    .link-box {
+      display: flex; gap: 8px; align-items: center;
+      background: rgba(255,255,255,0.03); border: 1px solid var(--border2);
+      border-radius: var(--radius); padding: 10px 14px;
+      margin-bottom: 10px;
+    }
+    .link-box-url {
+      flex: 1; font-size: 0.78rem; font-family: 'Space Mono', monospace;
+      color: var(--purple-l); overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+      background: none; border: none; outline: none; cursor: pointer; color: var(--muted);
+    }
+
+    /* ── Progress bar ── */
+    .progress-track { height: 8px; background: var(--border2); border-radius: 100px; overflow: hidden; margin: 16px 0 8px; }
+    .progress-fill  { height: 100%; background: var(--gradient); border-radius: 100px; transition: width 0.9s cubic-bezier(0.4,0,0.2,1); }
+
+    /* ── Completion items ── */
+    .completion-item {
+      display: flex; align-items: center; gap: 10px;
+      padding: 7px 0; border-bottom: 1px solid var(--border2); font-size: 0.85rem;
+    }
+    .completion-item:last-child { border-bottom: none; }
+    .ci-check {
+      width: 20px; height: 20px; border-radius: 50%; flex-shrink: 0;
+      display: flex; align-items: center; justify-content: center; font-size: 0.65rem;
+    }
+    .ci-check.done   { background: rgba(16,185,129,0.15); color: var(--green); }
+    .ci-check.todo   { background: var(--border2); color: var(--muted2); }
+
+    /* ── Quick actions v2 ── */
+    .qa-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+      gap: 12px;
+      margin-bottom: 32px;
+    }
+    .qa-card {
+      background: var(--card); border: 1px solid var(--border2);
+      border-radius: var(--radius-lg); padding: 20px 18px;
+      text-decoration: none; transition: var(--transition);
+      display: flex; flex-direction: column; gap: 12px;
+      position: relative; overflow: hidden;
+    }
+    .qa-card:hover {
+      border-color: var(--purple); background: var(--card-hover);
+      transform: translateY(-3px);
+      box-shadow: 0 8px 32px rgba(139,92,246,0.15);
+    }
+    .qa-icon {
+      width: 44px; height: 44px; border-radius: 14px;
+      background: rgba(139,92,246,0.12); display: flex;
+      align-items: center; justify-content: center;
+    }
+    .qa-title { font-size: 0.9rem; font-weight: 700; color: var(--text); }
+    .qa-desc  { font-size: 0.75rem; color: var(--muted2); margin-top: 2px; }
+    .qa-arrow {
+      position: absolute; bottom: 18px; right: 18px;
+      color: var(--muted2); font-size: 0.9rem; transition: transform 0.2s, color 0.2s;
+    }
+    .qa-card:hover .qa-arrow { transform: translate(2px,-2px); color: var(--purple-l); }
+
+    /* ── Section title ── */
+    .section-title {
+      font-size: 0.72rem; font-weight: 700; text-transform: uppercase;
+      letter-spacing: 0.1em; color: var(--muted2); margin-bottom: 14px;
+    }
+
+    /* ── Referral card ── */
+    .referral-card {
+      border-radius: var(--radius-xl);
+      background: linear-gradient(135deg, rgba(139,92,246,0.08), rgba(34,211,238,0.04));
+      border: 1px solid rgba(139,92,246,0.2);
+      padding: 24px;
+    }
+    .referral-code-display {
+      font-size: 1.6rem; font-weight: 800; font-family: 'Space Mono', monospace;
+      letter-spacing: 4px;
+      background: var(--gradient); -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent; background-clip: text;
+    }
+
+    /* ── Page header ── */
+    .dash-header {
+      display: flex; justify-content: space-between; align-items: flex-start;
+      flex-wrap: wrap; gap: 16px; margin-bottom: 32px;
+    }
+
+    /* ── Responsive ── */
+    @media (max-width: 600px) {
+      .stat-value-v2 { font-size: 1.6rem; }
+      .qa-grid { grid-template-columns: repeat(2, 1fr); }
+      .dash-header { flex-direction: column; }
+    }
   </style>
 </head>
 <body>
 
 <!-- MOBILE TOPBAR -->
 <div class="mobile-topbar">
-  <a href="index.html" class="logo" style="font-size:1.1rem;">
-    
-    VOLTUM
-  </a>
+  <a href="index.html" class="logo" style="font-size:1.1rem;">⚡ VOLTUM</a>
   <button class="nav-hamburger" id="sidebarToggle" aria-label="Menú">
     <span></span><span></span><span></span>
   </button>
@@ -42,31 +191,52 @@
     </div>
     <nav class="sidebar-nav">
       <a href="dashboard.html" class="sidebar-nav-item active">
-        <span class="nav-icon">📊</span> Dashboard
+        <span class="nav-icon">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/></svg>
+        </span>
+        Dashboard
       </a>
       <a href="profile.html" class="sidebar-nav-item">
-        <span class="nav-icon">✏️</span> Editar Press Kit
+        <span class="nav-icon">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
+        </span>
+        Editar Press Kit
       </a>
       <a href="#" id="viewPressKit" class="sidebar-nav-item">
-        <span class="nav-icon">👁️</span> Ver mi Press Kit
+        <span class="nav-icon">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+        </span>
+        Ver mi Press Kit
       </a>
       <a href="payment.html" class="sidebar-nav-item">
-        <span class="nav-icon">💳</span> Membresía
+        <span class="nav-icon">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="1" y="4" width="22" height="16" rx="2" ry="2"/><line x1="1" y1="10" x2="23" y2="10"/></svg>
+        </span>
+        Membresía
       </a>
       <div id="adminNavItem" style="display:none;">
         <div style="height:1px;background:var(--border2);margin:12px 4px;"></div>
         <a href="admin.html" class="sidebar-nav-item" style="color:var(--gold);">
-          <span class="nav-icon">🛡️</span> Panel Admin
+          <span class="nav-icon">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+          </span>
+          Panel Admin
         </a>
       </div>
     </nav>
     <div class="sidebar-footer">
-      <div id="sidebarUser" style="padding:12px;border-radius:var(--radius);background:var(--card);border:1px solid var(--border2);margin-bottom:8px;">
-        <div style="font-size:0.8rem;color:var(--muted);margin-bottom:2px;">Sesión activa</div>
-        <div id="sidebarUserName" style="font-size:0.875rem;font-weight:600;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;"></div>
+      <div style="padding:12px 14px;border-radius:var(--radius);background:var(--card);border:1px solid var(--border2);margin-bottom:8px;display:flex;align-items:center;gap:10px;">
+        <div style="width:32px;height:32px;border-radius:50%;background:var(--gradient);display:flex;align-items:center;justify-content:center;font-size:0.8rem;font-weight:700;color:#fff;flex-shrink:0;" id="sidebarAvatar">D</div>
+        <div style="min-width:0;">
+          <div style="font-size:0.7rem;color:var(--muted2);margin-bottom:1px;">Sesión activa</div>
+          <div id="sidebarUserName" style="font-size:0.85rem;font-weight:600;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;"></div>
+        </div>
       </div>
       <button class="sidebar-nav-item btn-danger" id="logoutBtn" style="width:100%;">
-        <span class="nav-icon">🚪</span> Cerrar sesión
+        <span class="nav-icon">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
+        </span>
+        Cerrar sesión
       </button>
     </div>
   </aside>
@@ -77,107 +247,192 @@
     <div id="dashContent" class="hidden">
 
       <!-- MEMBERSHIP BANNER -->
-      <div id="membershipBanner" class="membership-banner">
-        <div class="membership-info">
-          <h3 id="membershipTitle">Cargando...</h3>
-          <p id="membershipSubtitle"></p>
+      <div id="membershipBanner" class="memb-banner-v2 inactive">
+        <div class="memb-pulse gold" id="membPulse"></div>
+        <div style="flex:1;min-width:0;">
+          <div style="font-weight:700;font-size:0.95rem;color:var(--text);" id="membershipTitle">Cargando...</div>
+          <div style="font-size:0.8rem;color:var(--muted);margin-top:2px;" id="membershipSubtitle"></div>
         </div>
         <div id="membershipAction"></div>
       </div>
 
-      <!-- PAGE HEADER -->
-      <div class="page-header">
-        <h1>Bienvenido, <span id="welcomeName" class="gradient-text"></span> 👋</h1>
-        <p id="welcomeSubtitle">Aquí tienes el resumen de tu carrera</p>
+      <!-- HEADER -->
+      <div class="dash-header">
+        <div>
+          <div class="section-title" style="margin-bottom:6px;">Panel de control</div>
+          <h1 style="font-size:1.75rem;font-weight:800;margin-bottom:4px;">
+            Hola, <span id="welcomeName" class="gradient-text"></span> 👋
+          </h1>
+          <p id="welcomeSubtitle" style="font-size:0.9rem;">Aquí tienes el resumen de tu carrera</p>
+        </div>
+        <a href="profile.html" class="btn btn-primary btn-sm" style="align-self:flex-start;">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
+          Editar press kit
+        </a>
       </div>
 
-      <!-- STATS -->
-      <div class="stats-grid" style="margin-bottom:28px;">
-        <div class="stat-card">
-          <div class="stat-card-icon">👁️</div>
-          <div class="stat-card-value" id="statViews">—</div>
-          <div class="stat-card-label">Vistas del press kit</div>
+      <!-- STATS GRID -->
+      <div class="stats-grid" style="margin-bottom:24px;">
+
+        <div class="stat-card-v2">
+          <div class="stat-icon-box purple">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+          </div>
+          <div>
+            <div class="stat-value-v2" id="statViews">—</div>
+            <div class="stat-label-v2">Vistas del press kit</div>
+          </div>
         </div>
-        <div class="stat-card">
-          <div class="stat-card-icon">📅</div>
-          <div class="stat-card-value" id="statEvents">—</div>
-          <div class="stat-card-label">Eventos registrados</div>
+
+        <div class="stat-card-v2">
+          <div class="stat-icon-box cyan">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+          </div>
+          <div>
+            <div class="stat-value-v2" id="statEvents">—</div>
+            <div class="stat-label-v2">Eventos registrados</div>
+          </div>
         </div>
-        <div class="stat-card">
-          <div class="stat-card-icon">⏳</div>
-          <div class="stat-card-value" id="statDays">—</div>
-          <div class="stat-card-label">Días restantes</div>
+
+        <div class="stat-card-v2">
+          <div class="stat-icon-box green">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+          </div>
+          <div>
+            <div class="stat-value-v2" id="statDays">—</div>
+            <div class="stat-label-v2">Días restantes</div>
+          </div>
         </div>
-        <div class="stat-card">
-          <div class="stat-card-icon">✅</div>
-          <div class="stat-card-value" id="statCompletion">—</div>
-          <div class="stat-card-label">Perfil completado</div>
+
+        <div class="stat-card-v2">
+          <div class="stat-icon-box gold">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>
+          </div>
+          <div>
+            <div class="stat-value-v2" id="statCompletion">—</div>
+            <div class="stat-label-v2">Perfil completado</div>
+          </div>
         </div>
+
       </div>
 
-      <!-- LINK + PROGRESS -->
-      <div class="mid-grid">
+      <!-- MID GRID: link + completion -->
+      <div class="mid-grid" style="margin-bottom:28px;">
+
         <!-- Mi link -->
         <div class="card">
-          <h3 style="margin-bottom:16px;font-size:1rem;">🔗 Mi link público</h3>
-          <div class="copy-link-area">
-            <input type="text" class="form-input" id="publicLinkInput" readonly style="font-size:0.8rem;font-family:monospace;cursor:pointer;">
-            <button class="btn btn-primary btn-sm" id="copyLinkBtn">Copiar</button>
+          <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;">
+            <div style="display:flex;align-items:center;gap:8px;">
+              <div style="width:32px;height:32px;border-radius:10px;background:rgba(139,92,246,0.12);display:flex;align-items:center;justify-content:center;">
+                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="var(--purple-l)" stroke-width="2"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/></svg>
+              </div>
+              <h3 style="font-size:0.95rem;font-weight:700;">Mi link público</h3>
+            </div>
+            <a href="#" id="openPressKitLink" target="_blank" style="font-size:0.75rem;color:var(--purple-l);display:flex;align-items:center;gap:4px;">
+              Abrir
+              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>
+            </a>
           </div>
-          <a href="#" id="openPressKitLink" target="_blank" style="display:block;margin-top:10px;font-size:0.8rem;color:var(--purple-l);">Abrir en nueva pestaña →</a>
+          <div class="link-box">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="var(--muted2)" stroke-width="2" style="flex-shrink:0;"><circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg>
+            <input type="text" class="link-box-url" id="publicLinkInput" readonly>
+          </div>
+          <button class="btn btn-primary btn-full" id="copyLinkBtn" style="margin-top:4px;">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+            Copiar enlace
+          </button>
         </div>
+
         <!-- Completitud del perfil -->
         <div class="card">
-          <h3 style="margin-bottom:16px;font-size:1rem;">📋 Completitud del perfil</h3>
-          <div id="completionList" style="font-size:0.8rem;color:var(--muted);"></div>
-          <div class="progress-bar" style="margin-top:16px;">
+          <div style="display:flex;align-items:center;gap:8px;margin-bottom:16px;">
+            <div style="width:32px;height:32px;border-radius:10px;background:rgba(245,158,11,0.1);display:flex;align-items:center;justify-content:center;">
+              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="var(--gold)" stroke-width="2"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>
+            </div>
+            <h3 style="font-size:0.95rem;font-weight:700;">Completitud del perfil</h3>
+          </div>
+          <div id="completionList"></div>
+          <div class="progress-track">
             <div class="progress-fill" id="progressFill" style="width:0%"></div>
           </div>
-          <p style="font-size:0.75rem;margin-top:8px;" id="progressText"></p>
+          <p style="font-size:0.75rem;color:var(--muted2);" id="progressText"></p>
         </div>
+
       </div>
 
       <!-- QUICK ACTIONS -->
-      <h3 style="margin-bottom:16px;font-size:1rem;color:var(--muted);">ACCIONES RÁPIDAS</h3>
-      <div class="quick-actions" style="margin-bottom:32px;">
-        <a href="profile.html?tab=basic" class="quick-action">
-          <div class="quick-action-icon">📝</div>
-          <div class="quick-action-label">Editar Bio</div>
+      <div class="section-title">Acciones rápidas</div>
+      <div class="qa-grid">
+
+        <a href="profile.html?tab=basic" class="qa-card">
+          <div class="qa-icon">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="var(--purple-l)" stroke-width="2"><path d="M20 14.66V20a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h5.34"/><polygon points="18 2 22 6 12 16 8 16 8 12 18 2"/></svg>
+          </div>
+          <div>
+            <div class="qa-title">Editar bio</div>
+            <div class="qa-desc">Nombre, géneros, ubicación</div>
+          </div>
+          <span class="qa-arrow">↗</span>
         </a>
-        <a href="profile.html?tab=media" class="quick-action">
-          <div class="quick-action-icon">📸</div>
-          <div class="quick-action-label">Cambiar fotos</div>
+
+        <a href="profile.html?tab=media" class="qa-card">
+          <div class="qa-icon">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="var(--purple-l)" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>
+          </div>
+          <div>
+            <div class="qa-title">Fotos</div>
+            <div class="qa-desc">Avatar, banner, galería</div>
+          </div>
+          <span class="qa-arrow">↗</span>
         </a>
-        <a href="profile.html?tab=events" class="quick-action">
-          <div class="quick-action-icon">📅</div>
-          <div class="quick-action-label">Agregar evento</div>
+
+        <a href="profile.html?tab=events" class="qa-card">
+          <div class="qa-icon">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="var(--purple-l)" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+          </div>
+          <div>
+            <div class="qa-title">Eventos</div>
+            <div class="qa-desc">Agregar fechas y venues</div>
+          </div>
+          <span class="qa-arrow">↗</span>
         </a>
-        <a href="profile.html?tab=rider" class="quick-action">
-          <div class="quick-action-icon">🎛️</div>
-          <div class="quick-action-label">Rider técnico</div>
+
+        <a href="profile.html?tab=rider" class="qa-card">
+          <div class="qa-icon">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="var(--purple-l)" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M19.07 4.93l-1.41 1.41M4.93 4.93l1.41 1.41M12 2v2M12 20v2M4.93 19.07l1.41-1.41M19.07 19.07l-1.41-1.41M2 12h2M20 12h2"/></svg>
+          </div>
+          <div>
+            <div class="qa-title">Rider técnico</div>
+            <div class="qa-desc">Equipamiento requerido</div>
+          </div>
+          <span class="qa-arrow">↗</span>
         </a>
+
       </div>
 
       <!-- REFERIDOS -->
       <div id="referralSection" style="display:none;margin-top:8px;">
-        <h3 style="margin-bottom:16px;font-size:1rem;color:var(--muted);">TU CÓDIGO DE REFERIDO</h3>
-        <div class="card" style="border:1px solid rgba(139,92,246,0.2);background:linear-gradient(135deg,rgba(139,92,246,0.06),rgba(34,211,238,0.03));">
+        <div class="section-title" style="margin-bottom:16px;">Tu código de referido</div>
+        <div class="referral-card">
           <div style="display:flex;align-items:flex-start;justify-content:space-between;gap:16px;flex-wrap:wrap;">
             <div>
-              <div style="font-size:0.75rem;color:var(--muted2);text-transform:uppercase;letter-spacing:1px;margin-bottom:6px;">Tu código</div>
-              <div id="referralCodeDisplay" style="font-size:1.5rem;font-weight:800;font-family:monospace;letter-spacing:3px;background:var(--gradient);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;"></div>
-              <div style="font-size:0.8rem;color:var(--muted);margin-top:6px;" id="referralDiscountInfo"></div>
+              <div style="font-size:0.7rem;color:var(--muted2);text-transform:uppercase;letter-spacing:1.5px;margin-bottom:8px;">Código</div>
+              <div class="referral-code-display" id="referralCodeDisplay"></div>
+              <div style="font-size:0.8rem;color:var(--muted);margin-top:8px;" id="referralDiscountInfo"></div>
             </div>
             <div style="display:flex;flex-direction:column;align-items:flex-end;gap:8px;">
-              <button class="btn btn-primary btn-sm" id="copyReferralBtn">Copiar código</button>
+              <button class="btn btn-primary btn-sm" id="copyReferralBtn">
+                <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+                Copiar código
+              </button>
               <div style="text-align:right;">
-                <div style="font-size:2rem;font-weight:800;" id="referralCount">—</div>
-                <div style="font-size:0.75rem;color:var(--muted2);">referidos registrados</div>
+                <div style="font-size:2rem;font-weight:800;font-family:'Space Mono',monospace;background:var(--gradient);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;" id="referralCount">—</div>
+                <div style="font-size:0.72rem;color:var(--muted2);">referidos registrados</div>
               </div>
             </div>
           </div>
           <div style="margin-top:16px;padding-top:14px;border-top:1px solid var(--border2);font-size:0.8rem;color:var(--muted2);">
-            💡 Comparte tu código y cada persona que lo use obtiene <strong id="referralDiscountText" style="color:var(--purple-l);"></strong> en sus primeros meses.
+            💡 Comparte tu código — cada persona que lo use obtiene <strong id="referralDiscountText" style="color:var(--purple-l);"></strong> en sus primeros meses.
           </div>
         </div>
       </div>
@@ -204,7 +459,9 @@
   const membership = membershipRes.data;
   const eventsCount = eventsCountRes.count || 0;
 
-  document.getElementById('sidebarUserName').textContent = profile?.dj_name || user.email;
+  const djName = profile?.dj_name || user.email;
+  document.getElementById('sidebarUserName').textContent = djName;
+  document.getElementById('sidebarAvatar').textContent = djName.charAt(0).toUpperCase();
   if (profile?.is_admin) document.getElementById('adminNavItem').style.display = 'block';
   document.getElementById('welcomeName').textContent = profile?.dj_name || 'DJ';
 
@@ -226,34 +483,41 @@
   document.getElementById('progressText').textContent = `${completed} de ${fields.length} secciones completas`;
 
   document.getElementById('completionList').innerHTML = fields.map(f => `
-    <div style="display:flex;align-items:center;gap:8px;margin-bottom:6px;">
-      <span style="color:${f.done ? 'var(--green)' : 'var(--muted2)'}">${f.done ? '✓' : '○'}</span>
-      <span style="color:${f.done ? 'var(--text)' : 'var(--muted2)'}">${f.label}</span>
-      ${!f.done ? `<a href="profile.html" style="font-size:0.75rem;color:var(--purple-l);margin-left:auto;">Agregar</a>` : ''}
+    <div class="completion-item">
+      <div class="ci-check ${f.done ? 'done' : 'todo'}">
+        ${f.done
+          ? '<svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><polyline points="20 6 9 17 4 12"/></svg>'
+          : '<svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>'
+        }
+      </div>
+      <span style="flex:1;color:${f.done ? 'var(--text)' : 'var(--muted2)'};">${f.label}</span>
+      ${!f.done ? `<a href="profile.html" style="font-size:0.72rem;color:var(--purple-l);">Agregar →</a>` : ''}
     </div>
   `).join('');
 
   document.getElementById('statViews').textContent = profile?.profile_views || 0;
   document.getElementById('statEvents').textContent = eventsCount;
 
-  const banner   = document.getElementById('membershipBanner');
-  const mTitle   = document.getElementById('membershipTitle');
-  const mSub     = document.getElementById('membershipSubtitle');
-  const mAction  = document.getElementById('membershipAction');
+  const banner  = document.getElementById('membershipBanner');
+  const mTitle  = document.getElementById('membershipTitle');
+  const mSub    = document.getElementById('membershipSubtitle');
+  const mAction = document.getElementById('membershipAction');
+  const pulse   = document.getElementById('membPulse');
 
   if (membership?.status === 'active') {
     const expires = new Date(membership.expires_at);
     const days = Math.ceil((expires - new Date()) / (1000 * 60 * 60 * 24));
     document.getElementById('statDays').textContent = days > 0 ? days : '0';
-    mTitle.textContent = '⚡ Membresía Voltum Pro activa';
+    banner.classList.remove('inactive'); banner.classList.add('active');
+    pulse.classList.remove('gold'); pulse.classList.add('green');
+    mTitle.textContent = '⚡ Voltum Pro — Membresía activa';
     mSub.textContent   = `Vence el ${expires.toLocaleDateString('es-CL')} · ${days} días restantes`;
-    mAction.innerHTML  = `<span class="badge badge-green">● Activa</span>`;
+    mAction.innerHTML  = `<span class="badge badge-green" style="white-space:nowrap;">● Activa</span>`;
   } else {
     document.getElementById('statDays').textContent = '—';
-    banner.classList.add('inactive');
-    mTitle.textContent = '⚠️ Sin membresía activa';
-    mSub.textContent   = 'Activa tu membresía para tener tu press kit público visible';
-    mAction.innerHTML  = `<a href="payment.html" class="btn btn-primary">Activar por $11.990 →</a>`;
+    mTitle.textContent = 'Sin membresía activa';
+    mSub.textContent   = 'Activa tu membresía para que tu press kit sea público';
+    mAction.innerHTML  = `<a href="payment.html" class="btn btn-primary btn-sm" style="white-space:nowrap;">Activar →</a>`;
   }
 
   const pkParam   = profile?.slug ? `slug=${profile.slug}` : `id=${user.id}`;
@@ -267,24 +531,19 @@
     showToast('Link copiado al portapapeles ✓', 'success');
   });
 
-  // Sección de referidos
+  // Referidos
   const referralCode = referralCodeRes.data;
   if (referralCode) {
-    const section = document.getElementById('referralSection');
-    section.style.display = 'block';
+    document.getElementById('referralSection').style.display = 'block';
     document.getElementById('referralCodeDisplay').textContent = referralCode.code;
     document.getElementById('referralDiscountInfo').textContent =
       `${referralCode.discount_percent}% de descuento · ${referralCode.discount_months} primeras mensualidades`;
     document.getElementById('referralDiscountText').textContent =
       `${referralCode.discount_percent}% de descuento en sus ${referralCode.discount_months} primeras mensualidades`;
 
-    // Contar referidos
-    const { count } = await sb.from('referrals')
-      .select('id', { count: 'exact' })
-      .eq('referrer_user_id', user.id);
+    const { count } = await sb.from('referrals').select('id', { count: 'exact' }).eq('referrer_user_id', user.id);
     document.getElementById('referralCount').textContent = count || 0;
 
-    // Copiar código
     document.getElementById('copyReferralBtn').addEventListener('click', () => {
       navigator.clipboard.writeText(referralCode.code);
       showToast('Código copiado al portapapeles', 'success');
@@ -301,9 +560,8 @@
 })();
 </script>
 <script>
-// Mobile sidebar toggle
 (function() {
-  const toggle = document.getElementById('sidebarToggle');
+  const toggle  = document.getElementById('sidebarToggle');
   const overlay = document.getElementById('sidebarOverlay');
   const sidebar = document.getElementById('appSidebar');
   if (!toggle) return;
