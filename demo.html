@@ -98,8 +98,65 @@
     /* ── Spotify embed ── */
     .sp-embed { border-radius: var(--radius-lg); overflow: hidden; }
 
-    /* ── SoundCloud embed ── */
-    .sc-embed { border-radius: var(--radius-lg); overflow: hidden; }
+    /* ── SoundCloud custom player ── */
+    .sc-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(155px, 1fr)); gap: 12px; }
+    .sc-card {
+      background: var(--card); border: 1px solid var(--border2);
+      border-radius: var(--radius-lg); overflow: hidden;
+      cursor: pointer; transition: var(--transition);
+      user-select: none;
+    }
+    .sc-card:hover { border-color: rgba(139,92,246,0.4); background: var(--card-hover); transform: translateY(-2px); }
+    .sc-card.sc-playing { border-color: var(--purple); background: var(--card-hover); }
+    .sc-art { position: relative; aspect-ratio: 1; background: var(--bg3); overflow: hidden; }
+    .sc-art img { width: 100%; height: 100%; object-fit: cover; display: block; }
+    .sc-art-default { width: 100%; height: 100%; display: flex; align-items: center; justify-content: center; font-size: 2.5rem; opacity: 0.3; }
+    .sc-overlay {
+      position: absolute; inset: 0; background: rgba(0,0,0,0.5);
+      display: flex; align-items: center; justify-content: center;
+      opacity: 0; transition: opacity 0.2s;
+    }
+    .sc-card:hover .sc-overlay, .sc-card.sc-playing .sc-overlay { opacity: 1; }
+    .sc-play-btn {
+      width: 48px; height: 48px; border-radius: 50%;
+      background: var(--purple); display: flex; align-items: center; justify-content: center;
+      box-shadow: 0 4px 16px rgba(139,92,246,0.4); transition: transform 0.15s;
+    }
+    .sc-play-btn:active { transform: scale(0.92); }
+    .sc-card.sc-playing .sc-play-btn .icon-play { display: none; }
+    .sc-card.sc-playing .sc-play-btn .icon-pause { display: block !important; }
+    .sc-eq {
+      position: absolute; bottom: 8px; right: 8px;
+      display: none; align-items: flex-end; gap: 2px; height: 16px;
+    }
+    .sc-card.sc-playing .sc-eq { display: flex; }
+    .sc-eq span {
+      width: 3px; background: var(--purple-l); border-radius: 2px;
+      animation: scbar 0.8s ease-in-out infinite;
+    }
+    .sc-eq span:nth-child(1) { animation-delay: 0s;    height: 6px; }
+    .sc-eq span:nth-child(2) { animation-delay: 0.15s; height: 12px; }
+    .sc-eq span:nth-child(3) { animation-delay: 0.3s;  height: 8px; }
+    .sc-eq span:nth-child(4) { animation-delay: 0.45s; height: 14px; }
+    @keyframes scbar {
+      0%,100% { transform: scaleY(0.3); }
+      50%      { transform: scaleY(1); }
+    }
+    .sc-meta { padding: 10px 12px 12px; }
+    .sc-title { font-size: 0.82rem; font-weight: 600; color: var(--text); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .sc-dur { font-size: 0.73rem; color: var(--muted2); margin-top: 4px; }
+    .sc-skeleton { background: var(--bg3); border-radius: var(--radius-lg); animation: pulse 1.5s ease-in-out infinite; }
+    .sc-footer { margin-top: 20px; display: flex; justify-content: flex-end; }
+    .sc-nowplaying {
+      margin-bottom: 14px; padding: 12px 16px; border-radius: var(--radius-lg);
+      background: rgba(139,92,246,0.08); border: 1px solid rgba(139,92,246,0.2);
+      display: none; align-items: center; gap: 12px; font-size: 0.85rem;
+    }
+    .sc-nowplaying.visible { display: flex; }
+    .sc-nowplaying-title { color: var(--text); font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .sc-nowplaying-label { color: var(--purple-l); font-size: 0.75rem; flex-shrink: 0; }
+    @media (max-width: 600px) { .sc-grid { grid-template-columns: repeat(auto-fill, minmax(130px, 1fr)); } }
+    @media (max-width: 400px) { .sc-grid { grid-template-columns: repeat(2, 1fr); } }
 
     /* ── Share toast ── */
     .toast {
@@ -264,17 +321,14 @@ Disponible para bookings nacionales e internacionales. Rider técnico completo y
   <!-- SOUNDCLOUD -->
   <div class="presskit-section">
     <div class="presskit-section-title">Últimas Tracks</div>
-    <div class="sc-embed">
-      <iframe
-        width="100%"
-        height="450"
-        scrolling="no"
-        frameborder="no"
-        allow="autoplay"
-        style="border-radius:var(--radius-lg);"
-        src="https://w.soundcloud.com/player/?url=https%3A//soundcloud.com/charlottedewitte&color=%238B5CF6&auto_play=false&hide_related=false&show_comments=false&show_user=true&show_reposts=false&show_teaser=false&visual=true">
-      </iframe>
+    <div class="sc-nowplaying" id="scNowPlaying">
+      <span class="equalizer"><span></span><span></span><span></span><span></span></span>
+      <div style="flex:1;min-width:0;">
+        <div class="sc-nowplaying-label">Reproduciendo</div>
+        <div class="sc-nowplaying-title" id="scNowPlayingTitle"></div>
+      </div>
     </div>
+    <div id="pkSoundcloud"></div>
   </div>
 
   <!-- SPOTIFY -->
@@ -425,6 +479,138 @@ Disponible para bookings nacionales e internacionales. Rider técnico completo y
 <div class="toast" id="shareToast">✅ Enlace copiado al portapapeles</div>
 
 <script>
+  // ── SoundCloud Widget API Player ─────────────────────────────────────────────
+  let _scWidget = null, _scPlayingIdx = -1, _scPaused = false;
+
+  function _scNormalizeUrl(url) {
+    if (!url) return '';
+    url = url.trim().replace(/^@/, '');
+    if (!/^https?:\/\//i.test(url)) url = 'https://' + url;
+    url = url.replace(/^https?:\/\/www\./i, 'https://');
+    return url;
+  }
+
+  function initSoundCloudPlayer(scUrl) {
+    scUrl = _scNormalizeUrl(scUrl);
+    if (!scUrl) return;
+    const container = document.getElementById('pkSoundcloud');
+    container.innerHTML = `<div class="sc-grid" id="scSkeleton">${[1,2,3,4,5,6].map(()=>`<div class="sc-skeleton" style="height:200px;"></div>`).join('')}</div>`;
+
+    const iframe = document.createElement('iframe');
+    iframe.id = 'sc-widget-frame';
+    iframe.allow = 'autoplay';
+    iframe.style.cssText = 'position:fixed;width:1px;height:1px;bottom:-9999px;opacity:0;pointer-events:none;';
+    iframe.src = `https://w.soundcloud.com/player/?url=${encodeURIComponent(scUrl)}&auto_play=false&buying=false&liking=false&download=false&sharing=false&show_artwork=true&show_comments=false&show_playcount=true&show_user=true&hide_related=true&show_reposts=false&show_teaser=false`;
+    document.body.appendChild(iframe);
+
+    const script = document.createElement('script');
+    script.src = 'https://w.soundcloud.com/player/api.js';
+    script.onload = () => _bindSCWidget(iframe, scUrl);
+    script.onerror = () => _scFallback(scUrl);
+    document.head.appendChild(script);
+  }
+
+  function _bindSCWidget(iframe, scUrl) {
+    try {
+      _scWidget = SC.Widget(iframe);
+      _scWidget.bind(SC.Widget.Events.READY, () => {
+        _scWidget.getSounds(sounds => {
+          if (!sounds || sounds.length === 0) { _scFallback(scUrl); return; }
+          _renderSCTracks(sounds.slice(0, 6));
+        });
+      });
+      _scWidget.bind(SC.Widget.Events.PLAY, () => {
+        _scWidget.getCurrentSoundIndex(idx => {
+          _scPlayingIdx = idx; _scPaused = false;
+          _scWidget.getCurrentSound(sound => {
+            const title = document.getElementById('scNowPlayingTitle');
+            if (title) title.textContent = sound?.title || '';
+            document.getElementById('scNowPlaying')?.classList.add('visible');
+          });
+          document.querySelectorAll('.sc-card').forEach((c, i) => c.classList.toggle('sc-playing', i === idx));
+        });
+      });
+      _scWidget.bind(SC.Widget.Events.PAUSE, () => {
+        _scPaused = true;
+        document.querySelectorAll('.sc-card').forEach(c => c.classList.remove('sc-playing'));
+        document.getElementById('scNowPlaying')?.classList.remove('visible');
+      });
+      _scWidget.bind(SC.Widget.Events.FINISH, () => {
+        _scPlayingIdx = -1; _scPaused = false;
+        document.querySelectorAll('.sc-card').forEach(c => c.classList.remove('sc-playing'));
+        document.getElementById('scNowPlaying')?.classList.remove('visible');
+      });
+      _scWidget.bind(SC.Widget.Events.ERROR, () => _scFallback(scUrl));
+    } catch(e) { _scFallback(scUrl); }
+  }
+
+  function _renderSCTracks(sounds) {
+    const container = document.getElementById('pkSoundcloud');
+    const grid = sounds.map((track, i) => {
+      const art = track.artwork_url ? track.artwork_url.replace('-large', '-t300x300') : null;
+      const dur = _scFormatDur(track.duration);
+      const plays = track.playback_count ? _scFormatCount(track.playback_count) : null;
+      return `<div class="sc-card" data-idx="${i}" onclick="_scTogglePlay(${i})">
+        <div class="sc-art">
+          ${art ? `<img src="${art}" alt="${_scEsc(track.title)}" loading="lazy">` : `<div class="sc-art-default">🎵</div>`}
+          <div class="sc-overlay">
+            <div class="sc-play-btn">
+              <svg class="icon-play" width="20" height="20" viewBox="0 0 24 24" fill="white"><path d="M8 5v14l11-7z"/></svg>
+              <svg class="icon-pause" width="20" height="20" viewBox="0 0 24 24" fill="white" style="display:none"><rect x="6" y="4" width="4" height="16"/><rect x="14" y="4" width="4" height="16"/></svg>
+            </div>
+          </div>
+          <div class="sc-eq"><span></span><span></span><span></span><span></span></div>
+        </div>
+        <div class="sc-meta">
+          <div class="sc-title" title="${_scEsc(track.title)}">${_scEsc(track.title)}</div>
+          <div class="sc-dur">${dur}${plays ? ` · ${plays} plays` : ''}</div>
+        </div>
+      </div>`;
+    }).join('');
+
+    const scUrl = document.getElementById('sc-widget-frame')?.src
+      ?.replace(/^https:\/\/w\.soundcloud\.com\/player\/\?url=/, '')
+      ?.split('&')[0];
+
+    container.innerHTML = `<div class="sc-grid">${grid}</div>
+      <div class="sc-footer">
+        ${scUrl ? `<a href="${decodeURIComponent(scUrl)}" target="_blank" rel="noopener" class="btn btn-outline btn-sm" style="font-size:0.8rem;">
+          <img src="https://cdn.simpleicons.org/soundcloud/a78bfa" width="14" height="14" style="flex-shrink:0;"> Ver en SoundCloud
+        </a>` : ''}
+      </div>`;
+  }
+
+  function _scTogglePlay(idx) {
+    if (!_scWidget) return;
+    if (_scPlayingIdx === idx && !_scPaused) { _scWidget.pause(); }
+    else { _scWidget.skip(idx); _scWidget.play(); }
+  }
+
+  function _scFallback(scUrl) {
+    const container = document.getElementById('pkSoundcloud');
+    container.innerHTML = `<iframe width="100%" height="450" scrolling="no" frameborder="no" allow="autoplay"
+      style="border-radius:var(--radius-lg);"
+      src="https://w.soundcloud.com/player/?url=${encodeURIComponent(scUrl)}&color=%238b5cf6&auto_play=false&hide_related=true&show_comments=false&show_user=true&show_reposts=false&visual=false&show_artwork=true">
+    </iframe>`;
+  }
+
+  function _scFormatDur(ms) {
+    const s = Math.floor(ms / 1000), m = Math.floor(s / 60);
+    return `${m}:${(s % 60).toString().padStart(2, '0')}`;
+  }
+  function _scFormatCount(n) {
+    if (n >= 1000000) return (n / 1000000).toFixed(1) + 'M';
+    if (n >= 1000) return Math.round(n / 1000) + 'K';
+    return n;
+  }
+  function _scEsc(str) {
+    return String(str || '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+  }
+
+  // Iniciar player con Charlotte de Witte
+  initSoundCloudPlayer('https://soundcloud.com/charlottedewitte');
+
+  // ── Lightbox ─────────────────────────────────────────────────────────────────
   function openLightbox(src) {
     document.getElementById('lightboxImg').src = src;
     document.getElementById('lightbox').classList.add('open');
