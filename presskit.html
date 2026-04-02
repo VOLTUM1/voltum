@@ -405,6 +405,7 @@ const DEMO_EVENTS = [
 })();
 
 function renderPressKit(p, events) {
+  if (p.is_company) { renderCompany(p, events); return; }
   document.title = `${p.dj_name} — Press Kit · Voltum`;
 
   // Meta tags para compartir
@@ -543,6 +544,111 @@ function renderPressKit(p, events) {
   document.getElementById('pkSpinner').style.display = 'none';
   document.getElementById('pkContent').classList.remove('hidden');
 }
+function renderCompany(p, events) {
+  document.title = `${p.dj_name} — Perfil Empresa · Voltum`;
+  const desc = p.bio ? p.bio.slice(0, 150) + '...' : `Perfil de empresa de ${p.dj_name}`;
+  document.querySelector('meta[name="description"]')?.setAttribute('content', desc);
+
+  // Banner
+  const banner = document.getElementById('pkBanner');
+  if (p.banner_url) {
+    banner.style.backgroundImage = `url(${p.banner_url})`;
+    banner.style.backgroundSize = 'cover';
+    banner.style.backgroundPosition = 'center';
+  } else {
+    banner.style.background = 'linear-gradient(135deg, #0a1a2e 0%, #050514 50%, #1a0533 100%)';
+  }
+
+  // Logo / avatar
+  const avatar = document.getElementById('pkAvatar');
+  if (p.photo_url) {
+    avatar.innerHTML = `<img src="${p.photo_url}" alt="${p.dj_name}" style="width:100%;height:100%;object-fit:cover;border-radius:12px;display:block;">`;
+    avatar.style.borderRadius = '12px';
+    avatar.style.background = 'none';
+  } else {
+    avatar.textContent = (p.dj_name || 'E')[0].toUpperCase();
+  }
+
+  document.getElementById('pkName').textContent = p.dj_name || '';
+  document.getElementById('pkLocation').textContent = [p.company_type, p.location].filter(Boolean).join(' · ');
+
+  // Badge tipo empresa en lugar de géneros
+  const genresEl = document.getElementById('pkGenres');
+  if (p.company_type) {
+    genresEl.innerHTML = `<span style="background:rgba(34,211,238,0.1);border:1px solid rgba(34,211,238,0.3);color:var(--cyan);padding:4px 14px;border-radius:100px;font-size:0.8rem;font-weight:600;">🏢 ${p.company_type}</span>`;
+  } else genresEl.style.display = 'none';
+
+  // Bio / descripción
+  if (p.bio) {
+    document.getElementById('pkBio').textContent = p.bio;
+  } else document.getElementById('bioSection').style.display = 'none';
+
+  // Website y teléfono como links de contacto
+  const socEl = document.getElementById('pkSocials');
+  let socialsHtml = '';
+  if (p.website) socialsHtml += `<a href="${p.website}" target="_blank" rel="noopener" class="pk-social-btn">🌐 Sitio web</a>`;
+  if (p.contact_phone) socialsHtml += `<a href="tel:${p.contact_phone}" class="pk-social-btn">📞 ${p.contact_phone}</a>`;
+  const socials = [
+    { key: 'social_instagram', icon: 'instagram', label: 'Instagram' },
+    { key: 'social_facebook',  icon: 'facebook',  label: 'Facebook' },
+    { key: 'social_youtube',   icon: 'youtube',   label: 'YouTube' },
+  ];
+  socials.filter(s => p[s.key]).forEach(s => {
+    socialsHtml += `<a href="${p[s.key]}" target="_blank" rel="noopener" class="pk-social-btn"><img src="https://cdn.simpleicons.org/${s.icon}/a78bfa" width="16" height="16" alt="${s.label}" style="flex-shrink:0;"> ${s.label}</a>`;
+  });
+  if (socialsHtml) socEl.innerHTML = socialsHtml;
+  else document.getElementById('socialSection').style.display = 'none';
+
+  // Servicios (guardado en technical_rider)
+  if (p.technical_rider) {
+    document.getElementById('pkRider').textContent = p.technical_rider;
+    document.querySelector('#riderSection h2') && (document.querySelector('#riderSection h2').textContent = 'Servicios');
+  } else document.getElementById('riderSection').style.display = 'none';
+
+  // Eventos
+  if (events.length) {
+    document.getElementById('pkEvents').innerHTML = events.map(ev => {
+      const d = new Date(ev.date + 'T12:00:00');
+      const month = d.toLocaleDateString('es-CL', { month: 'short' }).toUpperCase();
+      const day = d.getDate();
+      const isPast = d < new Date();
+      return `<div class="pk-event" style="${isPast ? 'opacity:0.6' : ''}">
+        <div class="event-date-badge"><div class="event-date-month">${month}</div><div class="event-date-day">${day}</div></div>
+        <div class="event-info" style="flex:1;"><strong>${ev.name}</strong><span>${[ev.venue, ev.city].filter(Boolean).join(' · ')}</span></div>
+        ${!isPast && ev.ticket_url ? `<a href="${ev.ticket_url}" target="_blank" class="btn btn-primary btn-sm" style="font-size:0.78rem;">🎟️ Entradas</a>` : ''}
+      </div>`;
+    }).join('');
+  } else document.getElementById('eventsSection').style.display = 'none';
+
+  // Galería
+  if (p.gallery_urls?.length) {
+    document.getElementById('pkGallery').innerHTML = p.gallery_urls.map((url, i) => `
+      <a href="${url}" target="_blank" rel="noopener" style="display:block;border-radius:var(--radius-lg);overflow:hidden;aspect-ratio:1;">
+        <img src="${url}" alt="Foto ${i+1}" style="width:100%;height:100%;object-fit:cover;display:block;"></a>`).join('');
+  } else document.getElementById('gallerySection').style.display = 'none';
+
+  // Ocultar secciones DJ
+  document.getElementById('soundcloudSection').style.display = 'none';
+  document.getElementById('spotifySection').style.display = 'none';
+
+  // Contacto
+  if (p.booking_email) {
+    document.getElementById('pkContactBtn').href = `mailto:${p.booking_email}?subject=Contacto - ${p.dj_name}`;
+  } else document.getElementById('contactSection').style.display = 'none';
+
+  document.getElementById('shareBtn').addEventListener('click', () => {
+    if (navigator.share) {
+      navigator.share({ title: `${p.dj_name} · Voltum`, url: window.location.href });
+    } else {
+      navigator.clipboard.writeText(window.location.href);
+      showToast('Link copiado al portapapeles', 'success');
+    }
+  });
+
+  document.getElementById('pkSpinner').style.display = 'none';
+  document.getElementById('pkContent').classList.remove('hidden');
+}
+
 function openFlyer(url, name) {
   document.getElementById('flyerImg').src = url;
   document.getElementById('flyerImg').alt = name;

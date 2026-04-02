@@ -73,10 +73,45 @@
 
       <!-- REGISTER FORM -->
       <div id="registerForm" class="hidden">
+        <!-- Tipo de cuenta -->
         <div class="form-group">
-          <label class="form-label">Nombre artístico (DJ Name)</label>
+          <label class="form-label">Tipo de cuenta</label>
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;">
+            <button type="button" class="account-type-btn active" id="typeDJ" onclick="setAccountType('dj')">
+              🎧 Soy DJ / Artista
+            </button>
+            <button type="button" class="account-type-btn" id="typeEmpresa" onclick="setAccountType('empresa')">
+              🏢 Soy Empresa
+            </button>
+          </div>
+        </div>
+        <style>
+          .account-type-btn {
+            padding:10px 8px; border-radius:var(--radius); border:1px solid var(--border2);
+            background:var(--bg3); color:var(--muted); font-family:inherit; font-size:0.85rem;
+            cursor:pointer; transition:var(--transition); font-weight:500;
+          }
+          .account-type-btn.active {
+            border-color:var(--purple); background:rgba(139,92,246,0.1); color:var(--text);
+          }
+        </style>
+        <div class="form-group">
+          <label class="form-label" id="regNameLabel">Nombre artístico (DJ Name)</label>
           <input type="text" id="regDjName" class="form-input" placeholder="ej: DJ Nova" autocomplete="off">
-          <div class="form-hint">Este será tu nombre público en el press kit</div>
+          <div class="form-hint" id="regNameHint">Este será tu nombre público en el press kit</div>
+        </div>
+        <!-- Campo tipo empresa (oculto por defecto) -->
+        <div class="form-group hidden" id="companyTypeGroup">
+          <label class="form-label">Tipo de empresa</label>
+          <select id="regCompanyType" class="form-input" style="cursor:pointer;">
+            <option value="">Selecciona...</option>
+            <option value="Productora">Productora</option>
+            <option value="Agencia de booking">Agencia de booking</option>
+            <option value="Club / Venue">Club / Venue</option>
+            <option value="Festival">Festival</option>
+            <option value="Sello discográfico">Sello discográfico</option>
+            <option value="Otra">Otra</option>
+          </select>
         </div>
         <div class="form-group">
           <label class="form-label">Email</label>
@@ -178,6 +213,18 @@
     }
   });
 
+  // Tipo de cuenta
+  let accountType = 'dj';
+  window.setAccountType = function(type) {
+    accountType = type;
+    document.getElementById('typeDJ').classList.toggle('active', type === 'dj');
+    document.getElementById('typeEmpresa').classList.toggle('active', type === 'empresa');
+    document.getElementById('companyTypeGroup').classList.toggle('hidden', type === 'dj');
+    document.getElementById('regNameLabel').textContent = type === 'dj' ? 'Nombre artístico (DJ Name)' : 'Nombre de la empresa';
+    document.getElementById('regDjName').placeholder = type === 'dj' ? 'ej: DJ Nova' : 'ej: Northsound Producciones';
+    document.getElementById('regNameHint').textContent = type === 'dj' ? 'Este será tu nombre público en el press kit' : 'Nombre con que aparecerá tu empresa en la plataforma';
+  };
+
   // REGISTER
   document.getElementById('registerBtn').addEventListener('click', async () => {
     const djName = document.getElementById('regDjName').value.trim();
@@ -207,7 +254,9 @@
         id: data.user.id,
         dj_name: djName,
         slug: slug,
-        booking_email: email
+        booking_email: email,
+        is_company: accountType === 'empresa',
+        company_type: accountType === 'empresa' ? (document.getElementById('regCompanyType').value || null) : null
       }, { onConflict: 'id' });
 
       // Activar prueba gratuita de 7 días

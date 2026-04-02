@@ -163,6 +163,32 @@
           <textarea id="bio" class="form-textarea" rows="5" placeholder="Cuéntanos tu historia como DJ: cómo empezaste, tu estilo musical, tus influencias y logros más importantes..."></textarea>
           <div class="form-hint" id="bioCount">0 / 600 caracteres</div>
         </div>
+        <!-- Campos exclusivos empresa (ocultos para DJs) -->
+        <div id="companyFields" style="display:none;">
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:20px;">
+            <div class="form-group">
+              <label class="form-label">Tipo de empresa</label>
+              <select id="companyType" class="form-input" style="cursor:pointer;">
+                <option value="">Selecciona...</option>
+                <option value="Productora">Productora</option>
+                <option value="Agencia de booking">Agencia de booking</option>
+                <option value="Club / Venue">Club / Venue</option>
+                <option value="Festival">Festival</option>
+                <option value="Sello discográfico">Sello discográfico</option>
+                <option value="Otra">Otra</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label class="form-label">Teléfono de contacto</label>
+              <input type="text" id="contactPhone" class="form-input" placeholder="ej: +56 9 1234 5678">
+            </div>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Sitio web</label>
+            <input type="text" id="website" class="form-input" placeholder="ej: https://minorte.cl">
+          </div>
+        </div>
+
         <div class="form-group">
           <label class="form-label">Géneros musicales <span style="color:var(--muted2);font-weight:400;">(máx. 8)</span></label>
           <div style="position:relative;">
@@ -329,8 +355,20 @@
         </div>
       </div>
 
-      <!-- TAB: RIDER TÉCNICO -->
+      <!-- TAB: RIDER TÉCNICO / SERVICIOS -->
       <div class="tab-content card hidden" id="tab-rider">
+        <!-- Vista empresa: Servicios -->
+        <div id="companyServicesSection" style="display:none;">
+          <h3 style="font-size:1rem;margin-bottom:4px;">Servicios que ofrecemos</h3>
+          <p style="font-size:0.875rem;margin-bottom:16px;">Describe los servicios que ofrece tu empresa. Aparecerá en tu perfil público.</p>
+          <textarea id="companyServices" class="form-textarea" rows="8" placeholder="Ej:
+— Producción de eventos corporativos
+— Booking de DJs nacionales e internacionales
+— Sonido e iluminación profesional
+— Rider técnico incluido"></textarea>
+        </div>
+        <!-- Vista DJ: Rider técnico -->
+        <div id="djRiderSection">
         <h3 style="font-size:1rem;margin-bottom:4px;">Rider técnico Pioneer DJ</h3>
         <p style="font-size:0.875rem;margin-bottom:24px;">Selecciona el equipo que necesitas. Tu rider se generará automáticamente para el press kit.</p>
 
@@ -369,6 +407,7 @@
           <label class="form-label">Notas adicionales (opcional)</label>
           <textarea id="riderNotes" class="form-textarea" rows="3" placeholder="Hospitalidad, camarín, condiciones especiales..."></textarea>
         </div>
+        </div><!-- /djRiderSection -->
       </div>
 
       <!-- SAVE BAR -->
@@ -530,6 +569,24 @@ function fillForm() {
   document.getElementById('bookingEmail').value = profile.booking_email || '';
   document.getElementById('bio').value = profile.bio || '';
   document.getElementById('bioCount').textContent = `${(profile.bio||'').length} / 600 caracteres`;
+
+  // Campos empresa
+  if (profile.is_company) {
+    document.getElementById('companyFields').style.display = 'block';
+    document.getElementById('companyType').value = profile.company_type || '';
+    document.getElementById('contactPhone').value = profile.contact_phone || '';
+    document.getElementById('website').value = profile.website || '';
+    // Ocultar géneros, mostrar servicios
+    document.querySelector('.form-group:has(#genresArea)').style.display = 'none';
+    document.getElementById('companyServicesSection').style.display = 'block';
+    document.getElementById('djRiderSection').style.display = 'none';
+    document.getElementById('companyServices').value = profile.technical_rider || '';
+    // Cambiar label del tab rider
+    document.querySelector('[data-tab="rider"]').textContent = '🏢 Servicios';
+    // Cambiar labels de nombre y bio
+    document.querySelector('label[for="djName"], label:has(+ #djName)').textContent = 'Nombre de la empresa *';
+    document.getElementById('regNameHint') && (document.getElementById('regNameHint').textContent = '');
+  }
   document.getElementById('socialInstagram').value = profile.social_instagram || '';
   document.getElementById('socialTiktok').value = profile.social_tiktok || '';
   document.getElementById('socialSoundcloud').value = profile.social_soundcloud || '';
@@ -827,7 +884,12 @@ async function saveProfile() {
       social_facebook: document.getElementById('socialFacebook').value.trim() || null,
       custom_link1: normalizeSocialUrl(document.getElementById('customLink1').value.trim()) || null,
       custom_link2: normalizeSocialUrl(document.getElementById('customLink2').value.trim()) || null,
-      technical_rider: getRiderText() || null,
+      technical_rider: profile.is_company
+        ? (document.getElementById('companyServices').value.trim() || null)
+        : (getRiderText() || null),
+      company_type: profile.is_company ? (document.getElementById('companyType').value || null) : profile.company_type,
+      contact_phone: profile.is_company ? (document.getElementById('contactPhone').value.trim() || null) : profile.contact_phone,
+      website: profile.is_company ? (document.getElementById('website').value.trim() || null) : profile.website,
       photo_url: photoUrl,
       banner_url: bannerUrl,
       gallery_urls: galleryUrls.length ? galleryUrls : null,

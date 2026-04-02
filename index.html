@@ -407,14 +407,58 @@
       <h2>Empresas que trabajan con nosotros</h2>
       <p>Productoras, agencias y clubs que usan Voltum para conectar con los mejores DJs</p>
     </div>
-    <div id="empresasGrid" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:20px;max-width:900px;margin:0 auto 48px;">
-      <!-- Las empresas aparecerán aquí cuando creen su perfil -->
-      <div style="grid-column:1/-1;text-align:center;padding:48px 24px;">
-        <div style="font-size:2.5rem;margin-bottom:16px;opacity:0.4;">🏢</div>
-        <p style="color:var(--muted2);font-size:0.95rem;max-width:400px;margin:0 auto;">Los primeros perfiles de empresa estarán disponibles pronto.<br>¿Eres una productora o agencia? Contáctanos.</p>
-        <a href="https://wa.me/56930394883?text=Hola!%20Quiero%20crear%20un%20perfil%20de%20empresa%20en%20Voltum." target="_blank" rel="noopener" class="btn btn-outline btn-sm" style="margin-top:20px;border-color:#25D366;color:#25D366;">💬 Quiero mi perfil de empresa</a>
+    <div id="empresasGrid" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:20px;max-width:960px;margin:0 auto 48px;">
+      <div id="empresasLoading" style="grid-column:1/-1;text-align:center;padding:40px 0;">
+        <div class="spinner" style="margin:0 auto;"></div>
       </div>
     </div>
+    <div id="empresasEmpty" style="display:none;text-align:center;padding:40px 0 0;">
+      <div style="font-size:2.5rem;margin-bottom:16px;opacity:0.4;">🏢</div>
+      <p style="color:var(--muted2);font-size:0.95rem;max-width:400px;margin:0 auto;">Los primeros perfiles de empresa estarán disponibles pronto.</p>
+    </div>
+    <script>
+    (async () => {
+      const grid = document.getElementById('empresasGrid');
+      const loading = document.getElementById('empresasLoading');
+      const empty = document.getElementById('empresasEmpty');
+      try {
+        const { data: companies } = await sb
+          .from('profiles')
+          .select('id, dj_name, slug, photo_url, location, company_type, bio')
+          .eq('is_company', true)
+          .order('created_at', { ascending: true })
+          .limit(12);
+        loading.remove();
+        if (!companies || companies.length === 0) {
+          empty.style.display = 'block';
+          return;
+        }
+        companies.forEach(c => {
+          const pkUrl = c.slug ? `presskit.html?slug=${c.slug}` : `presskit.html?id=${c.id}`;
+          const initial = (c.dj_name || 'E').charAt(0).toUpperCase();
+          const logoHtml = c.photo_url
+            ? `<img src="${c.photo_url}" alt="${c.dj_name}" style="width:100%;height:100%;object-fit:cover;border-radius:10px;display:block;">`
+            : `<span style="font-size:2rem;font-weight:800;color:#fff;">${initial}</span>`;
+          const card = document.createElement('div');
+          card.style.cssText = 'background:var(--card);border:1px solid var(--border2);border-radius:var(--radius-lg);padding:24px;display:flex;flex-direction:column;align-items:center;text-align:center;gap:10px;transition:var(--transition);';
+          card.onmouseenter = () => { card.style.borderColor='var(--border)'; card.style.transform='translateY(-4px)'; };
+          card.onmouseleave = () => { card.style.borderColor='var(--border2)'; card.style.transform='translateY(0)'; };
+          card.innerHTML = `
+            <div style="width:72px;height:72px;border-radius:10px;background:var(--gradient);display:flex;align-items:center;justify-content:center;overflow:hidden;border:2px solid rgba(34,211,238,0.2);flex-shrink:0;">${logoHtml}</div>
+            <div>
+              <div style="font-size:1rem;font-weight:700;margin-bottom:4px;">${c.dj_name}</div>
+              ${c.company_type ? `<span style="font-size:0.75rem;color:var(--cyan);font-weight:600;">${c.company_type}</span>` : ''}
+              ${c.location ? `<div style="font-size:0.8rem;color:var(--muted2);margin-top:2px;">📍 ${c.location}</div>` : ''}
+            </div>
+            <a href="${pkUrl}" target="_blank" class="btn btn-outline btn-sm" style="width:100%;margin-top:4px;">Ver perfil →</a>`;
+          grid.appendChild(card);
+        });
+      } catch(e) {
+        loading.remove();
+        empty.style.display = 'block';
+      }
+    })();
+    </script>
     <div style="text-align:center;">
       <p style="font-size:0.85rem;color:var(--muted2);">¿Tu empresa trabaja con DJs? Crea un perfil y accede al mismo plan mensual.</p>
     </div>
