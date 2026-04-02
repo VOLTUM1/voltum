@@ -411,6 +411,18 @@
       <div style="background:rgba(251,191,36,0.06);border:1px solid rgba(251,191,36,0.2);border-radius:var(--radius);padding:12px 14px;margin-bottom:16px;font-size:0.82rem;color:var(--muted);">
         ⚠️ El DJ aún no ha cargado sus datos bancarios. Contáctalo directamente para coordinar el pago.
       </div>` : ''}
+      ${b.status === 'aceptado' ? `
+      <div style="border-top:1px solid var(--border2);padding-top:16px;margin-bottom:16px;">
+        <div style="font-size:0.72rem;color:var(--muted2);text-transform:uppercase;letter-spacing:0.06em;font-weight:700;margin-bottom:10px;">⭐ Reseña del evento</div>
+        ${b.company_review ? `
+        <div style="background:rgba(139,92,246,0.06);border:1px solid rgba(139,92,246,0.2);border-radius:var(--radius);padding:14px;">
+          <div style="font-size:0.875rem;line-height:1.6;color:var(--text);">"${b.company_review}"</div>
+          <div style="font-size:0.72rem;color:var(--muted2);margin-top:8px;">Publicada el ${new Date(b.company_review_at).toLocaleDateString('es-CL',{day:'numeric',month:'long',year:'numeric'})}</div>
+        </div>` : `
+        <textarea id="reviewText_${b.id}" placeholder="¿Cómo resultó el evento? Comparte la puntualidad, calidad y desempeño del DJ..." style="width:100%;background:var(--bg3);border:1px solid var(--border2);border-radius:var(--radius);padding:12px;font-size:0.82rem;color:var(--text);font-family:inherit;resize:vertical;min-height:80px;box-sizing:border-box;outline:none;" rows="3"></textarea>
+        <button onclick="submitReview('${b.id}')" class="btn btn-outline btn-sm" style="margin-top:8px;width:100%;">Publicar reseña en el press kit →</button>
+        `}
+      </div>` : ''}
       <div style="display:flex;gap:8px;justify-content:flex-end;margin-top:8px;">
         ${b.status === 'pendiente' ? `<button onclick="cancelBooking('${b.id}')" class="btn btn-outline btn-sm" style="color:var(--red);border-color:rgba(239,68,68,0.3);">Cancelar solicitud</button>` : ''}
         ${b.dj?.slug ? `<a href="presskit.html?slug=${b.dj.slug}" target="_blank" class="btn btn-outline btn-sm">Ver press kit →</a>` : ''}
@@ -430,6 +442,20 @@
 
   window.closeModal = function() {
     document.getElementById('bookingModal').style.display = 'none';
+  };
+
+  window.submitReview = async function(bookingId) {
+    const el = document.getElementById('reviewText_' + bookingId);
+    const text = el ? el.value.trim() : '';
+    if (!text) { showToast('Escribe una reseña antes de publicar', 'error'); return; }
+    const { error } = await sb.from('bookings').update({
+      company_review: text,
+      company_review_at: new Date().toISOString()
+    }).eq('id', bookingId);
+    if (error) { showToast('Error al publicar la reseña', 'error'); return; }
+    showToast('¡Reseña publicada en el press kit!', 'success');
+    closeModal();
+    setTimeout(() => window.location.reload(), 900);
   };
 
   document.getElementById('bookingModal').addEventListener('click', e => {

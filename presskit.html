@@ -283,6 +283,12 @@
       <div id="pkRider"></div>
     </div>
 
+    <!-- REVIEWS -->
+    <div class="presskit-section" id="reviewsSection" style="display:none;">
+      <div class="presskit-section-title">⭐ Reseñas</div>
+      <div id="pkReviewsList" style="display:flex;flex-direction:column;gap:14px;"></div>
+    </div>
+
     <!-- CONTACT -->
     <div class="presskit-section" id="contactSection" style="text-align:center;padding:48px 24px;border-radius:var(--radius-xl);background:linear-gradient(135deg,rgba(139,92,246,0.08),rgba(34,211,238,0.04));border:1px solid var(--border);">
       <h2 style="margin-bottom:12px;">¿Te interesa hacer un booking?</h2>
@@ -740,10 +746,42 @@ function renderPressKit(p, events) {
   // Booking btn
   initBookingBtn(p.id, p.dj_name, false);
 
+  // Reseñas
+  loadReviews(p.id);
+
   // Mostrar
   document.getElementById('pkSpinner').style.display = 'none';
   document.getElementById('pkContent').classList.remove('hidden');
 }
+
+async function loadReviews(djUserId) {
+  try {
+    const { data: reviews } = await sb.rpc('get_dj_reviews', { p_dj_id: djUserId });
+    if (!reviews || reviews.length === 0) return;
+    const list = document.getElementById('pkReviewsList');
+    list.innerHTML = reviews.map(r => {
+      const fecha = r.review_at
+        ? new Date(r.review_at).toLocaleDateString('es-CL', { month: 'long', year: 'numeric' })
+        : '';
+      const eventInfo = [r.event_type, r.event_date ? new Date(r.event_date + 'T12:00:00').toLocaleDateString('es-CL', { day: 'numeric', month: 'long', year: 'numeric' }) : ''].filter(Boolean).join(' · ');
+      return `
+      <div style="background:var(--card);border:1px solid var(--border2);border-radius:var(--radius-lg);padding:20px 22px;">
+        <div style="display:flex;align-items:center;gap:10px;margin-bottom:12px;">
+          <div style="width:36px;height:36px;border-radius:10px;background:rgba(139,92,246,0.15);display:flex;align-items:center;justify-content:center;font-weight:800;color:var(--purple-l);font-size:1rem;flex-shrink:0;">${(r.company_name||'E').charAt(0).toUpperCase()}</div>
+          <div>
+            <div style="font-weight:700;font-size:0.9rem;">${r.company_name || 'Empresa'}</div>
+            <div style="font-size:0.75rem;color:var(--muted2);">${r.company_type ? r.company_type + (fecha ? ' · ' + fecha : '') : fecha}</div>
+          </div>
+          <div style="margin-left:auto;font-size:0.85rem;color:var(--gold);">★★★★★</div>
+        </div>
+        <p style="font-size:0.875rem;line-height:1.7;color:var(--text);margin:0;">"${r.review}"</p>
+        ${eventInfo ? `<div style="font-size:0.72rem;color:var(--muted2);margin-top:10px;padding-top:10px;border-top:1px solid var(--border2);">Evento: ${eventInfo}</div>` : ''}
+      </div>`;
+    }).join('');
+    document.getElementById('reviewsSection').style.display = 'block';
+  } catch(e) { /* sin reseñas, no mostrar sección */ }
+}
+
 function renderCompany(p, events) {
   document.title = `${p.dj_name} — Perfil Empresa · Voltum`;
   const desc = p.bio ? p.bio.slice(0, 150) + '...' : `Perfil de empresa de ${p.dj_name}`;
