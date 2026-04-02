@@ -371,7 +371,8 @@ const DEMO_EVENTS = [
     if (profileData) {
       // Verificar membresía activa — requisito para publicar el press kit
       const { data: mem } = await sb.from('memberships').select('status, expires_at').eq('user_id', profileData.id).single();
-      const isActive = mem?.status === 'active' && new Date(mem.expires_at) > new Date();
+      const isActive = mem?.status === 'active' &&
+        (!mem.expires_at || new Date(mem.expires_at) > new Date());
 
       if (!isActive) {
         document.getElementById('pkSpinner').innerHTML = `
