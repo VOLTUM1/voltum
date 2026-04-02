@@ -522,6 +522,11 @@ const ACCESSORIES_ICONS = {
   'Cubierta anti-líquidos':   { icon: '🛡️', desc: 'Cubierta anti-líquidos' },
 };
 
+let _bkDjUserId = null;
+let _bkDjName   = null;
+let _bkIsDemo   = false;
+let _bkCompany  = null;
+
 (async () => {
   try {
   const params = new URLSearchParams(window.location.search);
@@ -1213,10 +1218,6 @@ function _spSetPlaying(idx, title) {
 }
 
 // ── Booking System ────────────────────────────────────────────────────────────
-let _bkDjUserId = null;
-let _bkDjName   = null;
-let _bkIsDemo   = false;
-let _bkCompany  = null;
 
 function initBookingBtn(djUserId, djName, isDemo) {
   _bkDjUserId = djUserId;
