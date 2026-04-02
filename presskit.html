@@ -522,6 +522,33 @@ const EQUIPMENT_CATALOG = [
   { label:'DJS-1000 Sampler',        cat:'Sampler',      photo:'https://cdn.shopify.com/s/files/1/0760/8372/4568/files/DJS-1000.png' },
 ];
 
+const DEMO_REVIEWS = [
+  {
+    company_name: 'Club Chocolate',
+    company_type: 'Club / Venue',
+    review: 'DJ Nova superó todas nuestras expectativas. Llegó puntual, el sonido fue impecable y la gente no paró de bailar en toda la noche. Definitivamente lo volvemos a contratar.',
+    review_at: '2026-02-20T00:00:00Z',
+    event_date: '2026-02-15',
+    event_type: 'Club night'
+  },
+  {
+    company_name: 'Sónar Santiago',
+    company_type: 'Festival',
+    review: 'Excelente experiencia trabajando con Nova. Su rider técnico era claro y preciso, lo que facilitó mucho la producción. El set fue uno de los más comentados del festival.',
+    review_at: '2026-01-10T00:00:00Z',
+    event_date: '2026-01-07',
+    event_type: 'Festival'
+  },
+  {
+    company_name: 'Productora LaMente',
+    company_type: 'Productora',
+    review: 'Profesional, puntual y con un talento increíble. La comunicación previa al evento fue fluida y los datos de transferencia estaban claros desde el primer momento. 100% recomendado.',
+    review_at: '2025-12-05T00:00:00Z',
+    event_date: '2025-11-30',
+    event_type: 'Evento privado'
+  }
+];
+
 const ACCESSORIES_ICONS = {
   'Puerto USB en cada CDJ':   { icon: '🔌', desc: 'USB en cada reproductor' },
   'Rekordbox compatible':     { icon: '💿', desc: 'Compatible con Rekordbox' },
@@ -756,7 +783,13 @@ function renderPressKit(p, events) {
 
 async function loadReviews(djUserId) {
   try {
-    const { data: reviews } = await sb.rpc('get_dj_reviews', { p_dj_id: djUserId });
+    let reviews;
+    if (!djUserId) {
+      reviews = DEMO_REVIEWS;
+    } else {
+      const { data } = await sb.rpc('get_dj_reviews', { p_dj_id: djUserId });
+      reviews = data;
+    }
     if (!reviews || reviews.length === 0) return;
     const list = document.getElementById('pkReviewsList');
     list.innerHTML = reviews.map(r => {
@@ -1261,8 +1294,30 @@ function initBookingBtn(djUserId, djName, isDemo) {
 
 async function handleBookingClick() {
   if (_bkIsDemo) {
-    // Demo: invitar a registrarse
     _showBookingModal();
+    // Mostrar preview del formulario de booking para que el visitante entienda el flujo
+    document.getElementById('bkNoAuth').innerHTML = `
+      <div style="text-align:left;">
+        <div style="display:inline-flex;align-items:center;gap:8px;background:rgba(139,92,246,0.1);border:1px solid rgba(139,92,246,0.25);border-radius:100px;padding:5px 14px;font-size:0.75rem;font-weight:700;color:var(--purple-l);margin-bottom:16px;">
+          📅 Así funciona el sistema de bookings
+        </div>
+        <p style="font-size:0.82rem;color:var(--muted);margin-bottom:16px;line-height:1.6;">Las empresas registradas pueden enviar solicitudes directamente desde cualquier press kit. El DJ la recibe en su dashboard y puede aceptar o rechazar.</p>
+        <div style="background:var(--bg3);border:1px solid var(--border2);border-radius:var(--radius-lg);padding:16px;margin-bottom:16px;font-size:0.8rem;">
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:10px;">
+            <div><div style="color:var(--muted2);font-size:0.68rem;text-transform:uppercase;letter-spacing:0.5px;margin-bottom:3px;">Fecha</div><div style="font-weight:600;color:var(--text);">Sáb 12 Abril, 2026</div></div>
+            <div><div style="color:var(--muted2);font-size:0.68rem;text-transform:uppercase;letter-spacing:0.5px;margin-bottom:3px;">Tipo de evento</div><div style="font-weight:600;color:var(--text);">Club Night</div></div>
+            <div><div style="color:var(--muted2);font-size:0.68rem;text-transform:uppercase;letter-spacing:0.5px;margin-bottom:3px;">Venue</div><div style="font-weight:600;color:var(--text);">Club Chocolate · Santiago</div></div>
+            <div><div style="color:var(--muted2);font-size:0.68rem;text-transform:uppercase;letter-spacing:0.5px;margin-bottom:3px;">Presupuesto</div><div style="font-weight:600;color:var(--text);">$350.000 CLP</div></div>
+          </div>
+          <div><div style="color:var(--muted2);font-size:0.68rem;text-transform:uppercase;letter-spacing:0.5px;margin-bottom:3px;">Mensaje para el DJ</div><div style="color:var(--muted);font-style:italic;">"Buscamos cierre de temporada con ambiente techno oscuro. Set de 3 horas."</div></div>
+        </div>
+        <div style="display:flex;align-items:center;gap:8px;font-size:0.78rem;color:var(--muted2);margin-bottom:20px;">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"/></svg>
+          Al aceptar, el DJ comparte sus datos bancarios para la transferencia
+        </div>
+        <a href="auth.html?tab=register&type=empresa" class="btn btn-primary btn-full">Crear cuenta empresa →</a>
+        <a href="auth.html" style="display:block;text-align:center;margin-top:10px;font-size:0.8rem;color:var(--muted2);">Ya tengo cuenta — Iniciar sesión</a>
+      </div>`;
     _bkShowState('noAuth');
     return;
   }
