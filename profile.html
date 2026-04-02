@@ -469,24 +469,6 @@
         </div><!-- /djRiderSection -->
       </div>
 
-      <!-- SAVE BAR -->
-      <div class="save-bar">
-        <span id="saveStatus" style="align-self:center;font-size:0.85rem;color:var(--muted);"></span>
-        <a href="#" id="previewBtn2" target="_blank" class="btn btn-outline btn-sm">
-          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
-          Ver en vivo
-        </a>
-        <button class="btn btn-primary" id="saveProfileBtn">
-          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/><polyline points="7 3 7 8 15 8"/></svg>
-          Guardar cambios
-        </button>
-      </div>
-    </div>
-  </main>
-</div>
-
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-<script src="js/config.js"></script>
       <!-- TAB: DATOS DE PAGO -->
       <div class="tab-content card hidden" id="tab-payment">
         <h3 style="font-size:1rem;margin-bottom:4px;">Datos para transferencia</h3>
@@ -556,6 +538,24 @@
         </div>
       </div>
 
+      <!-- SAVE BAR -->
+      <div class="save-bar">
+        <span id="saveStatus" style="align-self:center;font-size:0.85rem;color:var(--muted);"></span>
+        <a href="#" id="previewBtn2" target="_blank" class="btn btn-outline btn-sm">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+          Ver en vivo
+        </a>
+        <button class="btn btn-primary" id="saveProfileBtn">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/><polyline points="7 3 7 8 15 8"/></svg>
+          Guardar cambios
+        </button>
+      </div>
+    </div>
+  </main>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="js/config.js"></script>
 <script>
 let currentUser = null;
 let targetUserId = null; // currentUser.id normalmente; otro ID si admin edita un cliente
