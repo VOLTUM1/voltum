@@ -1096,32 +1096,6 @@ async function deleteEvent(id) {
     showToast('Evento eliminado', 'info');
   }
 }
-</script>
-<script>
-// Mobile sidebar toggle
-(function() {
-  const toggle = document.getElementById('sidebarToggle');
-  const overlay = document.getElementById('sidebarOverlay');
-  const sidebar = document.getElementById('appSidebar');
-  if (!toggle) return;
-  toggle.addEventListener('click', () => {
-    toggle.classList.toggle('open');
-    sidebar.classList.toggle('mobile-open');
-    overlay.classList.toggle('visible');
-  });
-  overlay.addEventListener('click', () => {
-    toggle.classList.remove('open');
-    sidebar.classList.remove('mobile-open');
-    overlay.classList.remove('visible');
-  });
-  sidebar.querySelectorAll('.sidebar-nav-item').forEach(item => {
-    item.addEventListener('click', () => {
-      toggle.classList.remove('open');
-      sidebar.classList.remove('mobile-open');
-      overlay.classList.remove('visible');
-    });
-  });
-})();
 
 // ── Regiones y Comunas de Chile ──────────────────────────────
 const CHILE_DATA = {
@@ -1178,6 +1152,33 @@ function setupLocationDropdowns(savedRegion, savedComuna) {
     if (savedComuna) comunaSel.value = savedComuna;
   }
 }
+</script>
+<script>
+// Mobile sidebar toggle
+(function() {
+  const toggle = document.getElementById('sidebarToggle');
+  const overlay = document.getElementById('sidebarOverlay');
+  const sidebar = document.getElementById('appSidebar');
+  if (!toggle) return;
+  toggle.addEventListener('click', () => {
+    toggle.classList.toggle('open');
+    sidebar.classList.toggle('mobile-open');
+    overlay.classList.toggle('visible');
+  });
+  overlay.addEventListener('click', () => {
+    toggle.classList.remove('open');
+    sidebar.classList.remove('mobile-open');
+    overlay.classList.remove('visible');
+  });
+  sidebar.querySelectorAll('.sidebar-nav-item').forEach(item => {
+    item.addEventListener('click', () => {
+      toggle.classList.remove('open');
+      sidebar.classList.remove('mobile-open');
+      overlay.classList.remove('visible');
+    });
+  });
+})();
+
 </script>
   <script defer src="/_vercel/insights/script.js"></script>
 </body>
