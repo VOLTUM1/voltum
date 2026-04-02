@@ -361,7 +361,7 @@ footer { padding: 60px 0 32px; border-top: 1px solid var(--border2); background:
 /* ─── PROFILE EDITOR ─────────────────────────────────────── */
 .profile-grid { display: grid; grid-template-columns: 1fr 340px; gap: 28px; align-items: start; }
 .profile-tabs { display: flex; gap: 4px; margin-bottom: 28px; padding: 4px; background: var(--bg3); border-radius: var(--radius); flex-wrap: wrap; }
-.profile-tab  { flex: 1; padding: 9px; text-align: center; cursor: pointer; border-radius: calc(var(--radius) - 2px); border: none; background: transparent; font-family: inherit; font-weight: 500; font-size: 0.875rem; color: var(--muted); transition: var(--transition); min-width: 60px; }
+.profile-tab  { flex: 1; display: flex; align-items: center; justify-content: center; gap: 6px; padding: 9px; text-align: center; cursor: pointer; border-radius: calc(var(--radius) - 2px); border: none; background: transparent; font-family: inherit; font-weight: 500; font-size: 0.875rem; color: var(--muted); transition: var(--transition); min-width: 60px; }
 .profile-tab.active { background: var(--bg); color: var(--text); }
 .tab-content        { display: none; }
 .tab-content.active { display: block; }
@@ -596,17 +596,43 @@ footer { padding: 60px 0 32px; border-top: 1px solid var(--border2); background:
   /* Payment */
   .payment-page { padding: 24px 16px; align-items: flex-start; }
 
-  /* Profile tabs — scroll horizontal */
-  .profile-tabs   { overflow-x: auto; flex-wrap: nowrap; -webkit-overflow-scrolling: touch; }
-  .profile-tab    { flex-shrink: 0; }
+  /* Profile tabs — scroll horizontal, icon+label vertical */
+  .profile-tabs { overflow-x: auto; flex-wrap: nowrap; -webkit-overflow-scrolling: touch; scrollbar-width: none; }
+  .profile-tabs::-webkit-scrollbar { display: none; }
+  .profile-tab { flex-shrink: 0; flex-direction: column; padding: 8px 10px; min-width: 52px; font-size: 0.7rem; gap: 3px; line-height: 1.2; }
+  .tab-label { font-size: 0.68rem; font-weight: 600; }
+
+  /* Fix inline 2-col grids → single column on mobile */
+  .main-content [style*="1fr 1fr"] {
+    grid-template-columns: 1fr !important;
+    gap: 16px !important;
+  }
+
+  /* Save bar: fixed to bottom, full width, safe area */
+  .save-bar {
+    position: fixed !important;
+    bottom: 0; left: 0; right: 0;
+    margin-top: 0 !important;
+    border-radius: 0 !important;
+    border-left: none !important;
+    border-right: none !important;
+    padding: 10px 16px !important;
+    padding-bottom: max(10px, env(safe-area-inset-bottom)) !important;
+    z-index: 20;
+  }
+  /* Room for fixed save bar */
+  #profileContent { padding-bottom: 88px; }
+
+  /* Page header compact */
+  #profileContent > div:first-child h1 { font-size: 1.3rem !important; }
+  #profileContent > div:first-child { margin-bottom: 16px !important; gap: 10px !important; }
 
   /* Copy link */
   .copy-link-area { flex-direction: column; }
   .copy-link-area .btn { width: 100%; }
 
   /* Save bar */
-  .save-bar { justify-content: stretch; }
-  .save-bar .btn { flex: 1; }
+  .save-bar { justify-content: flex-end; gap: 10px; }
 }
 
 /* ═══════════════════════════════════════════════════════════
@@ -643,4 +669,11 @@ footer { padding: 60px 0 32px; border-top: 1px solid var(--border2); background:
   .admin-tab       { flex-shrink: 0; }
 
   .revenue-card    { flex-direction: column; align-items: flex-start; }
+
+  /* Gallery: 2 columns on small phones */
+  #galleryGrid { grid-template-columns: repeat(2, 1fr) !important; gap: 8px !important; }
+
+  /* Rider grid: full width chips on small phones */
+  .rider-grid { gap: 8px; }
+  .rider-item { width: 100%; justify-content: flex-start; }
 }
