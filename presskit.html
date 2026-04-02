@@ -423,6 +423,11 @@
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script src="js/config.js"></script>
 <script>
+// ── Variables globales — declaradas primero para evitar TDZ ──────────────────
+let _scWidget = null, _scPlayingIdx = -1, _scPaused = false;
+let _spAudio = null, _spPlayingIdx = -1, _spProgressTimer = null;
+let _bkDjUserId = null, _bkDjName = null, _bkIsDemo = false, _bkCompany = null;
+
 const DEMO_DATA = {
   dj_name: 'DJ Nova',
   real_name: 'Nicolás García',
@@ -521,11 +526,6 @@ const ACCESSORIES_ICONS = {
   'Soporte/mesa de DJ':       { icon: '🗄️', desc: 'Mesa o soporte de DJ' },
   'Cubierta anti-líquidos':   { icon: '🛡️', desc: 'Cubierta anti-líquidos' },
 };
-
-let _bkDjUserId = null;
-let _bkDjName   = null;
-let _bkIsDemo   = false;
-let _bkCompany  = null;
 
 (async () => {
   try {
@@ -937,9 +937,7 @@ function closeFlyer() {
 // keydown Escape handled below with booking modal
 
 // ── SoundCloud Custom Player ─────────────────────────────────────────────────
-let _scWidget = null;
-let _scPlayingIdx = -1;
-let _scPaused = false;
+// _scWidget, _scPlayingIdx, _scPaused — declarados al inicio del script
 
 function _scNormalizeUrl(url) {
   if (!url) return null;
@@ -1091,9 +1089,7 @@ function _scEsc(str) {
 }
 
 // ── Spotify Player ────────────────────────────────────────────────────────────
-let _spAudio = null;
-let _spPlayingIdx = -1;
-let _spProgressTimer = null;
+// _spAudio, _spPlayingIdx, _spProgressTimer — declarados al inicio del script
 
 function _spExtractArtistId(url) {
   if (!url) return null;
