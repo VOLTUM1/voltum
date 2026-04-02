@@ -5,6 +5,34 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Voltum — Activar Membresía</title>
   <link rel="stylesheet" href="css/styles.css">
+  <style>
+    /* ── PAYMENT MOBILE ─────────────────────────────────── */
+    #payPage { padding-top: 80px; }
+    @media (max-width: 768px) {
+      #payPage { padding-top: 68px; }
+      .payment-amount { padding: 20px 16px; margin-bottom: 20px; }
+      .payment-amount-value { font-size: 2.6rem !important; }
+      .payment-benefits { margin-bottom: 20px; }
+      .payment-benefits li { padding: 9px 0; font-size: 0.875rem; }
+      #currentMembershipInfo { margin-bottom: 16px; padding: 12px; }
+      .trust-badges { margin-top: 16px; gap: 12px; }
+    }
+    @media (max-width: 480px) {
+      .payment-amount { padding: 14px 12px; border-radius: var(--radius-lg); }
+      .payment-amount-value { font-size: 2.1rem !important; }
+      .payment-amount > div:first-child { font-size: 0.75rem; margin-bottom: 4px; }
+      .payment-benefits li { padding: 8px 0; font-size: 0.83rem; }
+      /* Promo code: stack button below input */
+      #promoSection > div:first-child { flex-direction: column; }
+      #promoSection > div:first-child .btn { width: 100%; }
+      /* Active sub section */
+      #activeSubContainer > div:first-child { padding: 12px 14px; }
+      /* Trust badges compact */
+      .trust-badge { font-size: 0.73rem; }
+      /* Subscribe button */
+      #subscribeBtn { font-size: 0.95rem !important; }
+    }
+  </style>
 </head>
 <body>
 
@@ -22,7 +50,7 @@
 </nav>
 <style>@media(max-width:768px){#payNavMobile{display:inline-flex!important;}}</style>
 
-<div class="payment-page" style="padding-top:80px;">
+<div class="payment-page" id="payPage">
   <div class="payment-card">
 
     <div style="text-align:center;margin-bottom:32px;">

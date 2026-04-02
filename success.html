@@ -5,6 +5,31 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Voltum — ¡Pago exitoso!</title>
   <link rel="stylesheet" href="css/styles.css">
+  <style>
+    /* ── SUCCESS MOBILE ──────────────────────────────────── */
+    .success-page {
+      padding-top: 40px;
+      padding-bottom: max(40px, env(safe-area-inset-bottom));
+      align-items: flex-start;
+    }
+    @media (max-width: 768px) {
+      .success-page {
+        padding: 40px 20px;
+        padding-bottom: max(40px, env(safe-area-inset-bottom));
+        align-items: center;
+      }
+      .confetti-ring { width: 96px; height: 96px; font-size: 2.4rem; margin-bottom: 20px; }
+      .success-page h1 { font-size: 1.6rem !important; margin-bottom: 10px !important; }
+      .success-page > div > p:first-of-type { font-size: 0.95rem !important; margin-bottom: 6px !important; }
+      .success-page > div > p:nth-of-type(2) { margin-bottom: 28px !important; font-size: 0.875rem; }
+      .success-page .btn-lg { font-size: 1rem; padding: 13px 20px; }
+    }
+    @media (max-width: 480px) {
+      .success-page { padding: 32px 16px; padding-bottom: max(32px, env(safe-area-inset-bottom)); }
+      .confetti-ring { width: 80px; height: 80px; font-size: 2rem; margin-bottom: 16px; }
+      .success-page h1 { font-size: 1.4rem !important; }
+    }
+  </style>
 </head>
 <body>
 <div class="success-page">
