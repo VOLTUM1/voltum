@@ -616,8 +616,14 @@ Disponible para bookings nacionales e internacionales. Rider técnico completo y
     return String(str || '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
   }
 
-  // Iniciar player con Charlotte de Witte
-  initSoundCloudPlayer('https://soundcloud.com/charlottedewitte');
+  // Cargar SC solo cuando la sección sea visible (lazy)
+  const _scObserver = new IntersectionObserver((entries) => {
+    if (entries[0].isIntersecting) {
+      _scObserver.disconnect();
+      initSoundCloudPlayer('https://soundcloud.com/charlottedewitte');
+    }
+  }, { rootMargin: '200px' });
+  _scObserver.observe(document.getElementById('pkSoundcloud'));
 
   // ── Lightbox ─────────────────────────────────────────────────────────────────
   function openLightbox(src) {
