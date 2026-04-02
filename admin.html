@@ -87,6 +87,59 @@
     .empty-state { text-align: center; padding: 48px; color: var(--muted2); }
     .filter-select { background: var(--bg3); border: 1px solid var(--border2); color: var(--text); padding: 10px 14px; border-radius: var(--radius); font-family: inherit; font-size: 0.875rem; cursor: pointer; }
     .filter-select option { background: var(--bg3); }
+
+    /* ── RESPONSIVE MOBILE ────────────────────────────── */
+    @media (max-width: 768px) {
+      /* Tabs scrollables horizontalmente */
+      .admin-tabs {
+        width: 100%; overflow-x: auto; -webkit-overflow-scrolling: touch;
+        scrollbar-width: none; padding-bottom: 2px;
+      }
+      .admin-tabs::-webkit-scrollbar { display: none; }
+      .admin-tab { padding: 9px 14px; font-size: 0.8rem; }
+
+      /* Header admin apilado */
+      .admin-header { flex-direction: column; align-items: flex-start; }
+
+      /* Revenue card apilada */
+      .revenue-card { flex-direction: column; gap: 16px; padding: 20px; }
+      .revenue-card > div:last-child { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; width: 100%; }
+      .revenue-value { font-size: 2rem; }
+
+      /* Gráficos en una sola columna */
+      #tab-charts > div:first-child {
+        grid-template-columns: 1fr !important;
+      }
+
+      /* Buscador apilado */
+      .search-bar { flex-direction: column; }
+      .search-bar input, .filter-select { width: 100%; }
+
+      /* Botones de acción en tabla: más grandes y apilados */
+      .row-actions { flex-direction: column; gap: 4px; }
+      .row-actions .btn { width: 100%; justify-content: center; min-height: 36px; font-size: 0.8rem; }
+
+      /* Modal full-screen en mobile */
+      .modal-overlay { padding: 0; align-items: flex-end; }
+      .modal {
+        border-radius: var(--radius-xl) var(--radius-xl) 0 0;
+        max-height: 90vh; padding: 24px 20px;
+        max-width: 100%; width: 100%;
+      }
+
+      /* Celdas de tabla más compactas */
+      .admin-table th, .admin-table td { padding: 10px 10px; }
+
+      /* Ocultar columnas menos importantes en mobile */
+      .admin-table th:nth-child(3),
+      .admin-table td:nth-child(3),
+      .admin-table th:nth-child(4),
+      .admin-table td:nth-child(4),
+      .admin-table th:nth-child(6),
+      .admin-table td:nth-child(6),
+      .admin-table th:nth-child(7),
+      .admin-table td:nth-child(7) { display: none; }
+    }
   </style>
 </head>
 <body>
