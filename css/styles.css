@@ -109,7 +109,9 @@ a:hover { color: var(--cyan); }
 }
 .form-textarea { resize: vertical; min-height: 100px; }
 .form-select   { cursor: pointer; }
-.form-select option { background: var(--bg3); }
+.form-select option { background: var(--bg3); color: var(--text); }
+select.form-input  { cursor: pointer; background-color: #12121e; color: var(--text); }
+select.form-input option { background-color: #12121e; color: var(--text); }
 .form-hint  { margin-top: 6px; font-size: 0.8rem; color: var(--muted2); }
 .form-error { margin-top: 6px; font-size: 0.8rem; color: var(--red); }
 
