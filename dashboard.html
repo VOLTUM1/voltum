@@ -487,6 +487,12 @@
   const membership = membershipRes.data;
   const eventsCount = eventsCountRes.count || 0;
 
+  // Guard: redirigir empresas a su propio dashboard
+  if (profile?.is_company) {
+    window.location.href = 'company-dashboard.html';
+    return;
+  }
+
   const djName = profile?.dj_name || user.email;
   document.getElementById('sidebarUserName').textContent = djName;
   document.getElementById('sidebarAvatar').textContent = djName.charAt(0).toUpperCase();

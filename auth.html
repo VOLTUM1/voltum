@@ -175,6 +175,9 @@
   if (urlParams.get('tab') === 'register') {
     showTab('register');
   }
+  if (urlParams.get('type') === 'empresa') {
+    setAccountType('empresa');
+  }
 
   tabs.forEach(tab => {
     tab.addEventListener('click', () => showTab(tab.dataset.tab));

@@ -610,6 +610,12 @@ let eventFlyerFile = null;
   if (sidebarName) sidebarName.textContent = djDisplayName;
   if (sidebarAvatar) sidebarAvatar.textContent = djDisplayName.charAt(0).toUpperCase();
 
+  // Corregir link de Dashboard en sidebar para empresas
+  if (profile.is_company) {
+    const dashLink = document.querySelector('a[href="dashboard.html"]');
+    if (dashLink) dashLink.href = 'company-dashboard.html';
+  }
+
   fillForm();
   await loadEvents();
 
