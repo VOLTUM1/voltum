@@ -210,6 +210,19 @@
         booking_email: email
       }, { onConflict: 'id' });
 
+      // Activar prueba gratuita de 7 días
+      const trialStarts = new Date();
+      const trialExpires = new Date(trialStarts);
+      trialExpires.setDate(trialExpires.getDate() + 7);
+      await sb.from('memberships').upsert({
+        user_id: data.user.id,
+        status: 'active',
+        payment_id: 'TRIAL_7D',
+        amount: 0,
+        starts_at: trialStarts.toISOString(),
+        expires_at: trialExpires.toISOString()
+      }, { onConflict: 'user_id' });
+
       // Email de bienvenida (fire & forget — no bloquea el registro)
       const token = (await sb.auth.getSession()).data.session?.access_token;
       if (token) {

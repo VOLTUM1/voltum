@@ -138,7 +138,7 @@ const VOLTUM = {
   },
   plan: {
     name: 'Voltum Pro',
-    price: 11990,
+    price: 9990,
     currency: 'CLP',
     description: 'Press Kit Digital + Membresía Mensual'
   },

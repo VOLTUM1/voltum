@@ -33,7 +33,7 @@
     <!-- Monto -->
     <div class="payment-amount">
       <div style="font-size:0.85rem;color:var(--muted);margin-bottom:8px;text-transform:uppercase;letter-spacing:1px;">Voltum Pro · Mensual</div>
-      <div class="payment-amount-value">$11.990</div>
+      <div class="payment-amount-value">$9.990</div>
       <div style="font-size:0.9rem;color:var(--muted);margin-top:6px;">pesos chilenos · se renueva automáticamente cada mes</div>
     </div>
 
@@ -60,7 +60,7 @@
     <!-- Botón suscripción -->
     <div id="mpButtonContainer" style="display:none;">
       <button class="btn btn-primary btn-full btn-lg" id="subscribeBtn" style="font-size:1.05rem;">
-        ⚡ Suscribirse — $11.990/mes
+        ⚡ Suscribirse — $9.990/mes
       </button>
       <p style="text-align:center;font-size:0.8rem;color:var(--muted2);margin-top:12px;">
         Serás redirigido a Mercado Pago para autorizar el cobro automático.
@@ -139,12 +139,15 @@
   if (mem?.status === 'active') {
     const expires = new Date(mem.expires_at);
     const days = Math.ceil((expires - new Date()) / (1000 * 60 * 60 * 24));
-    infoEl.innerHTML = `<span style="color:var(--green);">✓ Membresía activa</span> · Vence el ${expires.toLocaleDateString('es-CL')} (${days} días)`;
+    const isTrial = mem.payment_id === 'TRIAL_7D';
+    infoEl.innerHTML = isTrial
+      ? `<span style="color:var(--gold);">⏳ Prueba gratuita activa</span> · Vence el ${expires.toLocaleDateString('es-CL')} (${days} días restantes) — suscríbete para no perder tu press kit`
+      : `<span style="color:var(--green);">✓ Membresía activa</span> · Vence el ${expires.toLocaleDateString('es-CL')} (${days} días)`;
 
     if (mem.subscription_id) {
       // Tiene auto-renovación activa
       document.getElementById('nextChargeInfo').textContent =
-        `Próximo cobro: ${expires.toLocaleDateString('es-CL')} · $11.990`;
+        `Próximo cobro: ${expires.toLocaleDateString('es-CL')} · $9.990`;
       loadingEl.style.display = 'none';
       activeContainer.style.display = 'block';
 
@@ -208,7 +211,7 @@ function setupSubscribeButton(user, profile) {
     } catch (err) {
       console.error('MP error:', err);
       btn.disabled = false;
-      btn.textContent = '⚡ Suscribirse — $11.990/mes';
+      btn.textContent = '⚡ Suscribirse — $9.990/mes';
       document.getElementById('mpError').textContent = '⚠️ ' + err.message;
       document.getElementById('mpError').style.display = 'block';
     }
@@ -284,7 +287,7 @@ function setupPromoCode(user) {
       // 1. Verificar si es código de REFERIDO (descuento %)
       const { data: refCode } = await sb
         .from('referral_codes')
-        .select('code, discount_percent, discount_months, owner_user_id')
+        .select('code, discount_percent, discount_months, owner_user_id, max_uses')
         .eq('code', code)
         .eq('active', true)
         .single();
@@ -300,21 +303,30 @@ function setupPromoCode(user) {
           showPromoError('Ya usaste un código de referido anteriormente.');
           return;
         }
+        // Verificar límite de usos si el código tiene max_uses
+        if (refCode.max_uses) {
+          const { count } = await sb.from('referrals').select('id', { count: 'exact', head: true }).eq('code', code);
+          if (count >= refCode.max_uses) {
+            showPromoError(`Este código ya alcanzó el límite de ${refCode.max_uses} usos. ¡Llegaste tarde!`);
+            return;
+          }
+        }
 
         // Aplicar descuento en la UI
         window._activeReferralCode = refCode.code;
-        const discounted = Math.round(11990 * (1 - refCode.discount_percent / 100));
-        const saving = 11990 - discounted;
+        const discounted = Math.round(9990 * (1 - refCode.discount_percent / 100));
+        const saving = 9990 - discounted;
+        const usesLeft = refCode.max_uses ? `· <strong style="color:var(--gold);">${refCode.max_uses} cupos totales</strong>` : '';
 
         promoSuccess.innerHTML = `
-          🎉 <strong>Código aplicado — ${refCode.discount_percent}% off por ${refCode.discount_months} meses</strong><br>
-          <span style="font-size:0.85rem;">Pagas <strong>$${discounted.toLocaleString('es-CL')}/mes</strong> en vez de $11.990 — ahorrás $${saving.toLocaleString('es-CL')}/mes</span>`;
+          🎉 <strong>Código aplicado — ${refCode.discount_percent}% off por ${refCode.discount_months} mes${refCode.discount_months > 1 ? 'es' : ''}</strong> ${usesLeft}<br>
+          <span style="font-size:0.85rem;">Pagas <strong>$${discounted.toLocaleString('es-CL')}/mes</strong> en vez de $9.990 — ahorrás $${saving.toLocaleString('es-CL')}/mes</span>`;
         promoSuccess.style.display = 'block';
 
         // Actualizar el botón con el precio descontado
         document.getElementById('subscribeBtn').textContent = `⚡ Suscribirse — $${discounted.toLocaleString('es-CL')}/mes`;
         document.querySelector('.payment-amount-value').innerHTML =
-          `<span style="text-decoration:line-through;opacity:0.4;font-size:1.5rem;">$11.990</span> <span style="color:var(--green);">$${discounted.toLocaleString('es-CL')}</span>`;
+          `<span style="text-decoration:line-through;opacity:0.4;font-size:1.5rem;">$9.990</span> <span style="color:var(--green);">$${discounted.toLocaleString('es-CL')}</span>`;
         return;
       }
 
@@ -372,7 +384,7 @@ function setupDevSimulate(user, isAdmin) {
       status: 'active',
       payment_id: 'TEST_' + Date.now(),
       subscription_id: 'TEST_SUB_' + Date.now(),
-      amount: 11990,
+      amount: 9990,
       starts_at: starts.toISOString(),
       expires_at: expires.toISOString()
     }, { onConflict: 'user_id' });
