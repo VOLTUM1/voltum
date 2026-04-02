@@ -370,11 +370,12 @@ const DEMO_EVENTS = [
 
     if (profileData) {
       // Verificar membresía activa — requisito para publicar el press kit
-      const { data: mem } = await sb.from('memberships').select('status, expires_at').eq('user_id', profileData.id).single();
-      const isActive = mem?.status === 'active' &&
-        (!mem.expires_at || new Date(mem.expires_at) > new Date());
+      // Se usa RPC con SECURITY DEFINER para evitar que RLS bloquee
+      // la consulta cuando el visitante no es el dueño del press kit.
+      const { data: isActive, error: rpcError } = await sb.rpc('check_membership_active', { p_user_id: profileData.id });
+      if (rpcError) console.error('[Voltum] check_membership_active:', rpcError.message);
 
-      if (!isActive) {
+      if (!isActive && !rpcError) {
         document.getElementById('pkSpinner').innerHTML = `
           <div style="text-align:center;padding:60px 24px;max-width:480px;margin:0 auto;">
             <div style="font-size:3rem;margin-bottom:16px;">🔒</div>

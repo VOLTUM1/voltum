@@ -1,9 +1,12 @@
 // ============================================================
 // Voltum — Supabase Edge Function: redeem-promo
 // ============================================================
-// Canjea un código promocional de 1 año para influencers.
-// Valida que el código exista, no haya sido usado, y activa
-// la membresía por 12 meses sin cobro.
+// Canjea un código promocional. Soporta dos tipos:
+//   - Código de un solo uso global (is_universal = false):
+//     solo puede ser canjeado por una cuenta en total.
+//   - Código universal (is_universal = true):
+//     cualquier cuenta puede canjearlo, pero cada cuenta
+//     solo puede usarlo una vez (regla por cuenta).
 //
 // Despliega con: supabase functions deploy redeem-promo
 // ============================================================
@@ -29,7 +32,6 @@ serve(async (req: Request) => {
       });
     }
 
-    // Verificar usuario con anon key
     const supabaseUser = createClient(
       Deno.env.get("SUPABASE_URL") ?? "",
       Deno.env.get("SUPABASE_ANON_KEY") ?? "",
@@ -43,7 +45,6 @@ serve(async (req: Request) => {
       });
     }
 
-    // Service role para operaciones sin RLS
     const supabaseAdmin = createClient(
       Deno.env.get("SUPABASE_URL") ?? "",
       Deno.env.get("SERVICE_ROLE_KEY") ?? ""
@@ -71,46 +72,81 @@ serve(async (req: Request) => {
       });
     }
 
-    if (promo.used) {
-      return new Response(JSON.stringify({ error: "Este código ya fue utilizado" }), {
-        status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" },
-      });
+    if (promo.is_universal) {
+      // ── Código universal: verificar que esta cuenta no lo haya usado ──
+      const { data: existingUse } = await supabaseAdmin
+        .from("promo_code_uses")
+        .select("id")
+        .eq("code_id", promo.id)
+        .eq("user_id", user.id)
+        .single();
+
+      if (existingUse) {
+        return new Response(JSON.stringify({ error: "Ya usaste este código en tu cuenta" }), {
+          status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" },
+        });
+      }
+
+      // Registrar el uso por esta cuenta
+      const { error: useError } = await supabaseAdmin
+        .from("promo_code_uses")
+        .insert({ code_id: promo.id, user_id: user.id });
+
+      if (useError) {
+        return new Response(JSON.stringify({ error: "Este código ya fue reclamado por tu cuenta" }), {
+          status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" },
+        });
+      }
+    } else {
+      // ── Código de un solo uso global ──
+      if (promo.used) {
+        return new Response(JSON.stringify({ error: "Este código ya fue utilizado" }), {
+          status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" },
+        });
+      }
+
+      // Verificar que este usuario no haya canjeado otro código antes
+      const { data: existingPromo } = await supabaseAdmin
+        .from("promo_codes")
+        .select("id")
+        .eq("used_by", user.id)
+        .single();
+
+      if (existingPromo) {
+        return new Response(JSON.stringify({ error: "Ya canjeaste un código promocional anteriormente" }), {
+          status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" },
+        });
+      }
+
+      // Marcar como usado (operación atómica)
+      const { error: updateError } = await supabaseAdmin
+        .from("promo_codes")
+        .update({
+          used: true,
+          used_by: user.id,
+          used_at: new Date().toISOString(),
+        })
+        .eq("id", promo.id)
+        .eq("used", false);
+
+      if (updateError) {
+        return new Response(JSON.stringify({ error: "Código ya fue reclamado" }), {
+          status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" },
+        });
+      }
     }
 
-    // Verificar que este usuario no haya canjeado otro código antes
-    const { data: existingPromo } = await supabaseAdmin
-      .from("promo_codes")
-      .select("id")
-      .eq("used_by", user.id)
-      .single();
-
-    if (existingPromo) {
-      return new Response(JSON.stringify({ error: "Ya canjeaste un código promocional anteriormente" }), {
-        status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" },
-      });
-    }
-
-    // Marcar código como usado (operación atómica)
-    const { error: updateError } = await supabaseAdmin
-      .from("promo_codes")
-      .update({
-        used: true,
-        used_by: user.id,
-        used_at: new Date().toISOString(),
-      })
-      .eq("id", promo.id)
-      .eq("used", false); // condición extra: solo actualizar si aún no está usado
-
-    if (updateError) {
-      return new Response(JSON.stringify({ error: "Código ya fue reclamado" }), {
-        status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" },
-      });
-    }
-
-    // Activar membresía por 12 meses
+    // ── Calcular expiración ──
+    // Si el código tiene días (ej: 7 días de prueba), usar días.
+    // Si no, usar meses.
     const starts = new Date();
     const expires = new Date(starts);
-    expires.setMonth(expires.getMonth() + promo.months);
+
+    if (promo.days && promo.days > 0) {
+      expires.setDate(expires.getDate() + promo.days);
+    } else {
+      expires.setMonth(expires.getMonth() + promo.months);
+    }
 
     await supabaseAdmin.from("memberships").upsert(
       {
@@ -129,7 +165,8 @@ serve(async (req: Request) => {
       JSON.stringify({
         success: true,
         expires_at: expires.toISOString(),
-        months: promo.months,
+        days: promo.days ?? null,
+        months: promo.months ?? null,
       }),
       { headers: { ...corsHeaders, "Content-Type": "application/json" } }
     );
