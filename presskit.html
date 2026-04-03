@@ -257,7 +257,24 @@
     <!-- EVENTS -->
     <div class="presskit-section" id="eventsSection">
       <div class="presskit-section-title">Fechas & Eventos</div>
-      <div class="pk-event-grid" id="pkEvents"></div>
+
+      <!-- Destacados -->
+      <div id="pkFeaturedBlock" style="display:none;margin-bottom:28px;">
+        <div style="font-size:0.7rem;font-weight:700;letter-spacing:1px;text-transform:uppercase;color:#f59e0b;margin-bottom:10px;">⭐ Destacados</div>
+        <div class="pk-event-grid" id="pkFeatured"></div>
+      </div>
+
+      <!-- Próximos -->
+      <div id="pkUpcomingBlock" style="display:none;margin-bottom:28px;">
+        <div style="font-size:0.7rem;font-weight:700;letter-spacing:1px;text-transform:uppercase;color:#34d399;margin-bottom:10px;">Próximos</div>
+        <div class="pk-event-grid" id="pkUpcoming"></div>
+      </div>
+
+      <!-- Pasados -->
+      <div id="pkPastBlock" style="display:none;">
+        <div style="font-size:0.7rem;font-weight:700;letter-spacing:1px;text-transform:uppercase;color:var(--muted2);margin-bottom:10px;">Realizados</div>
+        <div class="pk-event-grid" id="pkPast"></div>
+      </div>
     </div>
 
     <!-- SOUNDCLOUD -->
@@ -743,43 +760,55 @@ async function renderPressKit(p, events) {
     socEl.innerHTML = socialsHtml;
   } else document.getElementById('socialSection').style.display = 'none';
 
-  // Eventos: mostrar destacados (si hay), si no mostrar próximos
+  // Eventos: tres secciones — Destacados / Próximos / Realizados
   {
-    const now = new Date();
-    const featured  = events.filter(ev => ev.featured);
-    const upcoming  = events.filter(ev => !ev.featured && new Date(ev.date + 'T12:00:00') >= now);
-    const toShow    = featured.length ? featured : upcoming;
-    const isFeaturedMode = featured.length > 0;
+    const now      = new Date();
+    const featured = events.filter(ev => ev.featured).sort((a,b) => new Date(a.date)-new Date(b.date));
+    const upcoming = events.filter(ev => !ev.featured && new Date(ev.date+'T12:00:00') >= now).sort((a,b) => new Date(a.date)-new Date(b.date));
+    const past     = events.filter(ev => !ev.featured && new Date(ev.date+'T12:00:00') <  now).sort((a,b) => new Date(b.date)-new Date(a.date));
 
-    if (toShow.length) {
-      document.querySelector('#eventsSection .presskit-section-title').textContent =
-        isFeaturedMode ? 'Fechas destacadas' : 'Próximas fechas';
-      document.getElementById('pkEvents').innerHTML = toShow.map(ev => {
-        const d = new Date(ev.date + 'T12:00:00');
-        const month = d.toLocaleDateString('es-CL', { month: 'short' }).toUpperCase();
-        const day  = d.getDate();
-        const year = d.getFullYear();
-        const isPast = d < now;
-        return `
-        <div class="pk-event" style="${isPast && isFeaturedMode ? 'opacity:0.7' : ''}">
-          <div class="event-date-badge">
-            <div class="event-date-month">${month}</div>
-            <div class="event-date-day">${day}</div>
-            <div style="font-size:0.65rem;color:var(--muted2);">${year}</div>
-          </div>
-          <div class="event-info" style="flex:1;">
-            <strong style="font-size:1rem;">${ev.name}</strong>
-            <span>${[ev.venue, ev.city].filter(Boolean).join(' · ')}</span>
-            ${ev.genre ? `<span style="display:inline-block;margin-top:4px;font-size:0.7rem;font-weight:600;padding:2px 10px;border-radius:100px;background:rgba(139,92,246,0.12);border:1px solid rgba(139,92,246,0.3);color:var(--purple-l);">${ev.genre}</span>` : ''}
-          </div>
-          <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;justify-content:flex-end;">
-            ${isPast ? '<span class="badge badge-purple" style="font-size:0.7rem;">Pasado</span>' : '<span class="badge badge-green" style="font-size:0.7rem;">Próximo</span>'}
-            ${ev.flyer_url ? `<img src="${ev.flyer_url}" alt="Flyer" loading="lazy" style="height:44px;width:44px;border-radius:6px;border:1px solid var(--border2);object-fit:cover;cursor:pointer;flex-shrink:0;" onclick="openFlyer('${ev.flyer_url}','${ev.name.replace(/'/g,"\\'")}')">` : ''}
-            ${!isPast && ev.ticket_url ? `<a href="${ev.ticket_url}" target="_blank" rel="noopener" class="btn btn-primary btn-sm" style="font-size:0.78rem;white-space:nowrap;">🎟️ Entradas</a>` : ''}
-          </div>
-        </div>`;
-      }).join('');
-    } else document.getElementById('eventsSection').style.display = 'none';
+    function evCard(ev, dim) {
+      const d     = new Date(ev.date+'T12:00:00');
+      const month = d.toLocaleDateString('es-CL',{month:'short'}).toUpperCase();
+      const day   = d.getDate();
+      const year  = d.getFullYear();
+      const isPast = d < now;
+      return `
+      <div class="pk-event"${dim ? ' style="opacity:0.65"' : ''}>
+        <div class="event-date-badge">
+          <div class="event-date-month">${month}</div>
+          <div class="event-date-day">${day}</div>
+          <div style="font-size:0.65rem;color:var(--muted2);">${year}</div>
+        </div>
+        <div class="event-info" style="flex:1;">
+          <strong style="font-size:1rem;">${ev.name}</strong>
+          <span>${[ev.venue, ev.city].filter(Boolean).join(' · ')}</span>
+          ${ev.genre ? `<span style="display:inline-block;margin-top:4px;font-size:0.7rem;font-weight:600;padding:2px 10px;border-radius:100px;background:rgba(139,92,246,0.12);border:1px solid rgba(139,92,246,0.3);color:var(--purple-l);">${ev.genre}</span>` : ''}
+        </div>
+        <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;justify-content:flex-end;">
+          ${isPast ? '<span class="badge badge-purple" style="font-size:0.7rem;">Pasado</span>' : '<span class="badge badge-green" style="font-size:0.7rem;">Próximo</span>'}
+          ${ev.flyer_url ? `<img src="${ev.flyer_url}" alt="Flyer" loading="lazy" style="height:44px;width:44px;border-radius:6px;border:1px solid var(--border2);object-fit:cover;cursor:pointer;flex-shrink:0;" onclick="openFlyer('${ev.flyer_url}','${ev.name.replace(/'/g,"\\'")}')">` : ''}
+          ${!isPast && ev.ticket_url ? `<a href="${ev.ticket_url}" target="_blank" rel="noopener" class="btn btn-primary btn-sm" style="font-size:0.78rem;white-space:nowrap;">🎟️ Entradas</a>` : ''}
+        </div>
+      </div>`;
+    }
+
+    if (!featured.length && !upcoming.length && !past.length) {
+      document.getElementById('eventsSection').style.display = 'none';
+    } else {
+      if (featured.length) {
+        document.getElementById('pkFeatured').innerHTML = featured.map(ev => evCard(ev, new Date(ev.date+'T12:00:00') < now)).join('');
+        document.getElementById('pkFeaturedBlock').style.display = '';
+      }
+      if (upcoming.length) {
+        document.getElementById('pkUpcoming').innerHTML = upcoming.map(ev => evCard(ev, false)).join('');
+        document.getElementById('pkUpcomingBlock').style.display = '';
+      }
+      if (past.length) {
+        document.getElementById('pkPast').innerHTML = past.map(ev => evCard(ev, true)).join('');
+        document.getElementById('pkPastBlock').style.display = '';
+      }
+    }
   }
 
   // SoundCloud custom player
@@ -930,27 +959,30 @@ async function renderCompany(p, events) {
     document.querySelector('#riderSection h2') && (document.querySelector('#riderSection h2').textContent = 'Servicios');
   } else document.getElementById('riderSection').style.display = 'none';
 
-  // Eventos: mostrar destacados (si hay), si no mostrar próximos
+  // Eventos empresa: tres secciones — Destacados / Próximos / Realizados
   {
-    const now2 = new Date();
-    const featured2 = events.filter(ev => ev.featured);
-    const upcoming2 = events.filter(ev => !ev.featured && new Date(ev.date + 'T12:00:00') >= now2);
-    const toShow2   = featured2.length ? featured2 : upcoming2;
-    if (toShow2.length) {
-      document.querySelector('#eventsSection .presskit-section-title').textContent =
-        featured2.length ? 'Fechas destacadas' : 'Próximas fechas';
-      document.getElementById('pkEvents').innerHTML = toShow2.map(ev => {
-        const d = new Date(ev.date + 'T12:00:00');
-        const month = d.toLocaleDateString('es-CL', { month: 'short' }).toUpperCase();
-        const day   = d.getDate();
-        const isPast = d < now2;
-        return `<div class="pk-event" style="${isPast ? 'opacity:0.65' : ''}">
-          <div class="event-date-badge"><div class="event-date-month">${month}</div><div class="event-date-day">${day}</div></div>
-          <div class="event-info" style="flex:1;"><strong>${ev.name}</strong><span>${[ev.venue, ev.city].filter(Boolean).join(' · ')}</span></div>
-          ${!isPast && ev.ticket_url ? `<a href="${ev.ticket_url}" target="_blank" class="btn btn-primary btn-sm" style="font-size:0.78rem;">🎟️ Entradas</a>` : ''}
-        </div>`;
-      }).join('');
-    } else document.getElementById('eventsSection').style.display = 'none';
+    const now2     = new Date();
+    const feat2    = events.filter(ev => ev.featured).sort((a,b)=>new Date(a.date)-new Date(b.date));
+    const upc2     = events.filter(ev => !ev.featured && new Date(ev.date+'T12:00:00') >= now2).sort((a,b)=>new Date(a.date)-new Date(b.date));
+    const past2    = events.filter(ev => !ev.featured && new Date(ev.date+'T12:00:00') <  now2).sort((a,b)=>new Date(b.date)-new Date(a.date));
+    function evCard2(ev, dim) {
+      const d = new Date(ev.date+'T12:00:00');
+      const month = d.toLocaleDateString('es-CL',{month:'short'}).toUpperCase();
+      const day = d.getDate(); const year = d.getFullYear();
+      const isPast = d < now2;
+      return `<div class="pk-event"${dim?' style="opacity:0.65"':''}>
+        <div class="event-date-badge"><div class="event-date-month">${month}</div><div class="event-date-day">${day}</div><div style="font-size:0.65rem;color:var(--muted2);">${year}</div></div>
+        <div class="event-info" style="flex:1;"><strong>${ev.name}</strong><span>${[ev.venue,ev.city].filter(Boolean).join(' · ')}</span></div>
+        ${!isPast && ev.ticket_url ? `<a href="${ev.ticket_url}" target="_blank" class="btn btn-primary btn-sm" style="font-size:0.78rem;">🎟️ Entradas</a>` : ''}
+      </div>`;
+    }
+    if (!feat2.length && !upc2.length && !past2.length) {
+      document.getElementById('eventsSection').style.display = 'none';
+    } else {
+      if (feat2.length) { document.getElementById('pkFeatured').innerHTML = feat2.map(ev=>evCard2(ev, new Date(ev.date+'T12:00:00')<now2)).join(''); document.getElementById('pkFeaturedBlock').style.display=''; }
+      if (upc2.length)  { document.getElementById('pkUpcoming').innerHTML = upc2.map(ev=>evCard2(ev,false)).join(''); document.getElementById('pkUpcomingBlock').style.display=''; }
+      if (past2.length) { document.getElementById('pkPast').innerHTML = past2.map(ev=>evCard2(ev,true)).join(''); document.getElementById('pkPastBlock').style.display=''; }
+    }
   }
 
   // Galería
