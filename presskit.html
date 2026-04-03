@@ -632,7 +632,7 @@ const ACCESSORIES_ICONS = {
     return;
   }
 
-  renderPressKit(profileData, eventsData || []);
+  await renderPressKit(profileData, eventsData || []);
   } catch(err) {
     console.error('[Voltum presskit]', err);
     document.getElementById('pkSpinner').innerHTML = `
@@ -645,8 +645,8 @@ const ACCESSORIES_ICONS = {
   }
 })();
 
-function renderPressKit(p, events) {
-  if (p.is_company) { renderCompany(p, events); return; }
+async function renderPressKit(p, events) {
+  if (p.is_company) { await renderCompany(p, events); return; }
   document.title = `${p.dj_name} — Press Kit · Voltum`;
 
   // Meta tags para compartir
@@ -842,7 +842,7 @@ async function loadReviews(djUserId) {
   } catch(e) { /* sin reseñas, no mostrar sección */ }
 }
 
-function renderCompany(p, events) {
+async function renderCompany(p, events) {
   document.title = `${p.dj_name} — Perfil Empresa · Voltum`;
   const desc = p.bio ? p.bio.slice(0, 150) + '...' : `Perfil de empresa de ${p.dj_name}`;
   document.querySelector('meta[name="description"]')?.setAttribute('content', desc);
