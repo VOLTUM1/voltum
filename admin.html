@@ -85,6 +85,63 @@
     .detail-value { font-weight: 500; text-align: right; max-width: 60%; word-break: break-all; }
 
     .empty-state { text-align: center; padding: 48px; color: var(--muted2); }
+
+    /* ── MINI STATS GRID ─────────────────────────────── */
+    .mini-stats-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+      gap: 12px; margin-bottom: 28px;
+    }
+    .mini-stat {
+      background: var(--card); border: 1px solid var(--border2);
+      border-radius: var(--radius-lg); padding: 16px 18px;
+      display: flex; flex-direction: column; gap: 6px;
+      position: relative; overflow: hidden; transition: var(--transition);
+    }
+    .mini-stat:hover { border-color: var(--border); }
+    .mini-stat-icon { font-size: 1.1rem; margin-bottom: 2px; }
+    .mini-stat-value { font-size: 1.6rem; font-weight: 800; line-height: 1; }
+    .mini-stat-label { font-size: 0.72rem; color: var(--muted2); text-transform: uppercase; letter-spacing: 0.07em; }
+
+    /* ── DJ DE LA SEMANA ─────────────────────────────── */
+    .dj-week-wrap {
+      display: grid; grid-template-columns: 280px 1fr;
+      gap: 20px; margin-bottom: 20px;
+    }
+    .dj-week-card {
+      background: linear-gradient(135deg, rgba(139,92,246,0.15), rgba(34,211,238,0.07));
+      border: 1px solid rgba(139,92,246,0.3); border-radius: var(--radius-xl);
+      padding: 24px; display: flex; flex-direction: column; align-items: center;
+      text-align: center; gap: 12px;
+    }
+    .dj-week-avatar {
+      width: 72px; height: 72px; border-radius: 50%;
+      background: var(--gradient); display: flex; align-items: center;
+      justify-content: center; font-size: 1.8rem; font-weight: 800;
+      color: #fff; overflow: hidden; border: 3px solid rgba(139,92,246,0.4);
+    }
+    .dj-week-views {
+      font-size: 2rem; font-weight: 800;
+      background: var(--gradient); -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent; background-clip: text;
+    }
+    .ranking-row {
+      display: grid; grid-template-columns: 28px 1fr auto;
+      gap: 12px; align-items: center; padding: 10px 0;
+      border-bottom: 1px solid var(--border2); font-size: 0.875rem;
+    }
+    .ranking-row:last-child { border-bottom: none; }
+    .ranking-num { font-weight: 800; color: var(--muted2); font-size: 0.9rem; text-align: center; }
+    .ranking-num.top { color: var(--gold); }
+
+    /* ── PLATFORM TAB ────────────────────────────────── */
+    .platform-stats { display: grid; grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); gap: 12px; margin-bottom: 20px; }
+    .platform-stat { background: var(--bg3); border: 1px solid var(--border2); border-radius: var(--radius-lg); padding: 14px 16px; text-align: center; }
+    .platform-stat-val { font-size: 1.6rem; font-weight: 800; }
+    .platform-stat-lbl { font-size: 0.72rem; color: var(--muted2); margin-top: 4px; }
+
+    @media (max-width: 900px) { .dj-week-wrap { grid-template-columns: 1fr; } }
+    @media (max-width: 600px) { .mini-stats-grid { grid-template-columns: repeat(2, 1fr); } }
     .filter-select { background: var(--bg3); border: 1px solid var(--border2); color: var(--text); padding: 10px 14px; border-radius: var(--radius); font-family: inherit; font-size: 0.875rem; cursor: pointer; }
     .filter-select option { background: var(--bg3); }
 
@@ -232,16 +289,68 @@
         </div>
       </div>
 
+      <!-- MINI STATS GRID -->
+      <div class="mini-stats-grid">
+        <div class="mini-stat">
+          <div class="mini-stat-icon">🏢</div>
+          <div class="mini-stat-value" id="statCompanies">—</div>
+          <div class="mini-stat-label">Empresas</div>
+        </div>
+        <div class="mini-stat">
+          <div class="mini-stat-icon">📋</div>
+          <div class="mini-stat-value" id="statBookingsPending" style="color:var(--gold);">—</div>
+          <div class="mini-stat-label">Bookings pendientes</div>
+        </div>
+        <div class="mini-stat">
+          <div class="mini-stat-icon">🤝</div>
+          <div class="mini-stat-value" id="statResidencies" style="color:var(--purple-l);">—</div>
+          <div class="mini-stat-label">Residencias activas</div>
+        </div>
+        <div class="mini-stat">
+          <div class="mini-stat-icon">🎁</div>
+          <div class="mini-stat-value" id="statFreeActive" style="color:var(--cyan);">—</div>
+          <div class="mini-stat-label">Accesos gratuitos</div>
+        </div>
+        <div class="mini-stat">
+          <div class="mini-stat-icon">👁</div>
+          <div class="mini-stat-value" id="statWeekViews">—</div>
+          <div class="mini-stat-label">Vistas esta semana</div>
+        </div>
+        <div class="mini-stat">
+          <div class="mini-stat-icon">💰</div>
+          <div class="mini-stat-value" id="statTotalRevenue" style="color:var(--green);font-size:1.1rem;margin-top:4px;">—</div>
+          <div class="mini-stat-label">Ingresos totales</div>
+        </div>
+      </div>
+
       <!-- TABS -->
       <div class="admin-tabs">
         <button class="admin-tab active" data-tab="charts">📈 Gráficos</button>
         <button class="admin-tab" data-tab="users">👥 Usuarios</button>
         <button class="admin-tab" data-tab="memberships">💳 Membresías</button>
         <button class="admin-tab" data-tab="events">📅 Eventos</button>
+        <button class="admin-tab" data-tab="platform">🔗 Plataforma</button>
       </div>
 
       <!-- TAB: GRÁFICOS -->
       <div id="tab-charts">
+
+        <!-- DJ DE LA SEMANA -->
+        <div class="dj-week-wrap" style="margin-bottom:20px;">
+          <div class="dj-week-card" id="djWeekFeatured">
+            <div style="font-size:0.7rem;font-weight:700;letter-spacing:0.1em;text-transform:uppercase;color:var(--purple-l);margin-bottom:4px;">⭐ DJ de la semana</div>
+            <div class="dj-week-avatar" id="djWeekAvatar">?</div>
+            <div style="font-weight:800;font-size:1.1rem;" id="djWeekName">Cargando…</div>
+            <div class="dj-week-views" id="djWeekViews">—</div>
+            <div style="font-size:0.75rem;color:var(--muted);">visitas esta semana</div>
+            <a id="djWeekLink" href="#" target="_blank" class="btn btn-outline btn-sm" style="margin-top:4px;font-size:0.78rem;">Ver press kit →</a>
+          </div>
+          <div class="card" style="padding:24px;">
+            <div style="font-size:0.75rem;font-weight:700;letter-spacing:1px;text-transform:uppercase;color:var(--muted);margin-bottom:16px;">🏆 Ranking semanal — Top press kits</div>
+            <div id="djWeekRanking"><div style="color:var(--muted2);font-size:0.85rem;padding:20px 0;text-align:center;">Sin datos de vistas aún.<br><span style="font-size:0.78rem;">Los press kits visitados esta semana aparecerán aquí.</span></div></div>
+          </div>
+        </div>
+
         <div style="display:grid;grid-template-columns:1fr 1fr;gap:20px;margin-bottom:20px;">
           <div class="card" style="padding:24px;">
             <div style="font-size:0.75rem;font-weight:700;letter-spacing:1px;text-transform:uppercase;color:var(--muted);margin-bottom:16px;">Ingresos por mes (CLP)</div>
@@ -345,6 +454,56 @@
         </div>
       </div>
 
+      <!-- TAB: PLATAFORMA -->
+      <div id="tab-platform" class="hidden">
+
+        <!-- BOOKINGS -->
+        <div style="margin-bottom:28px;">
+          <div style="font-size:0.75rem;font-weight:700;letter-spacing:1px;text-transform:uppercase;color:var(--muted);margin-bottom:14px;">Solicitudes de booking</div>
+          <div class="platform-stats">
+            <div class="platform-stat"><div class="platform-stat-val" id="bkTotal">—</div><div class="platform-stat-lbl">Total</div></div>
+            <div class="platform-stat"><div class="platform-stat-val" style="color:var(--gold);" id="bkPending">—</div><div class="platform-stat-lbl">Pendientes</div></div>
+            <div class="platform-stat"><div class="platform-stat-val" style="color:var(--green);" id="bkAccepted">—</div><div class="platform-stat-lbl">Aceptados</div></div>
+            <div class="platform-stat"><div class="platform-stat-val" style="color:var(--red);" id="bkRejected">—</div><div class="platform-stat-lbl">Rechazados</div></div>
+          </div>
+          <div class="admin-table-wrap">
+            <table class="admin-table">
+              <thead><tr><th>Empresa</th><th>DJ</th><th>Evento</th><th>Fecha</th><th>Estado</th></tr></thead>
+              <tbody id="platformBookingsBody"><tr><td colspan="5" class="empty-state">Cargando…</td></tr></tbody>
+            </table>
+          </div>
+        </div>
+
+        <!-- RESIDENCIAS -->
+        <div style="margin-bottom:28px;">
+          <div style="font-size:0.75rem;font-weight:700;letter-spacing:1px;text-transform:uppercase;color:var(--muted);margin-bottom:14px;">Residencias DJ ↔ Empresa</div>
+          <div class="platform-stats">
+            <div class="platform-stat"><div class="platform-stat-val" id="resTotal">—</div><div class="platform-stat-lbl">Total</div></div>
+            <div class="platform-stat"><div class="platform-stat-val" style="color:var(--gold);" id="resPending">—</div><div class="platform-stat-lbl">Pendientes</div></div>
+            <div class="platform-stat"><div class="platform-stat-val" style="color:var(--green);" id="resAccepted">—</div><div class="platform-stat-lbl">Activas</div></div>
+            <div class="platform-stat"><div class="platform-stat-val" style="color:var(--red);" id="resRejected">—</div><div class="platform-stat-lbl">Rechazadas</div></div>
+          </div>
+          <div class="admin-table-wrap">
+            <table class="admin-table">
+              <thead><tr><th>Empresa</th><th>DJ</th><th>Estado</th><th>Fecha</th></tr></thead>
+              <tbody id="platformResidenciesBody"><tr><td colspan="4" class="empty-state">Cargando…</td></tr></tbody>
+            </table>
+          </div>
+        </div>
+
+        <!-- EMPRESAS -->
+        <div>
+          <div style="font-size:0.75rem;font-weight:700;letter-spacing:1px;text-transform:uppercase;color:var(--muted);margin-bottom:14px;">Empresas registradas</div>
+          <div class="admin-table-wrap">
+            <table class="admin-table">
+              <thead><tr><th>Empresa</th><th>Tipo</th><th>Ciudad</th><th>DJs residentes</th><th>Bookings</th><th>Registro</th></tr></thead>
+              <tbody id="platformCompaniesBody"><tr><td colspan="6" class="empty-state">Cargando…</td></tr></tbody>
+            </table>
+          </div>
+        </div>
+
+      </div><!-- /tab-platform -->
+
     </div><!-- /adminContent -->
   </main>
 </div>
@@ -411,6 +570,7 @@
 <script src="js/config.js"></script>
 <script>
 let allUsers = [], allMemberships = [], allEvents = [];
+let allCompanies = [], allBookings = [], allResidencies = [], allViewLogs = [];
 let currentUser = null;
 
 (async () => {
@@ -457,35 +617,38 @@ let currentUser = null;
 })();
 
 async function loadAll() {
-  // Queries separadas para evitar problemas de foreign key entre memberships y profiles
-  const [profilesRes, membershipsRes, eventsRes] = await Promise.all([
+  const weekAgo = new Date(); weekAgo.setDate(weekAgo.getDate() - 7);
+
+  const [profilesRes, membershipsRes, eventsRes, companiesRes, bookingsRes, residenciesRes, viewLogsRes] = await Promise.all([
     sb.from('profiles').select('*').order('created_at', { ascending: false }),
     sb.from('memberships').select('*').order('created_at', { ascending: false }),
-    sb.from('events').select('*').order('date', { ascending: false })
+    sb.from('events').select('*').order('date', { ascending: false }),
+    sb.from('companies').select('*').order('created_at', { ascending: false }),
+    sb.from('bookings').select('*').order('created_at', { ascending: false }),
+    sb.from('dj_residencies').select('*').order('created_at', { ascending: false }),
+    sb.from('profile_view_logs').select('profile_id, viewed_at').gte('viewed_at', weekAgo.toISOString())
   ]);
 
-  if (profilesRes.error) { showToast('Error cargando perfiles: ' + profilesRes.error.message, 'error'); console.error(profilesRes.error); }
-  if (membershipsRes.error) { showToast('Error cargando membresías: ' + membershipsRes.error.message, 'error'); console.error(membershipsRes.error); }
-  if (eventsRes.error) { showToast('Error cargando eventos: ' + eventsRes.error.message, 'error'); console.error(eventsRes.error); }
+  if (profilesRes.error) { showToast('Error cargando perfiles: ' + profilesRes.error.message, 'error'); }
+  if (membershipsRes.error) { showToast('Error cargando membresías: ' + membershipsRes.error.message, 'error'); }
 
-  allUsers = profilesRes.data || [];
+  allUsers       = profilesRes.data    || [];
   allMemberships = membershipsRes.data || [];
-  allEvents = eventsRes.data || [];
+  allEvents      = eventsRes.data      || [];
+  allCompanies   = companiesRes.data   || [];
+  allBookings    = bookingsRes.data    || [];
+  allResidencies = residenciesRes.data || [];
+  allViewLogs    = viewLogsRes.data    || [];
 
-  // Enriquecer membresías y eventos con datos del perfil (merge manual)
-  allMemberships = allMemberships.map(m => ({
-    ...m,
-    profiles: allUsers.find(u => u.id === m.user_id) || null
-  }));
-  allEvents = allEvents.map(e => ({
-    ...e,
-    profiles: allUsers.find(u => u.id === e.user_id) || null
-  }));
+  allMemberships = allMemberships.map(m => ({ ...m, profiles: allUsers.find(u => u.id === m.user_id) || null }));
+  allEvents      = allEvents.map(e => ({ ...e, profiles: allUsers.find(u => u.id === e.user_id) || null }));
 
   calcStats();
   renderUsers();
   renderMemberships();
   renderEvents();
+  renderDJofWeek();
+  renderPlatform();
 }
 
 function calcStats() {
@@ -504,6 +667,15 @@ function calcStats() {
   document.getElementById('inactiveCount').textContent = inactive.length;
   document.getElementById('monthRevenue').textContent = formatPrice(monthRevenue);
   document.getElementById('revenueSubtitle').textContent = `${active.length} membresías activas en total`;
+
+  // Mini-stats
+  document.getElementById('statCompanies').textContent       = allCompanies.length;
+  document.getElementById('statBookingsPending').textContent = allBookings.filter(b => b.status === 'pendiente').length;
+  document.getElementById('statResidencies').textContent     = allResidencies.filter(r => r.status === 'accepted').length;
+  document.getElementById('statFreeActive').textContent      = allMemberships.filter(m => m.payment_id?.startsWith('ADMIN_FREE_') && m.status === 'active').length;
+  document.getElementById('statWeekViews').textContent       = allViewLogs.length;
+  const totalRevenue = allMemberships.reduce((s, m) => s + (m.amount || 0), 0);
+  document.getElementById('statTotalRevenue').textContent    = formatPrice(totalRevenue);
 }
 
 // ─── USUARIOS ──────────────────────────────────────────────
@@ -791,13 +963,132 @@ document.getElementById('confirmActivate').addEventListener('click', async () =>
   await loadAll();
 });
 
+// ─── DJ DE LA SEMANA ───────────────────────────────────────
+function renderDJofWeek() {
+  // Agrupar vistas por DJ
+  const viewMap = {};
+  allViewLogs.forEach(log => {
+    viewMap[log.profile_id] = (viewMap[log.profile_id] || 0) + 1;
+  });
+
+  const ranking = Object.entries(viewMap)
+    .map(([id, views]) => ({ dj: allUsers.find(u => u.id === id), views }))
+    .filter(x => x.dj && !x.dj.is_company)
+    .sort((a, b) => b.views - a.views)
+    .slice(0, 5);
+
+  if (!ranking.length) return;
+
+  const top = ranking[0];
+  const pkUrl = top.dj.slug ? `presskit.html?slug=${top.dj.slug}` : `presskit.html?id=${top.dj.id}`;
+
+  const avatarEl = document.getElementById('djWeekAvatar');
+  if (top.dj.photo_url) {
+    avatarEl.innerHTML = `<img src="${top.dj.photo_url}" style="width:100%;height:100%;object-fit:cover;">`;
+  } else {
+    avatarEl.textContent = (top.dj.dj_name || '?')[0].toUpperCase();
+  }
+  document.getElementById('djWeekName').textContent  = top.dj.dj_name || '—';
+  document.getElementById('djWeekViews').textContent = top.views;
+  document.getElementById('djWeekLink').href         = pkUrl;
+
+  const medals = ['🥇','🥈','🥉','4','5'];
+  document.getElementById('djWeekRanking').innerHTML = ranking.map((r, i) => {
+    const mem = allMemberships.find(m => m.user_id === r.dj.id && m.status === 'active');
+    return `
+    <div class="ranking-row">
+      <div class="ranking-num ${i === 0 ? 'top' : ''}">${medals[i]}</div>
+      <div>
+        <div style="font-weight:600;">${r.dj.dj_name || '—'}</div>
+        <div style="font-size:0.75rem;color:var(--muted2);">${r.dj.location || '—'} ${mem ? '<span style="color:var(--green);">● Activo</span>' : ''}</div>
+      </div>
+      <div style="font-weight:700;color:var(--purple-l);">${r.views} <span style="font-size:0.72rem;font-weight:400;color:var(--muted2);">vistas</span></div>
+    </div>`;
+  }).join('');
+}
+
+// ─── PLATAFORMA ─────────────────────────────────────────────
+function renderPlatform() {
+  // Stats bookings
+  document.getElementById('bkTotal').textContent    = allBookings.length;
+  document.getElementById('bkPending').textContent  = allBookings.filter(b => b.status === 'pendiente').length;
+  document.getElementById('bkAccepted').textContent = allBookings.filter(b => b.status === 'aceptado').length;
+  document.getElementById('bkRejected').textContent = allBookings.filter(b => b.status === 'rechazado').length;
+
+  // Stats residencias
+  document.getElementById('resTotal').textContent    = allResidencies.length;
+  document.getElementById('resPending').textContent  = allResidencies.filter(r => r.status === 'pending').length;
+  document.getElementById('resAccepted').textContent = allResidencies.filter(r => r.status === 'accepted').length;
+  document.getElementById('resRejected').textContent = allResidencies.filter(r => r.status === 'rejected').length;
+
+  // Tabla bookings (últimos 20)
+  const bkBody = document.getElementById('platformBookingsBody');
+  const recentBookings = allBookings.slice(0, 20);
+  if (!recentBookings.length) {
+    bkBody.innerHTML = `<tr><td colspan="5" class="empty-state">Sin bookings aún</td></tr>`;
+  } else {
+    const statusBadge = { pendiente: '<span class="badge badge-gold">● Pendiente</span>', aceptado: '<span class="badge badge-green">✓ Aceptado</span>', rechazado: '<span class="badge badge-red">✕ Rechazado</span>', cancelado: '<span class="badge">— Cancelado</span>' };
+    bkBody.innerHTML = recentBookings.map(b => {
+      const company = allCompanies.find(c => c.id === b.company_id);
+      const dj = allUsers.find(u => u.id === b.dj_user_id);
+      const date = b.event_date ? new Date(b.event_date + 'T12:00:00').toLocaleDateString('es-CL') : '—';
+      return `<tr>
+        <td style="font-weight:600;">${company?.name || '—'}</td>
+        <td>${dj?.dj_name || '—'}</td>
+        <td class="muted">${b.event_type || '—'}</td>
+        <td class="muted">${date}</td>
+        <td>${statusBadge[b.status] || b.status}</td>
+      </tr>`;
+    }).join('');
+  }
+
+  // Tabla residencias
+  const resBody = document.getElementById('platformResidenciesBody');
+  if (!allResidencies.length) {
+    resBody.innerHTML = `<tr><td colspan="4" class="empty-state">Sin residencias aún</td></tr>`;
+  } else {
+    const resBadge = { pending: '<span class="badge badge-gold">● Pendiente</span>', accepted: '<span class="badge badge-green">✓ Activa</span>', rejected: '<span class="badge badge-red">✕ Rechazada</span>' };
+    resBody.innerHTML = allResidencies.map(r => {
+      const company = allCompanies.find(c => c.id === r.company_id);
+      const dj = allUsers.find(u => u.id === r.dj_user_id);
+      const date = new Date(r.created_at).toLocaleDateString('es-CL');
+      return `<tr>
+        <td style="font-weight:600;">${company?.name || '—'}</td>
+        <td>${dj?.dj_name || '—'}</td>
+        <td>${resBadge[r.status] || r.status}</td>
+        <td class="muted">${date}</td>
+      </tr>`;
+    }).join('');
+  }
+
+  // Tabla empresas
+  const coBody = document.getElementById('platformCompaniesBody');
+  if (!allCompanies.length) {
+    coBody.innerHTML = `<tr><td colspan="6" class="empty-state">Sin empresas aún</td></tr>`;
+  } else {
+    coBody.innerHTML = allCompanies.map(c => {
+      const residents = allResidencies.filter(r => r.company_id === c.id && r.status === 'accepted').length;
+      const bookings  = allBookings.filter(b => b.company_id === c.id).length;
+      const date      = new Date(c.created_at).toLocaleDateString('es-CL');
+      return `<tr>
+        <td style="font-weight:600;">${c.name || '—'}</td>
+        <td class="muted">${c.type || '—'}</td>
+        <td class="muted">${c.city || '—'}</td>
+        <td style="font-weight:600;color:var(--purple-l);">${residents}</td>
+        <td style="font-weight:600;">${bookings}</td>
+        <td class="muted">${date}</td>
+      </tr>`;
+    }).join('');
+  }
+}
+
 // ─── TABS ──────────────────────────────────────────────────
 function setupTabs() {
   document.querySelectorAll('.admin-tab').forEach(tab => {
     tab.addEventListener('click', () => {
       document.querySelectorAll('.admin-tab').forEach(t => t.classList.remove('active'));
       tab.classList.add('active');
-      ['charts', 'users', 'memberships', 'events'].forEach(name => {
+      ['charts', 'users', 'memberships', 'events', 'platform'].forEach(name => {
         document.getElementById(`tab-${name}`).classList.toggle('hidden', name !== tab.dataset.tab);
       });
     });

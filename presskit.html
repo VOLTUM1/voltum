@@ -630,6 +630,7 @@ const ACCESSORIES_ICONS = {
 
       // Incrementar vistas (fire & forget)
       sb.from('profiles').update({ profile_views: (profileData.profile_views || 0) + 1 }).eq('id', profileData.id).then(() => {});
+      sb.from('profile_view_logs').insert({ profile_id: profileData.id }).then(() => {});
     }
   }
 
