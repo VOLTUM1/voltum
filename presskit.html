@@ -230,6 +230,12 @@
   <!-- BODY -->
   <div class="presskit-body">
 
+    <!-- DJS RESIDENTES (solo visible en perfil empresa) -->
+    <div class="presskit-section" id="residentDJsSection" style="display:none;">
+      <div class="presskit-section-title">Nuestros DJs</div>
+      <div id="pkResidentDJs" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:14px;"></div>
+    </div>
+
     <!-- RESIDENCIAS -->
     <div class="presskit-section" id="residenciesSection" style="display:none;">
       <div class="presskit-section-title">Residente en</div>
@@ -918,6 +924,38 @@ function renderCompany(p, events) {
       <a href="${url}" target="_blank" rel="noopener" style="display:block;border-radius:var(--radius-lg);overflow:hidden;aspect-ratio:1;">
         <img src="${url}" alt="Foto ${i+1}" style="width:100%;height:100%;object-fit:cover;display:block;"></a>`).join('');
   } else document.getElementById('gallerySection').style.display = 'none';
+
+  // DJs residentes de la empresa
+  const { data: coData } = await sb.from('companies').select('id').eq('user_id', p.id).single();
+  if (coData?.id) {
+    const { data: resRows } = await sb.from('dj_residencies')
+      .select('dj:profiles!dj_residencies_dj_user_id_fkey(id, dj_name, photo_url, slug, location, genres)')
+      .eq('company_id', coData.id)
+      .eq('status', 'accepted');
+    const resDJs = (resRows || []).map(r => r.dj).filter(Boolean);
+    if (resDJs.length) {
+      document.getElementById('residentDJsSection').style.display = 'block';
+      document.getElementById('pkResidentDJs').innerHTML = resDJs.map(dj => {
+        const pkUrl = dj.slug ? `presskit.html?slug=${dj.slug}` : `presskit.html?id=${dj.id}`;
+        const initial = (dj.dj_name || '?')[0].toUpperCase();
+        const genres = (dj.genres || []).slice(0, 2).join(' · ') || '';
+        return `
+        <a href="${pkUrl}" target="_blank" rel="noopener" style="text-decoration:none;background:var(--card);border:1px solid var(--border2);border-radius:var(--radius-lg);padding:16px;display:flex;flex-direction:column;align-items:center;gap:10px;text-align:center;transition:var(--transition);"
+           onmouseover="this.style.borderColor='rgba(139,92,246,0.4)';this.style.transform='translateY(-3px)'"
+           onmouseout="this.style.borderColor='var(--border2)';this.style.transform=''">
+          <div style="width:56px;height:56px;border-radius:50%;background:var(--gradient);display:flex;align-items:center;justify-content:center;font-weight:700;font-size:1.2rem;color:#fff;overflow:hidden;flex-shrink:0;">
+            ${dj.photo_url ? `<img src="${dj.photo_url}" style="width:100%;height:100%;object-fit:cover;">` : initial}
+          </div>
+          <div>
+            <div style="font-weight:700;font-size:0.9rem;">${dj.dj_name || '—'}</div>
+            ${dj.location ? `<div style="font-size:0.75rem;color:var(--muted2);margin-top:2px;">📍 ${dj.location}</div>` : ''}
+            ${genres ? `<div style="font-size:0.72rem;color:var(--muted);margin-top:4px;">${genres}</div>` : ''}
+          </div>
+          <span style="font-size:0.72rem;color:var(--purple-l);font-weight:600;">Ver press kit →</span>
+        </a>`;
+      }).join('');
+    }
+  }
 
   // Ocultar secciones DJ
   document.getElementById('soundcloudSection').style.display = 'none';
