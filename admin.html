@@ -360,6 +360,52 @@
   </div>
 </div>
 
+<!-- MODAL ACTIVAR MEMBRESÍA GRATIS -->
+<div class="modal-overlay hidden" id="activateModal">
+  <div class="modal" style="max-width:440px;">
+    <div class="modal-header">
+      <h3>Activar membresía gratis</h3>
+      <button class="modal-close" id="closeActivateModal">×</button>
+    </div>
+    <p style="font-size:0.875rem;color:var(--muted);margin-bottom:20px;">
+      DJ: <strong id="activateUserName">—</strong>
+    </p>
+
+    <!-- Opciones rápidas -->
+    <div style="font-size:0.75rem;font-weight:700;letter-spacing:1px;text-transform:uppercase;color:var(--muted2);margin-bottom:10px;">Acceso rápido</div>
+    <div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:20px;" id="quickOptions">
+      <button class="btn btn-outline btn-sm quick-opt" data-days="7">7 días demo</button>
+      <button class="btn btn-outline btn-sm quick-opt" data-days="30">1 mes</button>
+      <button class="btn btn-outline btn-sm quick-opt" data-days="90">3 meses</button>
+      <button class="btn btn-outline btn-sm quick-opt" data-days="180">6 meses</button>
+      <button class="btn btn-outline btn-sm quick-opt" data-days="365">1 año</button>
+    </div>
+
+    <!-- Personalizado -->
+    <div style="font-size:0.75rem;font-weight:700;letter-spacing:1px;text-transform:uppercase;color:var(--muted2);margin-bottom:10px;">Personalizado</div>
+    <div style="display:flex;gap:10px;align-items:center;margin-bottom:24px;">
+      <input type="number" id="customDaysInput" class="form-input" min="1" max="3650" placeholder="Ej: 45" style="width:110px;text-align:center;">
+      <select id="customDaysUnit" class="filter-select">
+        <option value="days">días</option>
+        <option value="months">meses</option>
+      </select>
+      <button class="btn btn-outline btn-sm" id="applyCustomDays">Aplicar</button>
+    </div>
+
+    <!-- Resumen selección -->
+    <div id="activateSummary" style="display:none;background:var(--bg3);border:1px solid var(--border2);border-radius:var(--radius);padding:14px 16px;margin-bottom:20px;font-size:0.875rem;">
+      <div style="color:var(--muted);margin-bottom:4px;">Acceso seleccionado:</div>
+      <div id="activateSummaryText" style="font-weight:700;font-size:1rem;"></div>
+      <div id="activateSummaryExpiry" style="color:var(--muted);font-size:0.8rem;margin-top:4px;"></div>
+    </div>
+
+    <div style="display:flex;gap:10px;justify-content:flex-end;">
+      <button class="btn btn-outline btn-sm" id="cancelActivateModal">Cancelar</button>
+      <button class="btn btn-primary btn-sm" id="confirmActivate" disabled>Confirmar activación</button>
+    </div>
+  </div>
+</div>
+
 <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script src="js/config.js"></script>
@@ -511,7 +557,7 @@ function renderUsers(filter = '', status = 'all') {
           <a href="profile.html?admin_edit=${u.id}" class="btn btn-outline btn-sm" style="font-size:0.78rem;">✏️ Editar</a>
           ${isActive
             ? `<button class="btn btn-danger btn-sm" onclick="toggleMembership('${u.id}', 'cancel')">Cancelar</button>`
-            : `<button class="btn btn-primary btn-sm" onclick="toggleMembership('${u.id}', 'activate')">Activar</button>`}
+            : `<button class="btn btn-primary btn-sm" onclick="openActivateModal('${u.id}')">Activar</button>`}
         </div>
       </td>
     </tr>`;
@@ -557,7 +603,7 @@ function renderMemberships(filter = '', status = 'all') {
         <div class="row-actions">
           ${m.status === 'active'
             ? `<button class="btn btn-danger btn-sm" onclick="toggleMembership('${m.user_id}', 'cancel')">Cancelar</button>`
-            : `<button class="btn btn-primary btn-sm" onclick="toggleMembership('${m.user_id}', 'activate')">Activar</button>`}
+            : `<button class="btn btn-primary btn-sm" onclick="openActivateModal('${m.user_id}')">Activar</button>`}
         </div>
       </td>
     </tr>`;
@@ -624,7 +670,7 @@ function showUserDetail(userId) {
       <a href="presskit.html?id=${u.id}" target="_blank" class="btn btn-outline btn-sm">👁️ Ver Press Kit</a>
       ${mem?.status === 'active'
         ? `<button class="btn btn-danger btn-sm" onclick="toggleMembership('${u.id}','cancel');document.getElementById('userModal').classList.add('hidden');">Cancelar membresía</button>`
-        : `<button class="btn btn-primary btn-sm" onclick="toggleMembership('${u.id}','activate');document.getElementById('userModal').classList.add('hidden');">Activar membresía</button>`}
+        : `<button class="btn btn-primary btn-sm" onclick="document.getElementById('userModal').classList.add('hidden');openActivateModal('${u.id}');">Activar membresía</button>`}
     </div>
   `;
   document.getElementById('userModal').classList.remove('hidden');
@@ -652,6 +698,115 @@ async function toggleMembership(userId, action) {
   }
   await loadAll();
 }
+
+// ─── MODAL ACTIVAR MEMBRESÍA GRATIS ────────────────────────
+let _activateUserId = null;
+let _activateDays   = null;
+
+function openActivateModal(userId) {
+  const u = allUsers.find(x => x.id === userId);
+  _activateUserId = userId;
+  _activateDays   = null;
+
+  document.getElementById('activateUserName').textContent = u?.dj_name || userId;
+  document.getElementById('activateSummary').style.display = 'none';
+  document.getElementById('confirmActivate').disabled = true;
+  document.getElementById('customDaysInput').value = '';
+  document.getElementById('customDaysUnit').value = 'days';
+
+  document.querySelectorAll('.quick-opt').forEach(b => {
+    b.classList.remove('btn-primary');
+    b.classList.add('btn-outline');
+  });
+
+  document.getElementById('activateModal').classList.remove('hidden');
+}
+
+function setActivateDays(days) {
+  _activateDays = days;
+  const expires = new Date();
+  expires.setDate(expires.getDate() + days);
+
+  let label;
+  if (days === 7)        label = '7 días demo';
+  else if (days === 30)  label = '1 mes gratis';
+  else if (days === 90)  label = '3 meses gratis';
+  else if (days === 180) label = '6 meses gratis';
+  else if (days === 365) label = '1 año gratis';
+  else                   label = `${days} día${days !== 1 ? 's' : ''} gratis`;
+
+  document.getElementById('activateSummaryText').textContent = label;
+  document.getElementById('activateSummaryExpiry').textContent =
+    'Vence el ' + expires.toLocaleDateString('es-CL', { day: '2-digit', month: 'long', year: 'numeric' });
+  document.getElementById('activateSummary').style.display = 'block';
+  document.getElementById('confirmActivate').disabled = false;
+}
+
+document.querySelectorAll('.quick-opt').forEach(btn => {
+  btn.addEventListener('click', () => {
+    document.querySelectorAll('.quick-opt').forEach(b => {
+      b.classList.remove('btn-primary');
+      b.classList.add('btn-outline');
+    });
+    btn.classList.remove('btn-outline');
+    btn.classList.add('btn-primary');
+    setActivateDays(parseInt(btn.dataset.days));
+  });
+});
+
+document.getElementById('applyCustomDays').addEventListener('click', () => {
+  const val  = parseInt(document.getElementById('customDaysInput').value);
+  const unit = document.getElementById('customDaysUnit').value;
+  if (!val || val < 1) { showToast('Ingresa una cantidad válida', 'error'); return; }
+  const days = unit === 'months' ? val * 30 : val;
+  document.querySelectorAll('.quick-opt').forEach(b => {
+    b.classList.remove('btn-primary');
+    b.classList.add('btn-outline');
+  });
+  setActivateDays(days);
+});
+
+['closeActivateModal', 'cancelActivateModal'].forEach(id => {
+  document.getElementById(id).addEventListener('click', () => {
+    document.getElementById('activateModal').classList.add('hidden');
+  });
+});
+document.getElementById('activateModal').addEventListener('click', e => {
+  if (e.target === document.getElementById('activateModal'))
+    document.getElementById('activateModal').classList.add('hidden');
+});
+
+document.getElementById('confirmActivate').addEventListener('click', async () => {
+  if (!_activateUserId || !_activateDays) return;
+  const btn = document.getElementById('confirmActivate');
+  btn.disabled = true;
+  btn.textContent = 'Activando...';
+
+  const starts  = new Date();
+  const expires = new Date(starts);
+  expires.setDate(expires.getDate() + _activateDays);
+
+  const { error } = await sb.from('memberships').upsert({
+    user_id:    _activateUserId,
+    status:     'active',
+    payment_id: 'ADMIN_FREE_' + Date.now(),
+    amount:     0,
+    starts_at:  starts.toISOString(),
+    expires_at: expires.toISOString()
+  }, { onConflict: 'user_id' });
+
+  btn.textContent = 'Confirmar activación';
+
+  if (error) {
+    showToast('Error: ' + error.message, 'error');
+    btn.disabled = false;
+    return;
+  }
+
+  showToast('Membresía activada correctamente', 'success');
+  document.getElementById('activateModal').classList.add('hidden');
+  await loadAll();
+});
 
 // ─── TABS ──────────────────────────────────────────────────
 function setupTabs() {
