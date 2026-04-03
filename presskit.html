@@ -500,11 +500,18 @@ NOTAS ADICIONALES
 };
 
 const DEMO_EVENTS = [
-  { name: 'Festival Sónar Santiago',  venue: 'Parque O\'Higgins', city: 'Santiago',          date: '2026-04-12', ticket_url: 'https://passline.com', flyer_url: 'https://images.unsplash.com/photo-1501386761578-eac5c94b800a?w=400&q=80' },
-  { name: 'Clubnight Extended',       venue: 'Club Chocolate',    city: 'Santiago',          date: '2026-05-03', ticket_url: 'https://passline.com', flyer_url: 'https://images.unsplash.com/photo-1470229722913-7c0e2dbbafd3?w=400&q=80' },
-  { name: 'VOID Techno Night',        venue: 'Club Cha',          city: 'Santiago',          date: '2026-03-08', ticket_url: null, flyer_url: null },
-  { name: 'Berlín Residency',         venue: 'Tresor',            city: 'Berlín, Alemania',  date: '2026-02-15', ticket_url: null, flyer_url: null },
-  { name: 'Colombia Tour',            venue: 'Baum Club',         city: 'Bogotá, Colombia',  date: '2026-01-27', ticket_url: null, flyer_url: null },
+  // ── Destacados ────────────────────────────────────────────────────────────
+  { id:'d1', name: 'Festival Sónar Santiago',  venue: "Parque O'Higgins",  city: 'Santiago',         date: '2026-04-12', genre: 'Techno',           featured: true,  ticket_url: 'https://passline.com', flyer_url: 'https://images.unsplash.com/photo-1501386761578-eac5c94b800a?w=400&q=80' },
+  { id:'d2', name: 'Berlín Residency',          venue: 'Tresor',            city: 'Berlín, Alemania', date: '2026-02-15', genre: 'Dark Techno',      featured: true,  ticket_url: null,                   flyer_url: 'https://images.unsplash.com/photo-1493225457124-a3eb161ffa5f?w=400&q=80' },
+  // ── Próximos ──────────────────────────────────────────────────────────────
+  { id:'d3', name: 'Clubnight Extended',        venue: 'Club Chocolate',    city: 'Santiago',         date: '2026-05-03', genre: 'Tech House',       featured: false, ticket_url: 'https://passline.com', flyer_url: 'https://images.unsplash.com/photo-1470229722913-7c0e2dbbafd3?w=400&q=80' },
+  { id:'d4', name: 'Summer Rave',               venue: 'La Batuta',         city: 'Santiago',         date: '2026-06-20', genre: 'Melodic House & Techno', featured: false, ticket_url: null,              flyer_url: null },
+  { id:'d5', name: 'Open Air Valparaíso',       venue: 'Anfiteatro',        city: 'Valparaíso',       date: '2026-07-05', genre: 'Techno',           featured: false, ticket_url: null,                   flyer_url: null },
+  // ── Realizados ────────────────────────────────────────────────────────────
+  { id:'d6', name: 'VOID Techno Night',         venue: 'Club Cha',          city: 'Santiago',         date: '2026-03-08', genre: 'Industrial Techno',featured: false, ticket_url: null,                   flyer_url: null },
+  { id:'d7', name: 'Colombia Tour',             venue: 'Baum Club',         city: 'Bogotá, Colombia', date: '2026-01-27', genre: 'Minimal Techno',   featured: false, ticket_url: null,                   flyer_url: null },
+  { id:'d8', name: "New Year's Eve",            venue: 'Teatro Caupolicán', city: 'Santiago',         date: '2025-12-31', genre: 'House',            featured: false, ticket_url: null,                   flyer_url: 'https://images.unsplash.com/photo-1516450360452-9312f5e86fc7?w=400&q=80' },
+  { id:'d9', name: 'Brunch Electrónico',        venue: 'Espacio Broadway',  city: 'Santiago',         date: '2025-11-15', genre: 'Deep House',       featured: false, ticket_url: null,                   flyer_url: null },
 ];
 
 // ── Catálogo de equipos con fotos ────────────────────────────
