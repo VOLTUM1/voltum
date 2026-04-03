@@ -783,10 +783,14 @@ async function renderPressKit(p, events) {
 
   // Galería
   if (p.gallery_urls?.length) {
+    const _gUrls = JSON.stringify(p.gallery_urls).replace(/"/g, '&quot;');
     document.getElementById('pkGallery').innerHTML = p.gallery_urls.map((url, i) => `
-      <a href="${url}" target="_blank" rel="noopener" style="display:block;border-radius:var(--radius-lg);overflow:hidden;aspect-ratio:1;background:var(--bg3);border:1px solid var(--border2);transition:var(--transition);" onmouseover="this.style.transform='scale(1.02)'" onmouseout="this.style.transform='scale(1)'">
-        <img src="${url}" alt="Foto ${i+1}" loading="lazy" style="width:100%;height:100%;object-fit:cover;display:block;">
-      </a>`).join('');
+      <div onclick="openLightbox(${i}, JSON.parse(this.dataset.urls))" data-urls="${_gUrls}"
+           style="display:block;border-radius:var(--radius-lg);overflow:hidden;aspect-ratio:1;background:var(--bg3);border:1px solid var(--border2);cursor:pointer;transition:var(--transition);"
+           onmouseover="this.style.transform='scale(1.02)';this.style.borderColor='rgba(139,92,246,0.4)'"
+           onmouseout="this.style.transform='';this.style.borderColor='var(--border2)'">
+        <img src="${url}" alt="Foto ${i+1}" loading="lazy" style="width:100%;height:100%;object-fit:cover;display:block;pointer-events:none;">
+      </div>`).join('');
   } else document.getElementById('gallerySection').style.display = 'none';
 
   // Rider
@@ -932,9 +936,12 @@ async function renderCompany(p, events) {
 
   // Galería
   if (p.gallery_urls?.length) {
+    const _gUrls2 = JSON.stringify(p.gallery_urls).replace(/"/g, '&quot;');
     document.getElementById('pkGallery').innerHTML = p.gallery_urls.map((url, i) => `
-      <a href="${url}" target="_blank" rel="noopener" style="display:block;border-radius:var(--radius-lg);overflow:hidden;aspect-ratio:1;">
-        <img src="${url}" alt="Foto ${i+1}" style="width:100%;height:100%;object-fit:cover;display:block;"></a>`).join('');
+      <div onclick="openLightbox(${i}, JSON.parse(this.dataset.urls))" data-urls="${_gUrls2}"
+           style="display:block;border-radius:var(--radius-lg);overflow:hidden;aspect-ratio:1;cursor:pointer;transition:var(--transition);"
+           onmouseover="this.style.transform='scale(1.02)'" onmouseout="this.style.transform=''">
+        <img src="${url}" alt="Foto ${i+1}" style="width:100%;height:100%;object-fit:cover;display:block;pointer-events:none;"></div>`).join('');
   } else document.getElementById('gallerySection').style.display = 'none';
 
   // DJs residentes de la empresa
@@ -1475,5 +1482,93 @@ document.addEventListener('keydown', e => { if (e.key === 'Escape') { closeBooki
 </script>
 
   <script defer src="/_vercel/insights/script.js"></script>
+
+<!-- LIGHTBOX GALERÍA -->
+<div id="lightbox" style="display:none;position:fixed;inset:0;z-index:500;background:rgba(0,0,0,0.92);backdrop-filter:blur(12px);align-items:center;justify-content:center;flex-direction:column;">
+
+  <!-- Contador -->
+  <div style="position:absolute;top:20px;left:50%;transform:translateX(-50%);font-size:0.82rem;color:rgba(255,255,255,0.5);font-weight:600;letter-spacing:0.05em;" id="lbCounter"></div>
+
+  <!-- Cerrar -->
+  <button onclick="closeLightbox()" style="position:absolute;top:16px;right:20px;background:rgba(255,255,255,0.1);border:none;color:#fff;width:40px;height:40px;border-radius:50%;font-size:1.3rem;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:background 0.2s;" onmouseover="this.style.background='rgba(255,255,255,0.2)'" onmouseout="this.style.background='rgba(255,255,255,0.1)'">✕</button>
+
+  <!-- Imagen -->
+  <div style="position:relative;display:flex;align-items:center;justify-content:center;width:100%;height:100%;padding:64px 80px;box-sizing:border-box;">
+    <img id="lbImg" src="" alt="" style="max-width:100%;max-height:100%;object-fit:contain;border-radius:12px;box-shadow:0 24px 80px rgba(0,0,0,0.6);user-select:none;transition:opacity 0.15s;">
+
+    <!-- Prev -->
+    <button id="lbPrev" onclick="lbNavigate(-1)" style="position:absolute;left:16px;background:rgba(255,255,255,0.1);border:none;color:#fff;width:48px;height:48px;border-radius:50%;font-size:1.4rem;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:background 0.2s;" onmouseover="this.style.background='rgba(255,255,255,0.25)'" onmouseout="this.style.background='rgba(255,255,255,0.1)'">‹</button>
+
+    <!-- Next -->
+    <button id="lbNext" onclick="lbNavigate(1)" style="position:absolute;right:16px;background:rgba(255,255,255,0.1);border:none;color:#fff;width:48px;height:48px;border-radius:50%;font-size:1.4rem;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:background 0.2s;" onmouseover="this.style.background='rgba(255,255,255,0.25)'" onmouseout="this.style.background='rgba(255,255,255,0.1)'">›</button>
+  </div>
+
+  <!-- Miniaturas -->
+  <div id="lbThumbs" style="position:absolute;bottom:20px;left:50%;transform:translateX(-50%);display:flex;gap:6px;max-width:90vw;overflow-x:auto;padding:4px;scrollbar-width:none;"></div>
+</div>
+
+<script>
+let _lbUrls = [], _lbIdx = 0, _lbTouchX = null;
+
+function openLightbox(index, urls) {
+  _lbUrls = urls; _lbIdx = index;
+  const lb = document.getElementById('lightbox');
+  lb.style.display = 'flex';
+  document.body.style.overflow = 'hidden';
+  lbRender();
+}
+
+function closeLightbox() {
+  document.getElementById('lightbox').style.display = 'none';
+  document.body.style.overflow = '';
+}
+
+function lbNavigate(dir) {
+  _lbIdx = (_lbIdx + dir + _lbUrls.length) % _lbUrls.length;
+  lbRender();
+}
+
+function lbRender() {
+  const img = document.getElementById('lbImg');
+  img.style.opacity = '0';
+  setTimeout(() => { img.src = _lbUrls[_lbIdx]; img.style.opacity = '1'; }, 100);
+
+  document.getElementById('lbCounter').textContent = `${_lbIdx + 1} / ${_lbUrls.length}`;
+  document.getElementById('lbPrev').style.display = _lbUrls.length > 1 ? 'flex' : 'none';
+  document.getElementById('lbNext').style.display = _lbUrls.length > 1 ? 'flex' : 'none';
+
+  // Miniaturas
+  const thumbs = document.getElementById('lbThumbs');
+  thumbs.style.display = _lbUrls.length > 1 ? 'flex' : 'none';
+  thumbs.innerHTML = _lbUrls.map((url, i) => `
+    <div onclick="lbGoTo(${i})" style="width:44px;height:44px;border-radius:6px;overflow:hidden;flex-shrink:0;cursor:pointer;border:2px solid ${i === _lbIdx ? 'var(--purple-l)' : 'transparent'};transition:border-color 0.15s;opacity:${i === _lbIdx ? '1' : '0.5'};">
+      <img src="${url}" style="width:100%;height:100%;object-fit:cover;display:block;">
+    </div>`).join('');
+}
+
+function lbGoTo(i) { _lbIdx = i; lbRender(); }
+
+// Teclado
+document.addEventListener('keydown', e => {
+  if (document.getElementById('lightbox').style.display === 'none') return;
+  if (e.key === 'ArrowRight') lbNavigate(1);
+  if (e.key === 'ArrowLeft')  lbNavigate(-1);
+  if (e.key === 'Escape')     closeLightbox();
+});
+
+// Click fuera de la imagen para cerrar
+document.getElementById('lightbox').addEventListener('click', e => {
+  if (e.target === document.getElementById('lightbox') || e.target.id === 'lbCounter') closeLightbox();
+});
+
+// Swipe en mobile
+document.getElementById('lbImg').addEventListener('touchstart', e => { _lbTouchX = e.touches[0].clientX; }, { passive: true });
+document.getElementById('lbImg').addEventListener('touchend', e => {
+  if (_lbTouchX === null) return;
+  const diff = _lbTouchX - e.changedTouches[0].clientX;
+  if (Math.abs(diff) > 40) lbNavigate(diff > 0 ? 1 : -1);
+  _lbTouchX = null;
+}, { passive: true });
+</script>
 </body>
 </html>
