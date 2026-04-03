@@ -589,6 +589,12 @@ const ACCESSORIES_ICONS = {
   'Cubierta anti-líquidos':   { icon: '🛡️', desc: 'Cubierta anti-líquidos' },
 };
 
+// Variables de estado para el filtro de eventos (deben estar antes del IIFE)
+const PK_EV_LIMIT = 4;
+let _pkEvBuckets  = {};
+let _pkEvFilter   = 'upcoming';
+let _pkEvExpanded = false;
+
 (async () => {
   try {
   const params = new URLSearchParams(window.location.search);
@@ -664,11 +670,6 @@ const ACCESSORIES_ICONS = {
 })();
 
 // ── Eventos con filtro y "Ver más" ──────────────────────────────────────────
-const PK_EV_LIMIT = 4;
-let _pkEvBuckets  = {};   // { featured:[], upcoming:[], past:[] }
-let _pkEvFilter   = 'upcoming';
-let _pkEvExpanded = false;
-
 function initPkEvents(events) {
   const now = new Date();
   _pkEvBuckets = {
