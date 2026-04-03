@@ -30,6 +30,23 @@
     .gallery-item:hover .gallery-remove { opacity:1; }
     .gallery-item .gallery-num { position:absolute; bottom:6px; left:6px; background:rgba(0,0,0,0.6); color:#fff; border-radius:6px; padding:2px 8px; font-size:0.72rem; font-weight:700; }
 
+    /* ── PHOTO POSITION PICKER ── */
+    .pos-grid { display:grid; grid-template-columns:repeat(3,28px); gap:3px; }
+    .pos-btn {
+      width:28px; height:28px; border-radius:6px; border:1px solid var(--border2);
+      background:var(--bg3); cursor:pointer; display:flex; align-items:center;
+      justify-content:center; transition:var(--transition);
+    }
+    .pos-btn:hover { border-color:var(--border); background:var(--card); }
+    .pos-btn.active { border-color:var(--purple); background:rgba(139,92,246,0.18); }
+    .pos-btn::after { content:''; width:6px; height:6px; border-radius:50%; background:var(--muted2); display:block; transition:var(--transition); }
+    .pos-btn.active::after { background:var(--purple-l); }
+    .pos-preview-ring {
+      width:90px; height:90px; border-radius:50%; overflow:hidden;
+      border:2px solid var(--border); flex-shrink:0;
+    }
+    .pos-preview-ring img { width:100%; height:100%; object-fit:cover; display:block; }
+
     /* Rider grid */
     .rider-grid { display:flex; flex-wrap:wrap; gap:8px; }
     .rider-item {
@@ -326,6 +343,23 @@
               <button class="remove-img" id="removePhoto">✕ Quitar</button>
             </div>
             <div class="form-hint" style="margin-top:12px;">JPG, PNG o WEBP · Máx 5MB<br>Recomendado: 400×400px</div>
+
+            <!-- POSITION PICKER -->
+            <div id="photoPositionWrap" style="display:none;margin-top:18px;padding:14px;background:var(--bg3);border:1px solid var(--border2);border-radius:var(--radius-lg);">
+              <div style="font-size:0.72rem;font-weight:700;letter-spacing:0.08em;text-transform:uppercase;color:var(--muted2);margin-bottom:12px;">Ajustar encuadre de la foto</div>
+              <div style="display:flex;align-items:center;gap:16px;">
+                <div>
+                  <div class="pos-grid" id="posGrid"></div>
+                  <div style="font-size:0.7rem;color:var(--muted2);margin-top:6px;text-align:center;" id="posLabel">Centro</div>
+                </div>
+                <div style="display:flex;flex-direction:column;align-items:center;gap:6px;">
+                  <div class="pos-preview-ring">
+                    <img id="posPreviewImg" src="" alt="Preview" style="object-position:center center;">
+                  </div>
+                  <div style="font-size:0.68rem;color:var(--muted2);">Vista previa</div>
+                </div>
+              </div>
+            </div>
           </div>
           <div style="flex:1;">
             <label class="form-label" style="margin-bottom:12px;display:block;">🖼️ Banner / portada</label>
@@ -696,13 +730,17 @@ let eventFlyerFile = null;
   });
 
   // Imágenes
-  setupImageUpload('photoInput', 'photoPreview', 'photoPlaceholder', (f) => { photoFile = f; });
+  setupImageUpload('photoInput', 'photoPreview', 'photoPlaceholder',
+    (f) => { photoFile = f; },
+    (url) => { initPositionPicker(url, 'center center'); }
+  );
   setupImageUpload('bannerInput', 'bannerPreview', 'bannerPlaceholder', (f) => { bannerFile = f; });
 
   document.getElementById('removePhoto').addEventListener('click', () => {
     document.getElementById('photoPreview').style.display = 'none';
     document.getElementById('photoPlaceholder').style.display = 'block';
     photoFile = null; profile.photo_url = null;
+    hidePositionPicker();
   });
   document.getElementById('removeBanner').addEventListener('click', () => {
     document.getElementById('bannerPreview').style.display = 'none';
@@ -798,6 +836,7 @@ function fillForm() {
     const img = document.getElementById('photoPreview');
     img.src = profile.photo_url; img.style.display = 'block';
     document.getElementById('photoPlaceholder').style.display = 'none';
+    initPositionPicker(profile.photo_url, profile.photo_position || 'center center');
   }
   if (profile.banner_url) {
     const img = document.getElementById('bannerPreview');
@@ -1024,7 +1063,7 @@ function loadRiderFromText(text) {
   setupRider();
 }
 
-function setupImageUpload(inputId, previewId, placeholderId, onFile) {
+function setupImageUpload(inputId, previewId, placeholderId, onFile, onLoad) {
   document.getElementById(inputId).addEventListener('change', function() {
     const file = this.files[0];
     if (!file) return;
@@ -1035,9 +1074,59 @@ function setupImageUpload(inputId, previewId, placeholderId, onFile) {
       const img = document.getElementById(previewId);
       img.src = e.target.result; img.style.display = 'block';
       document.getElementById(placeholderId).style.display = 'none';
+      if (onLoad) onLoad(e.target.result);
     };
     reader.readAsDataURL(file);
   });
+}
+
+// ── PHOTO POSITION PICKER ─────────────────────────────────────
+const POS_OPTIONS = [
+  { val: 'left top',     label: 'Superior izq.' },
+  { val: 'center top',   label: 'Superior' },
+  { val: 'right top',    label: 'Superior der.' },
+  { val: 'left center',  label: 'Izquierda' },
+  { val: 'center center',label: 'Centro' },
+  { val: 'right center', label: 'Derecha' },
+  { val: 'left bottom',  label: 'Inferior izq.' },
+  { val: 'center bottom',label: 'Inferior' },
+  { val: 'right bottom', label: 'Inferior der.' },
+];
+let _photoPosition = 'center center';
+
+function initPositionPicker(photoUrl, currentPos) {
+  _photoPosition = currentPos || 'center center';
+  const wrap = document.getElementById('photoPositionWrap');
+  const grid = document.getElementById('posGrid');
+  const previewImg = document.getElementById('posPreviewImg');
+  const label = document.getElementById('posLabel');
+
+  previewImg.src = photoUrl;
+  previewImg.style.objectPosition = _photoPosition;
+  wrap.style.display = 'block';
+
+  grid.innerHTML = POS_OPTIONS.map((p, i) => `
+    <button type="button" class="pos-btn${_photoPosition === p.val ? ' active' : ''}"
+      data-pos="${p.val}" title="${p.label}"></button>`
+  ).join('');
+
+  label.textContent = POS_OPTIONS.find(p => p.val === _photoPosition)?.label || 'Centro';
+
+  grid.querySelectorAll('.pos-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+      _photoPosition = btn.dataset.pos;
+      grid.querySelectorAll('.pos-btn').forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+      previewImg.style.objectPosition = _photoPosition;
+      document.getElementById('photoPreview').style.objectPosition = _photoPosition;
+      label.textContent = POS_OPTIONS.find(p => p.val === _photoPosition)?.label || '';
+    });
+  });
+}
+
+function hidePositionPicker() {
+  document.getElementById('photoPositionWrap').style.display = 'none';
+  _photoPosition = 'center center';
 }
 
 async function uploadImage(file, path) {
@@ -1102,6 +1191,7 @@ async function saveProfile() {
       contact_phone: profile.is_company ? (document.getElementById('contactPhone').value.trim() || null) : profile.contact_phone,
       website: profile.is_company ? (document.getElementById('website').value.trim() || null) : profile.website,
       photo_url: photoUrl,
+      photo_position: _photoPosition,
       banner_url: bannerUrl,
       gallery_urls: galleryUrls.length ? galleryUrls : null,
       bank_name:           !profile.is_company ? (document.getElementById('bankName').value || null) : profile.bank_name,

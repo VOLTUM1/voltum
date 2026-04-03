@@ -560,7 +560,7 @@ function renderCards(djs) {
       : `background:linear-gradient(135deg,#1a0533 0%,#050514 50%,#0a1a2e 100%);`;
 
     const avatarContent = dj.photo_url
-      ? `<img src="${dj.photo_url}" alt="${dj.dj_name}" style="width:100%;height:100%;object-fit:cover;">`
+      ? `<img src="${dj.photo_url}" alt="${dj.dj_name}" style="width:100%;height:100%;object-fit:cover;object-position:${dj.photo_position||'center center'};">`
       : initial;
 
     const genreTags = djGenres.map(g => `
