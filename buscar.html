@@ -203,7 +203,7 @@
       box-shadow: 0 0 8px rgba(139,92,246,0.2);
     }
     .card-footer {
-      display: flex; gap: 8px;
+      display: flex; gap: 8px; align-items: center; flex-wrap: wrap;
     }
     .card-views {
       display: flex; align-items: center; gap: 4px;
@@ -579,17 +579,18 @@ function renderCards(djs) {
           ${dj.profile_views ? `<span style="color:var(--muted2);">· 👁 ${dj.profile_views}</span>` : ''}
         </div>
         <div class="card-genres">${genreTags || '<span style="color:var(--muted2);font-size:0.78rem;">Sin géneros definidos</span>'}</div>
-        <div class="card-footer">
-          <a href="${pkUrl}" target="_blank" rel="noopener" class="btn btn-primary btn-sm" style="flex:1;text-align:center;"
+        <div class="card-footer" style="flex-wrap:wrap;gap:8px;">
+          <a href="${pkUrl}" target="_blank" rel="noopener" class="btn btn-primary btn-sm" style="flex:1;text-align:center;min-width:120px;"
              onclick="event.stopPropagation()">
             Ver Press Kit →
           </a>
           ${_myCompany ? (() => {
             const rs = _myResidencies.get(dj.id);
-            if (rs === 'accepted') return `<button class="btn btn-sm" style="background:rgba(34,197,94,0.12);color:#4ade80;border:1px solid rgba(34,197,94,0.3);cursor:default;" disabled onclick="event.stopPropagation()">✓ Residente</button>`;
-            if (rs === 'pending')  return `<button class="btn btn-sm" style="background:rgba(251,191,36,0.1);color:#fbbf24;border:1px solid rgba(251,191,36,0.25);cursor:default;" disabled onclick="event.stopPropagation()">Invitación enviada</button>`;
+            if (rs === 'accepted') return `<button class="btn btn-sm" style="background:rgba(34,197,94,0.12);color:#4ade80;border:1px solid rgba(34,197,94,0.3);cursor:default;white-space:nowrap;" disabled onclick="event.stopPropagation()">✓ Residente</button>`;
+            if (rs === 'pending')  return `<button class="btn btn-sm" style="background:rgba(251,191,36,0.1);color:#fbbf24;border:1px solid rgba(251,191,36,0.25);cursor:default;white-space:nowrap;" disabled onclick="event.stopPropagation()">Enviada</button>`;
             return `<button class="btn btn-outline btn-sm" onclick="event.stopPropagation();inviteResident('${dj.id}','${(dj.dj_name||'').replace(/'/g,"\\'")}')" style="white-space:nowrap;">+ Residente</button>`;
           })() : ''}
+        </div>
       </div>
     </div>`;
   }).join('');
