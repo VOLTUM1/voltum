@@ -561,6 +561,12 @@ const DEMO_REVIEWS = [
   }
 ];
 
+const DEMO_RESIDENCIES = [
+  { companies: { name: 'Club Chocolate',      type: 'Club / Venue' } },
+  { companies: { name: 'Sónar Santiago',      type: 'Festival'     } },
+  { companies: { name: 'Productora LaMente',  type: 'Productora'   } },
+];
+
 const ACCESSORIES_ICONS = {
   'Puerto USB en cada CDJ':   { icon: '🔌', desc: 'USB en cada reproductor' },
   'Rekordbox compatible':     { icon: '💿', desc: 'Compatible con Rekordbox' },
@@ -688,11 +694,16 @@ async function renderPressKit(p, events) {
   } else genresEl.style.display = 'none';
 
   // Residencias
-  const { data: resData } = await sb.from('dj_residencies')
-    .select('companies(name, type)')
-    .eq('dj_user_id', p.id)
-    .eq('status', 'accepted');
-  const residencies = (resData || []).filter(r => r.companies?.name);
+  let residencies;
+  if (!p.id) {
+    residencies = DEMO_RESIDENCIES;
+  } else {
+    const { data: resData } = await sb.from('dj_residencies')
+      .select('companies(name, type)')
+      .eq('dj_user_id', p.id)
+      .eq('status', 'accepted');
+    residencies = (resData || []).filter(r => r.companies?.name);
+  }
   if (residencies.length) {
     document.getElementById('residenciesSection').style.display = 'block';
     document.getElementById('pkResidencies').innerHTML = residencies.map(r => `
