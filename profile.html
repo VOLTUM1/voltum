@@ -446,6 +446,9 @@
           <button class="btn btn-primary btn-sm" id="toggleAddEvent">+ Agregar evento</button>
         </div>
         <div id="addEventForm">
+          <div style="display:flex;align-items:center;gap:8px;margin-bottom:14px;">
+            <span id="eventFormTitle" style="font-size:0.9rem;font-weight:700;color:var(--text);">Nuevo evento</span>
+          </div>
           <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;">
             <div class="form-group" style="margin-bottom:0;">
               <label class="form-label">Nombre del evento *</label>
@@ -513,6 +516,7 @@
             <button class="btn btn-primary btn-sm" id="saveEventBtn">Guardar evento</button>
             <button class="btn btn-ghost btn-sm" id="cancelEventBtn">Cancelar</button>
           </div>
+          <input type="hidden" id="editingEventId" value="">
         </div>
         <div class="events-list" id="eventsList">
           <div style="text-align:center;padding:32px;color:var(--muted2);">Cargando eventos...</div>
@@ -1304,6 +1308,7 @@ function renderEvents() {
         ${!canStar ? 'disabled' : ''}>
         ${ev.featured ? '⭐' : '☆'}
       </button>
+      <button class="btn btn-ghost btn-sm btn-icon" onclick="editEvent('${ev.id}')" title="Editar evento" style="color:var(--muted);">✏️</button>
       <button class="btn btn-danger btn-sm btn-icon" onclick="deleteEvent('${ev.id}')">✕</button>
     </div>`;
   }
@@ -1378,6 +1383,9 @@ function clearFlyerPreview() {
 }
 
 function clearEventForm() {
+  document.getElementById('editingEventId').value = '';
+  document.getElementById('eventFormTitle').textContent = 'Nuevo evento';
+  document.getElementById('saveEventBtn').textContent = 'Guardar evento';
   document.getElementById('eventName').value = '';
   document.getElementById('eventDate').value = '';
   document.getElementById('eventVenue').value = '';
@@ -1385,6 +1393,31 @@ function clearEventForm() {
   document.getElementById('eventGenre').value = '';
   document.getElementById('eventTicketUrl').value = '';
   clearFlyerPreview();
+}
+
+function editEvent(id) {
+  const ev = events.find(e => e.id === id);
+  if (!ev) return;
+  document.getElementById('editingEventId').value = id;
+  document.getElementById('eventFormTitle').textContent = 'Editar evento';
+  document.getElementById('saveEventBtn').textContent = 'Guardar cambios';
+  document.getElementById('eventName').value  = ev.name  || '';
+  document.getElementById('eventDate').value  = ev.date  || '';
+  document.getElementById('eventVenue').value = ev.venue || '';
+  document.getElementById('eventCity').value  = ev.city  || '';
+  document.getElementById('eventGenre').value = ev.genre || '';
+  document.getElementById('eventTicketUrl').value = ev.ticket_url || '';
+  // Mostrar flyer actual si existe
+  clearFlyerPreview();
+  if (ev.flyer_url) {
+    const img = document.getElementById('eventFlyerPreview');
+    img.src = ev.flyer_url;
+    img.style.display = '';
+    document.getElementById('removeFlyerBtn').style.display = '';
+  }
+  const form = document.getElementById('addEventForm');
+  form.classList.add('show');
+  form.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
 }
 
 async function saveEvent() {
@@ -1395,33 +1428,53 @@ async function saveEvent() {
   const btn = document.getElementById('saveEventBtn');
   btn.disabled = true;
 
-  // Subir flyer si existe
-  let flyer_url = null;
+  const editingId = document.getElementById('editingEventId').value;
+  const venue     = document.getElementById('eventVenue').value.trim() || null;
+  const city      = document.getElementById('eventCity').value.trim()  || null;
+  const genre     = document.getElementById('eventGenre').value        || null;
+  const ticket_url = document.getElementById('eventTicketUrl').value.trim() || null;
+
+  // Subir flyer nuevo si se seleccionó uno
+  let flyer_url = editingId ? (events.find(e => e.id === editingId)?.flyer_url ?? null) : null;
   if (eventFlyerFile) {
     try {
       flyer_url = await uploadImage(eventFlyerFile, `${targetUserId}/flyers/flyer-${Date.now()}`);
     } catch(e) { showToast('Error subiendo el flyer', 'error'); btn.disabled = false; return; }
   }
+  // Si en modo edición se quitó el flyer (clearFlyerPreview) sin subir uno nuevo
+  if (editingId && !eventFlyerFile && document.getElementById('eventFlyerPreview').style.display === 'none') {
+    flyer_url = null;
+  }
 
-  const { data, error } = await sb.from('events').insert({
-    user_id: targetUserId,
-    name,
-    date,
-    venue: document.getElementById('eventVenue').value.trim() || null,
-    city: document.getElementById('eventCity').value.trim() || null,
-    genre: document.getElementById('eventGenre').value || null,
-    ticket_url: document.getElementById('eventTicketUrl').value.trim() || null,
-    flyer_url
-  }).select().single();
-
-  if (error) { showToast(error.message, 'error'); }
-  else {
-    events.unshift(data);
-    evPageUpcoming = 0; evPagePast = 0;
-    renderEvents();
-    clearEventForm();
-    document.getElementById('addEventForm').classList.remove('show');
-    showToast('Evento agregado', 'success');
+  if (editingId) {
+    // ── MODO EDICIÓN ──────────────────────────────────────
+    const { data, error } = await sb.from('events')
+      .update({ name, date, venue, city, genre, ticket_url, flyer_url })
+      .eq('id', editingId)
+      .select().single();
+    if (error) { showToast(error.message, 'error'); }
+    else {
+      const idx = events.findIndex(e => e.id === editingId);
+      if (idx !== -1) events[idx] = data;
+      renderEvents();
+      clearEventForm();
+      document.getElementById('addEventForm').classList.remove('show');
+      showToast('Evento actualizado', 'success');
+    }
+  } else {
+    // ── MODO NUEVO ────────────────────────────────────────
+    const { data, error } = await sb.from('events').insert({
+      user_id: targetUserId, name, date, venue, city, genre, ticket_url, flyer_url
+    }).select().single();
+    if (error) { showToast(error.message, 'error'); }
+    else {
+      events.unshift(data);
+      evPageUpcoming = 0; evPagePast = 0;
+      renderEvents();
+      clearEventForm();
+      document.getElementById('addEventForm').classList.remove('show');
+      showToast('Evento agregado', 'success');
+    }
   }
   btn.disabled = false;
 }
