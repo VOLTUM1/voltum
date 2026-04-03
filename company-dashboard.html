@@ -235,6 +235,18 @@
       </div>
     </div>
 
+    <!-- NUESTROS DJS RESIDENTES -->
+    <div style="margin-top:36px;">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;flex-wrap:wrap;gap:10px;">
+        <div>
+          <div class="section-title" style="margin-bottom:4px;">Nuestros DJs residentes</div>
+          <div style="font-size:0.8rem;color:var(--muted);">DJs que forman parte de tu organización</div>
+        </div>
+        <a href="buscar.html" class="btn btn-outline btn-sm">+ Invitar DJ</a>
+      </div>
+      <div id="residentDJsList"></div>
+    </div>
+
   </div><!-- /dashContent -->
 </main>
 
@@ -461,6 +473,72 @@
   document.getElementById('bookingModal').addEventListener('click', e => {
     if (e.target === document.getElementById('bookingModal')) closeModal();
   });
+
+  // ── DJs Residentes ────────────────────────────────────────────
+  const residentEl = document.getElementById('residentDJsList');
+  if (company) {
+    const { data: residencies } = await sb.from('dj_residencies')
+      .select('id, status, dj_user_id, dj:profiles!dj_residencies_dj_user_id_fkey(dj_name, photo_url, slug, location, genres)')
+      .eq('company_id', company.id)
+      .order('updated_at', { ascending: false });
+
+    const all = residencies || [];
+    const accepted = all.filter(r => r.status === 'accepted');
+    const pending  = all.filter(r => r.status === 'pending');
+
+    if (!all.length) {
+      residentEl.innerHTML = `
+        <div style="background:var(--card);border:1px dashed var(--border2);border-radius:var(--radius-xl);padding:40px;text-align:center;">
+          <div style="font-size:2rem;margin-bottom:12px;opacity:0.4;">🎧</div>
+          <div style="font-weight:600;margin-bottom:6px;">Aún no tienes DJs residentes</div>
+          <div style="font-size:0.83rem;color:var(--muted);margin-bottom:18px;">Busca DJs y envíales una invitación de residencia desde sus cards</div>
+          <a href="buscar.html" class="btn btn-primary btn-sm">Buscar DJs →</a>
+        </div>`;
+    } else {
+      let html = '';
+
+      if (pending.length) {
+        html += `<div style="font-size:0.75rem;font-weight:700;text-transform:uppercase;letter-spacing:0.08em;color:var(--gold);margin-bottom:8px;">Pendientes (${pending.length})</div>`;
+        html += `<div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:12px;margin-bottom:20px;">`;
+        html += pending.map(r => djResidentCard(r, 'pending')).join('');
+        html += '</div>';
+      }
+
+      if (accepted.length) {
+        html += `<div style="font-size:0.75rem;font-weight:700;text-transform:uppercase;letter-spacing:0.08em;color:var(--muted2);margin-bottom:8px;">Residentes activos (${accepted.length})</div>`;
+        html += `<div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:12px;">`;
+        html += accepted.map(r => djResidentCard(r, 'accepted')).join('');
+        html += '</div>';
+      }
+
+      residentEl.innerHTML = html;
+    }
+  } else {
+    residentEl.innerHTML = `<div style="font-size:0.83rem;color:var(--muted);padding:16px 0;">Completa el perfil de empresa para poder invitar DJs.</div>`;
+  }
+
+  function djResidentCard(r, status) {
+    const dj = r.dj;
+    const pkUrl = dj?.slug ? `presskit.html?slug=${dj.slug}` : `presskit.html?id=${r.dj_user_id}`;
+    const initial = (dj?.dj_name || '?').charAt(0).toUpperCase();
+    const genres = (dj?.genres || []).slice(0, 2).join(', ') || '—';
+    const statusBadge = status === 'pending'
+      ? `<span style="font-size:0.7rem;padding:2px 8px;border-radius:100px;background:rgba(251,191,36,0.1);color:#fbbf24;border:1px solid rgba(251,191,36,0.25);">Pendiente</span>`
+      : `<span style="font-size:0.7rem;padding:2px 8px;border-radius:100px;background:rgba(34,197,94,0.1);color:#4ade80;border:1px solid rgba(34,197,94,0.2);">✓ Residente</span>`;
+
+    return `
+    <div style="background:var(--card);border:1px solid var(--border2);border-radius:var(--radius-lg);padding:16px;display:flex;align-items:center;gap:12px;">
+      <div style="width:44px;height:44px;border-radius:50%;background:var(--gradient);display:flex;align-items:center;justify-content:center;font-weight:700;color:#fff;font-size:1rem;flex-shrink:0;overflow:hidden;">
+        ${dj?.photo_url ? `<img src="${dj.photo_url}" style="width:100%;height:100%;object-fit:cover;">` : initial}
+      </div>
+      <div style="flex:1;min-width:0;">
+        <div style="font-weight:600;font-size:0.88rem;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${dj?.dj_name || '—'}</div>
+        <div style="font-size:0.75rem;color:var(--muted2);">${dj?.location || genres}</div>
+        <div style="margin-top:5px;">${statusBadge}</div>
+      </div>
+      <a href="${pkUrl}" target="_blank" class="btn btn-outline btn-sm" style="font-size:0.75rem;flex-shrink:0;">Ver →</a>
+    </div>`;
+  }
 })();
 </script>
 <script defer src="/_vercel/insights/script.js"></script>

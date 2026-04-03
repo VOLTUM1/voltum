@@ -367,6 +367,15 @@
 
       </div>
 
+      <!-- INVITACIONES DE RESIDENCIA -->
+      <div id="residencySection" style="display:none;margin-bottom:32px;">
+        <div style="display:flex;align-items:center;gap:10px;margin-bottom:12px;">
+          <div class="section-title" style="margin-bottom:0;">Invitaciones de residencia</div>
+          <span id="residencyBadge" style="display:none;background:var(--gold);color:#000;font-size:0.68rem;font-weight:700;padding:2px 8px;border-radius:100px;"></span>
+        </div>
+        <div id="residencyList" style="display:flex;flex-direction:column;gap:10px;"></div>
+      </div>
+
       <!-- SOLICITUDES DE BOOKING -->
       <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;">
         <div style="display:flex;align-items:center;gap:10px;">
@@ -603,6 +612,60 @@
     await sb.auth.signOut();
     window.location.href = 'index.html';
   });
+
+  // ── Residencias ───────────────────────────────────────────────────────────
+  const { data: residenciesData } = await sb.from('dj_residencies')
+    .select('id, status, created_at, company:companies(id, name, type, city)')
+    .eq('dj_user_id', user.id)
+    .order('created_at', { ascending: false });
+
+  const residencies = residenciesData || [];
+  const pendingResidencies = residencies.filter(r => r.status === 'pending');
+
+  if (residencies.length) {
+    document.getElementById('residencySection').style.display = 'block';
+    if (pendingResidencies.length) {
+      const rb = document.getElementById('residencyBadge');
+      rb.textContent = pendingResidencies.length;
+      rb.style.display = 'inline-block';
+    }
+    renderResidencies(residencies);
+  }
+
+  function renderResidencies(list) {
+    document.getElementById('residencyList').innerHTML = list.map(r => {
+      const co = r.company;
+      const statusMap = {
+        pending:  { label: 'Pendiente', style: 'background:rgba(251,191,36,0.1);color:#fbbf24;border:1px solid rgba(251,191,36,0.25);' },
+        accepted: { label: '✓ Aceptada', style: 'background:rgba(34,197,94,0.1);color:#4ade80;border:1px solid rgba(34,197,94,0.2);' },
+        rejected: { label: 'Rechazada', style: 'background:rgba(107,114,128,0.1);color:var(--muted);border:1px solid var(--border2);' },
+      }[r.status] || { label: r.status, style: '' };
+
+      return `
+      <div style="background:var(--card);border:1px solid var(--border2);border-radius:var(--radius-lg);padding:16px 20px;display:flex;align-items:center;gap:16px;flex-wrap:wrap;">
+        <div style="width:40px;height:40px;border-radius:50%;background:rgba(139,92,246,0.15);display:flex;align-items:center;justify-content:center;font-weight:700;color:var(--purple-l);font-size:1rem;flex-shrink:0;">
+          ${(co?.name || '?').charAt(0).toUpperCase()}
+        </div>
+        <div style="flex:1;min-width:0;">
+          <div style="font-weight:600;font-size:0.9rem;">${co?.name || '—'}</div>
+          <div style="font-size:0.78rem;color:var(--muted2);">${[co?.type, co?.city].filter(Boolean).join(' · ') || 'Organización'}</div>
+        </div>
+        <span style="display:inline-flex;align-items:center;padding:4px 10px;border-radius:100px;font-size:0.72rem;font-weight:600;${statusMap.style}">${statusMap.label}</span>
+        ${r.status === 'pending' ? `
+        <div style="display:flex;gap:8px;">
+          <button class="btn btn-primary btn-sm" onclick="respondResidency('${r.id}','accepted')">Aceptar</button>
+          <button class="btn btn-outline btn-sm" style="color:var(--red);border-color:rgba(239,68,68,0.3);" onclick="respondResidency('${r.id}','rejected')">Rechazar</button>
+        </div>` : ''}
+      </div>`;
+    }).join('');
+  }
+
+  window.respondResidency = async function(id, newStatus) {
+    const { error } = await sb.from('dj_residencies').update({ status: newStatus, updated_at: new Date().toISOString() }).eq('id', id);
+    if (error) { showToast('Error al responder', 'error'); return; }
+    showToast(newStatus === 'accepted' ? '¡Ahora eres residente de esta organización!' : 'Invitación rechazada', newStatus === 'accepted' ? 'success' : 'info');
+    setTimeout(() => window.location.reload(), 800);
+  };
 
   // ── Bookings ──────────────────────────────────────────────────────────────
   let _allBookings = [];

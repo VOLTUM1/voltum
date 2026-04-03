@@ -230,6 +230,12 @@
   <!-- BODY -->
   <div class="presskit-body">
 
+    <!-- RESIDENCIAS -->
+    <div class="presskit-section" id="residenciesSection" style="display:none;">
+      <div class="presskit-section-title">Residente en</div>
+      <div id="pkResidencies" style="display:flex;flex-wrap:wrap;gap:10px;"></div>
+    </div>
+
     <!-- BIO -->
     <div class="presskit-section" id="bioSection">
       <div class="presskit-section-title">Biografía</div>
@@ -674,6 +680,21 @@ function renderPressKit(p, events) {
   if (p.genres?.length) {
     genresEl.innerHTML = p.genres.map(g => `<span>${g}</span>`).join('');
   } else genresEl.style.display = 'none';
+
+  // Residencias
+  const { data: resData } = await sb.from('dj_residencies')
+    .select('companies(name, type)')
+    .eq('dj_user_id', p.id)
+    .eq('status', 'accepted');
+  const residencies = (resData || []).filter(r => r.companies?.name);
+  if (residencies.length) {
+    document.getElementById('residenciesSection').style.display = 'block';
+    document.getElementById('pkResidencies').innerHTML = residencies.map(r => `
+      <span style="display:inline-flex;align-items:center;gap:6px;background:rgba(139,92,246,0.1);border:1px solid rgba(139,92,246,0.25);border-radius:100px;padding:6px 14px;font-size:0.82rem;font-weight:600;color:var(--purple-l);">
+        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+        ${r.companies.name}${r.companies.type ? ` <span style="font-weight:400;color:var(--muted);font-size:0.75rem;">· ${r.companies.type}</span>` : ''}
+      </span>`).join('');
+  }
 
   // Bio
   if (p.bio) {
