@@ -39,6 +39,12 @@
       border-radius: var(--radius-lg); background: var(--card);
       border: 1px solid var(--border2); align-items: center; flex-wrap: wrap;
     }
+    .event-date-badge { background: rgba(139,92,246,0.1); border: 1px solid var(--border); border-radius: 10px; padding: 8px 12px; text-align: center; min-width: 56px; flex-shrink: 0; }
+    .event-date-month { font-size: 0.7rem; color: var(--purple-l); font-weight: 700; text-transform: uppercase; }
+    .event-date-day   { font-size: 1.3rem; font-weight: 800; line-height: 1; }
+    .event-info       { flex: 1; }
+    .event-info strong { font-size: 0.95rem; }
+    .event-info span  { font-size: 0.8rem; color: var(--muted); display: block; }
 
     /* ── Demo badge ── */
     .demo-badge {
@@ -254,68 +260,13 @@ Disponible para bookings nacionales e internacionales. Rider técnico completo y
   </div>
 
   <!-- EVENTS -->
-  <div class="presskit-section">
-    <div class="presskit-section-title">Fechas & Eventos</div>
-    <div class="pk-event-grid">
-
-      <div class="pk-event">
-        <div style="min-width:52px;text-align:center;">
-          <div style="font-size:1.4rem;font-weight:800;color:var(--purple-l);line-height:1;">18</div>
-          <div style="font-size:0.72rem;text-transform:uppercase;color:var(--muted2);font-weight:600;">ABR</div>
-        </div>
-        <div style="flex:1;min-width:0;">
-          <div style="font-weight:700;font-size:1rem;color:var(--text);">VOID FESTIVAL</div>
-          <div style="font-size:0.85rem;color:var(--muted);margin-top:2px;">Club Oscuro · Santiago</div>
-        </div>
-        <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;justify-content:flex-end;">
-          <span class="badge badge-green">Próximo</span>
-          <a href="#" onclick="return false" class="btn btn-primary btn-sm">🎟️ Entradas</a>
-        </div>
-      </div>
-
-      <div class="pk-event">
-        <div style="min-width:52px;text-align:center;">
-          <div style="font-size:1.4rem;font-weight:800;color:var(--purple-l);line-height:1;">10</div>
-          <div style="font-size:0.72rem;text-transform:uppercase;color:var(--muted2);font-weight:600;">MAY</div>
-        </div>
-        <div style="flex:1;min-width:0;">
-          <div style="font-weight:700;font-size:1rem;color:var(--text);">BLACKVOID NIGHT</div>
-          <div style="font-size:0.85rem;color:var(--muted);margin-top:2px;">La Fábrica · Valparaíso</div>
-        </div>
-        <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;justify-content:flex-end;">
-          <span class="badge badge-green">Próximo</span>
-        </div>
-      </div>
-
-      <div class="pk-event" style="opacity:0.65;">
-        <div style="min-width:52px;text-align:center;">
-          <div style="font-size:1.4rem;font-weight:800;color:var(--purple-l);line-height:1;">15</div>
-          <div style="font-size:0.72rem;text-transform:uppercase;color:var(--muted2);font-weight:600;">MAR</div>
-        </div>
-        <div style="flex:1;min-width:0;">
-          <div style="font-weight:700;font-size:1rem;color:var(--text);">TECHNO SUBTERRÁNEO</div>
-          <div style="font-size:0.85rem;color:var(--muted);margin-top:2px;">Club Espacio · Santiago</div>
-        </div>
-        <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;justify-content:flex-end;">
-          <span class="badge badge-purple">Pasado</span>
-        </div>
-      </div>
-
-      <div class="pk-event" style="opacity:0.65;">
-        <div style="min-width:52px;text-align:center;">
-          <div style="font-size:1.4rem;font-weight:800;color:var(--purple-l);line-height:1;">02</div>
-          <div style="font-size:0.72rem;text-transform:uppercase;color:var(--muted2);font-weight:600;">FEB</div>
-        </div>
-        <div style="flex:1;min-width:0;">
-          <div style="font-weight:700;font-size:1rem;color:var(--text);">PANORAMA FESTIVAL</div>
-          <div style="font-size:0.85rem;color:var(--muted);margin-top:2px;">Parque Bicentenario · Santiago</div>
-        </div>
-        <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;justify-content:flex-end;">
-          <span class="badge badge-purple">Pasado</span>
-        </div>
-      </div>
-
+  <div class="presskit-section" id="demoEventsSection">
+    <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:10px;margin-bottom:16px;">
+      <div class="presskit-section-title" style="margin-bottom:0;">Fechas & Eventos</div>
+      <div id="demoEvPills" style="display:flex;gap:6px;flex-wrap:wrap;"></div>
     </div>
+    <div class="pk-event-grid" id="demoEvList"></div>
+    <button id="demoEvMore" style="display:none;width:100%;margin-top:12px;" class="btn btn-ghost btn-sm" onclick="demoEvToggleMore()"></button>
   </div>
 
   <!-- SOUNDCLOUD -->
@@ -649,6 +600,90 @@ Disponible para bookings nacionales e internacionales. Rider técnico completo y
       });
     }
   }
+
+  // ── Sistema de filtro de eventos ─────────────────────────────
+  const DEMO_EV = [
+    { name:'VOID FESTIVAL',         venue:'Club Oscuro',          city:'Santiago',    date:'2026-04-18', genre:'Dark Techno',           featured:true,  ticket_url:'#', flyer_url:null },
+    { name:'BLACKVOID NIGHT',       venue:'La Fábrica',           city:'Valparaíso',  date:'2026-05-10', genre:'Techno',                featured:true,  ticket_url:null, flyer_url:null },
+    { name:'ECLIPSE TECHNO',        venue:'Teatro Caupolicán',     city:'Santiago',    date:'2026-06-28', genre:'Minimal Techno',        featured:false, ticket_url:'#', flyer_url:null },
+    { name:'RAVE EN EL DESIERTO',   venue:'Atacama Outdoor',      city:'Atacama',     date:'2026-08-02', genre:'Industrial Techno',     featured:false, ticket_url:null, flyer_url:null },
+    { name:'TECHNO SUBTERRÁNEO',    venue:'Club Espacio',         city:'Santiago',    date:'2026-03-15', genre:'Techno',                featured:false, ticket_url:null, flyer_url:null },
+    { name:'PANORAMA FESTIVAL',     venue:'Parque Bicentenario',  city:'Santiago',    date:'2026-02-02', genre:'Melodic House & Techno', featured:false, ticket_url:null, flyer_url:null },
+    { name:'BERLÍN TOUR',           venue:'Tresor',               city:'Berlín',      date:'2025-12-10', genre:'Dark Techno',           featured:false, ticket_url:null, flyer_url:null },
+    { name:'CLUB CHOCOLATE RES.',   venue:'Club Chocolate',       city:'Santiago',    date:'2025-11-22', genre:'Techno',                featured:false, ticket_url:null, flyer_url:null },
+    { name:'BAUM CLUB BOGOTÁ',      venue:'Baum Club',            city:'Bogotá',      date:'2025-10-05', genre:'Minimal Techno',        featured:false, ticket_url:null, flyer_url:null },
+  ];
+
+  const EV_LIMIT = 4;
+  let _demoFilter = 'featured', _demoExpanded = false;
+  const now = new Date();
+
+  const _buckets = {
+    featured: DEMO_EV.filter(e => e.featured).sort((a,b)=>new Date(a.date)-new Date(b.date)),
+    upcoming: DEMO_EV.filter(e => !e.featured && new Date(e.date+'T12:00:00') >= now).sort((a,b)=>new Date(a.date)-new Date(b.date)),
+    past:     DEMO_EV.filter(e => !e.featured && new Date(e.date+'T12:00:00') <  now).sort((a,b)=>new Date(b.date)-new Date(a.date)),
+  };
+
+  const pillDefs = [
+    { key:'featured', label:'⭐ Destacados', color:'#f59e0b' },
+    { key:'upcoming', label:'Próximos',      color:'#34d399' },
+    { key:'past',     label:'Realizados',    color:'var(--muted2)' },
+  ];
+  document.getElementById('demoEvPills').innerHTML = pillDefs
+    .filter(p => _buckets[p.key].length)
+    .map(p => `<button id="dPill-${p.key}" onclick="demoEvFilter('${p.key}')"
+      style="font-size:0.72rem;font-weight:700;padding:5px 12px;border-radius:100px;border:1px solid ${p.color};background:transparent;color:${p.color};cursor:pointer;transition:background 0.15s;letter-spacing:0.3px;"
+      onmouseover="this.style.background='${p.color}22'"
+      onmouseout="if(!this.classList.contains('active'))this.style.background='transparent'">
+      ${p.label} <span style="opacity:0.7;font-weight:400;">(${_buckets[p.key].length})</span>
+    </button>`).join('');
+
+  function demoEvFilter(key) { _demoFilter = key; _demoExpanded = false; demoEvRender(); }
+  function demoEvToggleMore() { _demoExpanded = !_demoExpanded; demoEvRender(); }
+
+  function demoEvRender() {
+    const list   = _buckets[_demoFilter] || [];
+    const dim    = _demoFilter === 'past';
+    const shown  = _demoExpanded ? list : list.slice(0, EV_LIMIT);
+
+    pillDefs.forEach(p => {
+      const pill = document.getElementById('dPill-'+p.key);
+      if (!pill) return;
+      if (p.key === _demoFilter) { pill.style.background = p.color==='var(--muted2)' ? 'rgba(120,120,140,0.2)' : p.color+'33'; pill.classList.add('active'); }
+      else { pill.style.background = 'transparent'; pill.classList.remove('active'); }
+    });
+
+    document.getElementById('demoEvList').innerHTML = shown.map(ev => {
+      const d = new Date(ev.date+'T12:00:00');
+      const month = d.toLocaleDateString('es-CL',{month:'short'}).toUpperCase();
+      const day = d.getDate(), year = d.getFullYear();
+      const isPast = d < now;
+      return `<div class="pk-event"${dim?' style="opacity:0.7"':''}>
+        <div class="event-date-badge">
+          <div class="event-date-month">${month}</div>
+          <div class="event-date-day">${day}</div>
+          <div style="font-size:0.65rem;color:var(--muted2);">${year}</div>
+        </div>
+        <div class="event-info" style="flex:1;">
+          <strong style="font-size:1rem;">${ev.name}</strong>
+          <span>${[ev.venue, ev.city].filter(Boolean).join(' · ')}</span>
+          ${ev.genre ? `<span style="display:inline-block;margin-top:4px;font-size:0.7rem;font-weight:600;padding:2px 10px;border-radius:100px;background:rgba(139,92,246,0.12);border:1px solid rgba(139,92,246,0.3);color:var(--purple-l);">${ev.genre}</span>` : ''}
+        </div>
+        <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;justify-content:flex-end;">
+          ${isPast ? '<span class="badge badge-purple" style="font-size:0.7rem;">Pasado</span>' : '<span class="badge badge-green" style="font-size:0.7rem;">Próximo</span>'}
+          ${!isPast && ev.ticket_url && ev.ticket_url!=='#' ? `<a href="${ev.ticket_url}" target="_blank" class="btn btn-primary btn-sm" style="font-size:0.78rem;">🎟️ Entradas</a>` : (!isPast && ev.ticket_url==='#' ? `<span class="btn btn-primary btn-sm" style="font-size:0.78rem;opacity:0.7;cursor:default;">🎟️ Entradas</span>` : '')}
+        </div>
+      </div>`;
+    }).join('');
+
+    const btn = document.getElementById('demoEvMore');
+    if (list.length > EV_LIMIT) {
+      btn.style.display = '';
+      btn.textContent = _demoExpanded ? 'Ver menos ↑' : `Ver ${list.length - EV_LIMIT} más ↓`;
+    } else { btn.style.display = 'none'; }
+  }
+
+  demoEvRender();
 </script>
 
 </body>
