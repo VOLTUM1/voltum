@@ -678,25 +678,12 @@ function showUserDetail(userId) {
 
 // ─── TOGGLE MEMBRESÍA ──────────────────────────────────────
 async function toggleMembership(userId, action) {
-  if (action === 'activate') {
-    const starts = new Date();
-    const expires = new Date(starts);
-    expires.setMonth(expires.getMonth() + 1);
-    const { error } = await sb.from('memberships').upsert({
-      user_id: userId, status: 'active',
-      payment_id: 'ADMIN_' + Date.now(),
-      amount: 11990,
-      starts_at: starts.toISOString(),
-      expires_at: expires.toISOString()
-    }, { onConflict: 'user_id' });
-    if (error) { showToast('Error: ' + error.message, 'error'); return; }
-    showToast('Membresía activada', 'success');
-  } else {
-    const { error } = await sb.from('memberships').update({ status: 'expired' }).eq('user_id', userId);
+  if (action === 'cancel') {
+    const { error } = await sb.rpc('admin_cancel_membership', { target_user_id: userId });
     if (error) { showToast('Error: ' + error.message, 'error'); return; }
     showToast('Membresía cancelada', 'info');
+    await loadAll();
   }
-  await loadAll();
 }
 
 // ─── MODAL ACTIVAR MEMBRESÍA GRATIS ────────────────────────
@@ -786,14 +773,10 @@ document.getElementById('confirmActivate').addEventListener('click', async () =>
   const expires = new Date(starts);
   expires.setDate(expires.getDate() + _activateDays);
 
-  const { error } = await sb.from('memberships').upsert({
-    user_id:    _activateUserId,
-    status:     'active',
-    payment_id: 'ADMIN_FREE_' + Date.now(),
-    amount:     0,
-    starts_at:  starts.toISOString(),
-    expires_at: expires.toISOString()
-  }, { onConflict: 'user_id' });
+  const { error } = await sb.rpc('admin_activate_membership', {
+    target_user_id: _activateUserId,
+    days: _activateDays
+  });
 
   btn.textContent = 'Confirmar activación';
 
