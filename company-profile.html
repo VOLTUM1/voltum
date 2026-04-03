@@ -25,6 +25,7 @@
       .sidebar { display: none; }
       .main-content { margin-left: 0; padding: 20px 16px; }
       .form-grid { grid-template-columns: 1fr; }
+      .custom-link-row { grid-template-columns: 1fr !important; }
     }
   </style>
 </head>
@@ -114,11 +115,72 @@
           <label class="form-label">Teléfono / WhatsApp</label>
           <input type="tel" id="contactPhone" class="form-input" placeholder="+56 9 xxxx xxxx">
         </div>
+      </div>
+    </div>
+
+    <!-- REDES SOCIALES -->
+    <div class="form-card">
+      <div class="form-card-title">Redes sociales</div>
+      <div class="form-grid">
         <div class="form-group">
           <label class="form-label">Instagram</label>
-          <input type="text" id="companyInstagram" class="form-input" placeholder="@tuempresa">
+          <div style="display:flex;align-items:center;gap:8px;">
+            <span style="color:var(--muted2);font-size:0.9rem;flex-shrink:0;">@</span>
+            <input type="text" id="companyInstagram" class="form-input" placeholder="tuempresa">
+          </div>
+        </div>
+        <div class="form-group">
+          <label class="form-label">TikTok</label>
+          <div style="display:flex;align-items:center;gap:8px;">
+            <span style="color:var(--muted2);font-size:0.9rem;flex-shrink:0;">@</span>
+            <input type="text" id="companyTiktok" class="form-input" placeholder="tuempresa">
+          </div>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Facebook</label>
+          <input type="url" id="companyFacebook" class="form-input" placeholder="https://facebook.com/tuempresa">
+        </div>
+        <div class="form-group">
+          <label class="form-label">YouTube</label>
+          <input type="url" id="companyYoutube" class="form-input" placeholder="https://youtube.com/@tuempresa">
+        </div>
+        <div class="form-group">
+          <label class="form-label">LinkedIn</label>
+          <input type="url" id="companyLinkedin" class="form-input" placeholder="https://linkedin.com/company/tuempresa">
+        </div>
+        <div class="form-group">
+          <label class="form-label">Twitter / X</label>
+          <div style="display:flex;align-items:center;gap:8px;">
+            <span style="color:var(--muted2);font-size:0.9rem;flex-shrink:0;">@</span>
+            <input type="text" id="companyTwitter" class="form-input" placeholder="tuempresa">
+          </div>
         </div>
       </div>
+    </div>
+
+    <!-- LINKS PERSONALIZADOS -->
+    <div class="form-card">
+      <div class="form-card-title">Links personalizados</div>
+      <p style="font-size:0.82rem;color:var(--muted);margin-bottom:20px;">Agrega hasta 4 enlaces a tu elección. El nombre que pongas es el que verán los DJs.</p>
+      <div style="display:flex;flex-direction:column;gap:14px;">
+        <div class="custom-link-row" style="display:grid;grid-template-columns:180px 1fr;gap:10px;align-items:center;">
+          <input type="text" id="link1Label" class="form-input" placeholder="Nombre del link" style="font-size:0.875rem;">
+          <input type="url"  id="link1Url"   class="form-input" placeholder="https://...">
+        </div>
+        <div class="custom-link-row" style="display:grid;grid-template-columns:180px 1fr;gap:10px;align-items:center;">
+          <input type="text" id="link2Label" class="form-input" placeholder="Nombre del link" style="font-size:0.875rem;">
+          <input type="url"  id="link2Url"   class="form-input" placeholder="https://...">
+        </div>
+        <div class="custom-link-row" style="display:grid;grid-template-columns:180px 1fr;gap:10px;align-items:center;">
+          <input type="text" id="link3Label" class="form-input" placeholder="Nombre del link" style="font-size:0.875rem;">
+          <input type="url"  id="link3Url"   class="form-input" placeholder="https://...">
+        </div>
+        <div class="custom-link-row" style="display:grid;grid-template-columns:180px 1fr;gap:10px;align-items:center;">
+          <input type="text" id="link4Label" class="form-input" placeholder="Nombre del link" style="font-size:0.875rem;">
+          <input type="url"  id="link4Url"   class="form-input" placeholder="https://...">
+        </div>
+      </div>
+      <p style="font-size:0.78rem;color:var(--muted2);margin-top:12px;">Ejemplos: "Nuestro sitio", "Próximo evento", "Portfolio", "Spotify"…</p>
     </div>
 
     <div style="display:flex;justify-content:flex-end;gap:12px;">
@@ -158,14 +220,27 @@
   // Cargar datos existentes
   const { data: company } = await sb.from('companies').select('*').eq('user_id', user.id).single();
   if (company) {
-    document.getElementById('companyName').value     = company.name || '';
-    document.getElementById('companyType').value     = company.type || '';
-    document.getElementById('companyCity').value     = company.city || '';
-    document.getElementById('companyWebsite').value  = company.website || '';
-    document.getElementById('companyBio').value      = company.bio || '';
-    document.getElementById('contactName').value     = company.contact_name || '';
-    document.getElementById('contactPhone').value    = company.contact_phone || '';
+    document.getElementById('companyName').value      = company.name || '';
+    document.getElementById('companyType').value      = company.type || '';
+    document.getElementById('companyCity').value      = company.city || '';
+    document.getElementById('companyWebsite').value   = company.website || '';
+    document.getElementById('companyBio').value       = company.bio || '';
+    document.getElementById('contactName').value      = company.contact_name || '';
+    document.getElementById('contactPhone').value     = company.contact_phone || '';
     document.getElementById('companyInstagram').value = company.instagram || '';
+    document.getElementById('companyTiktok').value    = company.tiktok || '';
+    document.getElementById('companyFacebook').value  = company.facebook || '';
+    document.getElementById('companyYoutube').value   = company.youtube || '';
+    document.getElementById('companyLinkedin').value  = company.linkedin || '';
+    document.getElementById('companyTwitter').value   = company.twitter || '';
+    document.getElementById('link1Label').value       = company.custom_link1_label || '';
+    document.getElementById('link1Url').value         = company.custom_link1_url || '';
+    document.getElementById('link2Label').value       = company.custom_link2_label || '';
+    document.getElementById('link2Url').value         = company.custom_link2_url || '';
+    document.getElementById('link3Label').value       = company.custom_link3_label || '';
+    document.getElementById('link3Url').value         = company.custom_link3_url || '';
+    document.getElementById('link4Label').value       = company.custom_link4_label || '';
+    document.getElementById('link4Url').value         = company.custom_link4_url || '';
   }
 
   // Guardar
@@ -177,15 +252,28 @@
     btn.disabled = true; btn.textContent = 'Guardando...';
 
     const { error } = await sb.from('companies').upsert({
-      user_id:       user.id,
-      name:          name,
-      type:          document.getElementById('companyType').value || null,
-      city:          document.getElementById('companyCity').value.trim() || null,
-      website:       document.getElementById('companyWebsite').value.trim() || null,
-      bio:           document.getElementById('companyBio').value.trim() || null,
-      contact_name:  document.getElementById('contactName').value.trim() || null,
-      contact_phone: document.getElementById('contactPhone').value.trim() || null,
-      instagram:     document.getElementById('companyInstagram').value.trim().replace(/^@/, '') || null,
+      user_id:              user.id,
+      name:                 name,
+      type:                 document.getElementById('companyType').value || null,
+      city:                 document.getElementById('companyCity').value.trim() || null,
+      website:              document.getElementById('companyWebsite').value.trim() || null,
+      bio:                  document.getElementById('companyBio').value.trim() || null,
+      contact_name:         document.getElementById('contactName').value.trim() || null,
+      contact_phone:        document.getElementById('contactPhone').value.trim() || null,
+      instagram:            document.getElementById('companyInstagram').value.trim().replace(/^@/, '') || null,
+      tiktok:               document.getElementById('companyTiktok').value.trim().replace(/^@/, '') || null,
+      facebook:             document.getElementById('companyFacebook').value.trim() || null,
+      youtube:              document.getElementById('companyYoutube').value.trim() || null,
+      linkedin:             document.getElementById('companyLinkedin').value.trim() || null,
+      twitter:              document.getElementById('companyTwitter').value.trim().replace(/^@/, '') || null,
+      custom_link1_label:   document.getElementById('link1Label').value.trim() || null,
+      custom_link1_url:     document.getElementById('link1Url').value.trim() || null,
+      custom_link2_label:   document.getElementById('link2Label').value.trim() || null,
+      custom_link2_url:     document.getElementById('link2Url').value.trim() || null,
+      custom_link3_label:   document.getElementById('link3Label').value.trim() || null,
+      custom_link3_url:     document.getElementById('link3Url').value.trim() || null,
+      custom_link4_label:   document.getElementById('link4Label').value.trim() || null,
+      custom_link4_url:     document.getElementById('link4Url').value.trim() || null,
     }, { onConflict: 'user_id' });
 
     // También actualizar dj_name en profiles para que el sidebar muestre el nombre correcto
