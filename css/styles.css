@@ -377,7 +377,12 @@ footer { padding: 60px 0 32px; border-top: 1px solid var(--border2); background:
 
 .events-list  { margin-bottom: 16px; }
 .event-item   { display: flex; align-items: center; gap: 12px; padding: 14px 16px; border-radius: var(--radius); background: var(--card); border: 1px solid var(--border2); margin-bottom: 8px; }
+.event-item.event-featured { border-color: rgba(251,191,36,0.4); background: rgba(251,191,36,0.04); }
 .event-date-badge { background: rgba(139,92,246,0.1); border: 1px solid var(--border); border-radius: 10px; padding: 8px 12px; text-align: center; min-width: 56px; flex-shrink: 0; }
+.featured-btn { font-size: 1rem; opacity: 0.4; transition: opacity 0.15s, color 0.15s; padding: 4px 6px !important; }
+.featured-btn:hover:not(:disabled) { opacity: 1; }
+.featured-btn.active { opacity: 1; color: #f59e0b; }
+.featured-btn:disabled { cursor: not-allowed; }
 .event-date-month { font-size: 0.7rem; color: var(--purple-l); font-weight: 700; text-transform: uppercase; }
 .event-date-day   { font-size: 1.3rem; font-weight: 800; line-height: 1; }
 .event-info        { flex: 1; }

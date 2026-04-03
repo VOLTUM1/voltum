@@ -743,34 +743,44 @@ async function renderPressKit(p, events) {
     socEl.innerHTML = socialsHtml;
   } else document.getElementById('socialSection').style.display = 'none';
 
-  // Eventos
-  if (events.length) {
-    document.getElementById('pkEvents').innerHTML = events.map(ev => {
-      const d = new Date(ev.date + 'T12:00:00');
-      const month = d.toLocaleDateString('es-CL', { month: 'short' }).toUpperCase();
-      const day = d.getDate();
-      const year = d.getFullYear();
-      const isPast = d < new Date();
-      return `
-      <div class="pk-event" style="${isPast ? 'opacity:0.6' : ''}">
-        <div class="event-date-badge">
-          <div class="event-date-month">${month}</div>
-          <div class="event-date-day">${day}</div>
-          <div style="font-size:0.65rem;color:var(--muted2);">${year}</div>
-        </div>
-        <div class="event-info" style="flex:1;">
-          <strong style="font-size:1rem;">${ev.name}</strong>
-          <span>${[ev.venue, ev.city].filter(Boolean).join(' · ')}</span>
-          ${ev.genre ? `<span style="display:inline-block;margin-top:4px;font-size:0.7rem;font-weight:600;padding:2px 10px;border-radius:100px;background:rgba(139,92,246,0.12);border:1px solid rgba(139,92,246,0.3);color:var(--purple-l);">${ev.genre}</span>` : ''}
-        </div>
-        <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;justify-content:flex-end;">
-          ${isPast ? '<span class="badge badge-purple" style="font-size:0.7rem;">Pasado</span>' : '<span class="badge badge-green" style="font-size:0.7rem;">Próximo</span>'}
-          ${ev.flyer_url ? `<img src="${ev.flyer_url}" alt="Flyer" loading="lazy" style="height:44px;width:44px;border-radius:6px;border:1px solid var(--border2);object-fit:cover;cursor:pointer;flex-shrink:0;" onclick="openFlyer('${ev.flyer_url}','${ev.name.replace(/'/g,"\\'")}')">` : ''}
-          ${!isPast && ev.ticket_url ? `<a href="${ev.ticket_url}" target="_blank" rel="noopener" class="btn btn-primary btn-sm" style="font-size:0.78rem;white-space:nowrap;">🎟️ Entradas</a>` : ''}
-        </div>
-      </div>`;
-    }).join('');
-  } else document.getElementById('eventsSection').style.display = 'none';
+  // Eventos: mostrar destacados (si hay), si no mostrar próximos
+  {
+    const now = new Date();
+    const featured  = events.filter(ev => ev.featured);
+    const upcoming  = events.filter(ev => !ev.featured && new Date(ev.date + 'T12:00:00') >= now);
+    const toShow    = featured.length ? featured : upcoming;
+    const isFeaturedMode = featured.length > 0;
+
+    if (toShow.length) {
+      document.querySelector('#eventsSection .presskit-section-title').textContent =
+        isFeaturedMode ? 'Fechas destacadas' : 'Próximas fechas';
+      document.getElementById('pkEvents').innerHTML = toShow.map(ev => {
+        const d = new Date(ev.date + 'T12:00:00');
+        const month = d.toLocaleDateString('es-CL', { month: 'short' }).toUpperCase();
+        const day  = d.getDate();
+        const year = d.getFullYear();
+        const isPast = d < now;
+        return `
+        <div class="pk-event" style="${isPast && isFeaturedMode ? 'opacity:0.7' : ''}">
+          <div class="event-date-badge">
+            <div class="event-date-month">${month}</div>
+            <div class="event-date-day">${day}</div>
+            <div style="font-size:0.65rem;color:var(--muted2);">${year}</div>
+          </div>
+          <div class="event-info" style="flex:1;">
+            <strong style="font-size:1rem;">${ev.name}</strong>
+            <span>${[ev.venue, ev.city].filter(Boolean).join(' · ')}</span>
+            ${ev.genre ? `<span style="display:inline-block;margin-top:4px;font-size:0.7rem;font-weight:600;padding:2px 10px;border-radius:100px;background:rgba(139,92,246,0.12);border:1px solid rgba(139,92,246,0.3);color:var(--purple-l);">${ev.genre}</span>` : ''}
+          </div>
+          <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;justify-content:flex-end;">
+            ${isPast ? '<span class="badge badge-purple" style="font-size:0.7rem;">Pasado</span>' : '<span class="badge badge-green" style="font-size:0.7rem;">Próximo</span>'}
+            ${ev.flyer_url ? `<img src="${ev.flyer_url}" alt="Flyer" loading="lazy" style="height:44px;width:44px;border-radius:6px;border:1px solid var(--border2);object-fit:cover;cursor:pointer;flex-shrink:0;" onclick="openFlyer('${ev.flyer_url}','${ev.name.replace(/'/g,"\\'")}')">` : ''}
+            ${!isPast && ev.ticket_url ? `<a href="${ev.ticket_url}" target="_blank" rel="noopener" class="btn btn-primary btn-sm" style="font-size:0.78rem;white-space:nowrap;">🎟️ Entradas</a>` : ''}
+          </div>
+        </div>`;
+      }).join('');
+    } else document.getElementById('eventsSection').style.display = 'none';
+  }
 
   // SoundCloud custom player
   if (p.social_soundcloud) {
@@ -920,20 +930,28 @@ async function renderCompany(p, events) {
     document.querySelector('#riderSection h2') && (document.querySelector('#riderSection h2').textContent = 'Servicios');
   } else document.getElementById('riderSection').style.display = 'none';
 
-  // Eventos
-  if (events.length) {
-    document.getElementById('pkEvents').innerHTML = events.map(ev => {
-      const d = new Date(ev.date + 'T12:00:00');
-      const month = d.toLocaleDateString('es-CL', { month: 'short' }).toUpperCase();
-      const day = d.getDate();
-      const isPast = d < new Date();
-      return `<div class="pk-event" style="${isPast ? 'opacity:0.6' : ''}">
-        <div class="event-date-badge"><div class="event-date-month">${month}</div><div class="event-date-day">${day}</div></div>
-        <div class="event-info" style="flex:1;"><strong>${ev.name}</strong><span>${[ev.venue, ev.city].filter(Boolean).join(' · ')}</span></div>
-        ${!isPast && ev.ticket_url ? `<a href="${ev.ticket_url}" target="_blank" class="btn btn-primary btn-sm" style="font-size:0.78rem;">🎟️ Entradas</a>` : ''}
-      </div>`;
-    }).join('');
-  } else document.getElementById('eventsSection').style.display = 'none';
+  // Eventos: mostrar destacados (si hay), si no mostrar próximos
+  {
+    const now2 = new Date();
+    const featured2 = events.filter(ev => ev.featured);
+    const upcoming2 = events.filter(ev => !ev.featured && new Date(ev.date + 'T12:00:00') >= now2);
+    const toShow2   = featured2.length ? featured2 : upcoming2;
+    if (toShow2.length) {
+      document.querySelector('#eventsSection .presskit-section-title').textContent =
+        featured2.length ? 'Fechas destacadas' : 'Próximas fechas';
+      document.getElementById('pkEvents').innerHTML = toShow2.map(ev => {
+        const d = new Date(ev.date + 'T12:00:00');
+        const month = d.toLocaleDateString('es-CL', { month: 'short' }).toUpperCase();
+        const day   = d.getDate();
+        const isPast = d < now2;
+        return `<div class="pk-event" style="${isPast ? 'opacity:0.65' : ''}">
+          <div class="event-date-badge"><div class="event-date-month">${month}</div><div class="event-date-day">${day}</div></div>
+          <div class="event-info" style="flex:1;"><strong>${ev.name}</strong><span>${[ev.venue, ev.city].filter(Boolean).join(' · ')}</span></div>
+          ${!isPast && ev.ticket_url ? `<a href="${ev.ticket_url}" target="_blank" class="btn btn-primary btn-sm" style="font-size:0.78rem;">🎟️ Entradas</a>` : ''}
+        </div>`;
+      }).join('');
+    } else document.getElementById('eventsSection').style.display = 'none';
+  }
 
   // Galería
   if (p.gallery_urls?.length) {
