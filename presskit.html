@@ -177,13 +177,34 @@
     @media (max-width: 600px) {
       .pk-nav { padding: 12px 16px; }
       .demo-badge { font-size: 0.8rem; padding: 10px 18px; bottom: 16px; max-width: calc(100vw - 32px); }
-      .pk-event { flex-wrap: wrap; gap: 10px; }
-      .pk-event > div:last-child { width: 100%; display: flex; gap: 8px; flex-wrap: wrap; align-items: center; }
       .sp-grid, .sc-grid { grid-template-columns: repeat(auto-fill, minmax(130px, 1fr)); }
       .pk-social-btn { font-size: 0.8rem; padding: 8px 12px; }
+
+      /* Pills header: apila título y pills */
+      #eventsSection > div:first-child { flex-direction: column; align-items: flex-start; gap: 8px; }
+      #evFilterPills { gap: 5px; }
+      #evFilterPills button { font-size: 0.68rem !important; padding: 4px 10px !important; }
+
+      /* Event card */
+      .pk-event { padding: 11px 12px; gap: 10px; align-items: flex-start; }
+      .event-date-badge { padding: 6px 9px; min-width: 46px; }
+      .event-date-badge .event-date-day { font-size: 1.15rem; }
+      .event-info strong { font-size: 0.92rem !important; }
+
+      /* Fila de acciones: ancho completo, alineada a la izquierda */
+      .pk-ev-actions {
+        width: 100%;
+        display: flex !important;
+        gap: 7px;
+        flex-wrap: wrap;
+        align-items: center;
+        justify-content: flex-start !important;
+      }
+      .pk-ev-actions img { height: 34px !important; width: 34px !important; border-radius: 5px !important; }
     }
     @media (max-width: 400px) {
       .sp-grid, .sc-grid { grid-template-columns: repeat(2, 1fr); }
+      .pk-event { padding: 10px; }
     }
   </style>
 </head>
@@ -761,10 +782,10 @@ function pkEvRender() {
         <span>${[ev.venue, ev.city].filter(Boolean).join(' · ')}</span>
         ${ev.genre ? `<span style="display:inline-block;margin-top:4px;font-size:0.7rem;font-weight:600;padding:2px 10px;border-radius:100px;background:rgba(139,92,246,0.12);border:1px solid rgba(139,92,246,0.3);color:var(--purple-l);">${ev.genre}</span>` : ''}
       </div>
-      <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;justify-content:flex-end;">
+      <div class="pk-ev-actions" style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;justify-content:flex-end;">
         ${isPast ? '<span class="badge badge-purple" style="font-size:0.7rem;">Pasado</span>' : '<span class="badge badge-green" style="font-size:0.7rem;">Próximo</span>'}
-        ${ev.flyer_url ? `<img src="${ev.flyer_url}" alt="Flyer" loading="lazy" style="height:44px;width:44px;border-radius:6px;border:1px solid var(--border2);object-fit:cover;cursor:pointer;flex-shrink:0;" onclick="openFlyer('${ev.flyer_url}','${ev.name.replace(/'/g,"\\'")}')">` : ''}
         ${!isPast && ev.ticket_url ? `<a href="${ev.ticket_url}" target="_blank" rel="noopener" class="btn btn-primary btn-sm" style="font-size:0.78rem;white-space:nowrap;">🎟️ Entradas</a>` : ''}
+        ${ev.flyer_url ? `<img src="${ev.flyer_url}" alt="Flyer" loading="lazy" style="height:44px;width:44px;border-radius:6px;border:1px solid var(--border2);object-fit:cover;cursor:pointer;flex-shrink:0;" onclick="openFlyer('${ev.flyer_url}','${ev.name.replace(/'/g,"\\'")}')">` : ''}
       </div>
     </div>`;
   }).join('');
