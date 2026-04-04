@@ -39,12 +39,14 @@
       border-radius: var(--radius-lg); background: var(--card);
       border: 1px solid var(--border2); align-items: center; flex-wrap: wrap;
     }
-    .event-date-badge { background: rgba(139,92,246,0.1); border: 1px solid var(--border); border-radius: 10px; padding: 8px 12px; text-align: center; min-width: 56px; flex-shrink: 0; }
+    .pk-event { align-items: flex-start; gap: 14px; padding: 16px 18px; }
+    .event-date-badge { background: rgba(139,92,246,0.1); border: 1px solid var(--border); border-radius: 10px; padding: 8px 12px; text-align: center; min-width: 52px; flex-shrink: 0; }
     .event-date-month { font-size: 0.7rem; color: var(--purple-l); font-weight: 700; text-transform: uppercase; }
     .event-date-day   { font-size: 1.3rem; font-weight: 800; line-height: 1; }
-    .event-info       { flex: 1; }
-    .event-info strong { font-size: 0.95rem; }
-    .event-info span  { font-size: 0.8rem; color: var(--muted); display: block; }
+    .pk-ev-body       { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 3px; }
+    .pk-ev-body strong { font-size: 0.97rem; font-weight: 700; color: var(--text); }
+    .pk-ev-meta       { font-size: 0.8rem; color: var(--muted); }
+    .pk-ev-actions    { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; margin-top: 7px; }
 
     /* ── Demo badge ── */
     .demo-badge {
@@ -184,23 +186,11 @@
 
       /* Pills header */
       #demoEventsSection > div:first-child { flex-direction: column; align-items: flex-start; gap: 8px; }
-      #demoEvPills { gap: 5px; }
       #demoEvPills button { font-size: 0.68rem !important; padding: 4px 10px !important; }
 
       /* Event card */
-      .pk-event { padding: 11px 12px; gap: 10px; align-items: flex-start; }
-      .event-date-badge { padding: 6px 9px; min-width: 46px; }
-      .event-date-day   { font-size: 1.15rem; }
-      .event-info strong { font-size: 0.92rem !important; }
-      .pk-ev-actions {
-        width: 100%;
-        display: flex !important;
-        gap: 7px;
-        flex-wrap: wrap;
-        align-items: center;
-        justify-content: flex-start !important;
-      }
-      .pk-ev-actions img { height: 34px !important; width: 34px !important; border-radius: 5px !important; }
+      .pk-event { padding: 12px 13px; gap: 11px; }
+      .event-date-badge { padding: 7px 10px; min-width: 46px; }
     }
     @media (max-width: 400px) {
       .gallery-grid { grid-template-columns: repeat(2, 1fr); }
@@ -682,16 +672,16 @@ Disponible para bookings nacionales e internacionales. Rider técnico completo y
         <div class="event-date-badge">
           <div class="event-date-month">${month}</div>
           <div class="event-date-day">${day}</div>
-          <div style="font-size:0.65rem;color:var(--muted2);">${year}</div>
+          <div style="font-size:0.62rem;color:var(--muted2);margin-top:1px;">${year}</div>
         </div>
-        <div class="event-info" style="flex:1;">
-          <strong style="font-size:1rem;">${ev.name}</strong>
-          <span>${[ev.venue, ev.city].filter(Boolean).join(' · ')}</span>
-          ${ev.genre ? `<span style="display:inline-block;margin-top:4px;font-size:0.7rem;font-weight:600;padding:2px 10px;border-radius:100px;background:rgba(139,92,246,0.12);border:1px solid rgba(139,92,246,0.3);color:var(--purple-l);">${ev.genre}</span>` : ''}
-        </div>
-        <div class="pk-ev-actions" style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;justify-content:flex-end;">
-          ${isPast ? '<span class="badge badge-purple" style="font-size:0.7rem;">Pasado</span>' : '<span class="badge badge-green" style="font-size:0.7rem;">Próximo</span>'}
-          ${!isPast && ev.ticket_url && ev.ticket_url!=='#' ? `<a href="${ev.ticket_url}" target="_blank" class="btn btn-primary btn-sm" style="font-size:0.78rem;">🎟️ Entradas</a>` : (!isPast && ev.ticket_url==='#' ? `<span class="btn btn-primary btn-sm" style="font-size:0.78rem;opacity:0.7;cursor:default;">🎟️ Entradas</span>` : '')}
+        <div class="pk-ev-body">
+          <strong>${ev.name}</strong>
+          ${[ev.venue, ev.city].filter(Boolean).length ? `<span class="pk-ev-meta">${[ev.venue, ev.city].filter(Boolean).join(' · ')}</span>` : ''}
+          <div class="pk-ev-actions">
+            ${isPast ? '<span class="badge badge-purple" style="font-size:0.68rem;">Pasado</span>' : '<span class="badge badge-green" style="font-size:0.68rem;">Próximo</span>'}
+            ${ev.genre ? `<span style="font-size:0.68rem;font-weight:600;padding:2px 9px;border-radius:100px;background:rgba(139,92,246,0.12);border:1px solid rgba(139,92,246,0.3);color:var(--purple-l);">${ev.genre}</span>` : ''}
+            ${!isPast && ev.ticket_url && ev.ticket_url!=='#' ? `<a href="${ev.ticket_url}" target="_blank" class="btn btn-primary btn-sm" style="font-size:0.75rem;padding:4px 12px;">🎟️ Entradas</a>` : (!isPast && ev.ticket_url==='#' ? `<span class="btn btn-primary btn-sm" style="font-size:0.75rem;padding:4px 12px;opacity:0.7;cursor:default;">🎟️ Entradas</span>` : '')}
+          </div>
         </div>
       </div>`;
     }).join('');

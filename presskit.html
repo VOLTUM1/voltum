@@ -29,7 +29,11 @@
     }
     .pk-social-btn:hover { border-color: var(--border); color: var(--text); background: var(--card-hover); }
     .pk-event-grid { display: grid; gap: 10px; }
-    .pk-event { display: flex; gap: 16px; padding: 16px 20px; border-radius: var(--radius-lg); background: var(--card); border: 1px solid var(--border2); align-items: center; }
+    .pk-event { display: flex; gap: 14px; padding: 16px 18px; border-radius: var(--radius-lg); background: var(--card); border: 1px solid var(--border2); align-items: flex-start; }
+    .pk-ev-body { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 3px; }
+    .pk-ev-body strong { font-size: 0.97rem; font-weight: 700; color: var(--text); }
+    .pk-ev-body .pk-ev-meta { font-size: 0.8rem; color: var(--muted); }
+    .pk-ev-actions { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; margin-top: 7px; }
     .demo-badge {
       position: fixed; bottom: 24px; left: 50%; transform: translateX(-50%);
       padding: 12px 28px; border-radius: 100px; z-index: 200;
@@ -182,25 +186,12 @@
 
       /* Pills header: apila título y pills */
       #eventsSection > div:first-child { flex-direction: column; align-items: flex-start; gap: 8px; }
-      #evFilterPills { gap: 5px; }
       #evFilterPills button { font-size: 0.68rem !important; padding: 4px 10px !important; }
 
       /* Event card */
-      .pk-event { padding: 11px 12px; gap: 10px; align-items: flex-start; }
-      .event-date-badge { padding: 6px 9px; min-width: 46px; }
-      .event-date-badge .event-date-day { font-size: 1.15rem; }
-      .event-info strong { font-size: 0.92rem !important; }
-
-      /* Fila de acciones: ancho completo, alineada a la izquierda */
-      .pk-ev-actions {
-        width: 100%;
-        display: flex !important;
-        gap: 7px;
-        flex-wrap: wrap;
-        align-items: center;
-        justify-content: flex-start !important;
-      }
-      .pk-ev-actions img { height: 34px !important; width: 34px !important; border-radius: 5px !important; }
+      .pk-event { padding: 12px 13px; gap: 11px; }
+      .event-date-badge { padding: 7px 10px; min-width: 48px; }
+      .pk-ev-actions img { height: 32px !important; width: 32px !important; }
     }
     @media (max-width: 400px) {
       .sp-grid, .sc-grid { grid-template-columns: repeat(2, 1fr); }
@@ -775,17 +766,17 @@ function pkEvRender() {
       <div class="event-date-badge">
         <div class="event-date-month">${month}</div>
         <div class="event-date-day">${day}</div>
-        <div style="font-size:0.65rem;color:var(--muted2);">${year}</div>
+        <div style="font-size:0.62rem;color:var(--muted2);margin-top:1px;">${year}</div>
       </div>
-      <div class="event-info" style="flex:1;">
-        <strong style="font-size:1rem;">${ev.name}</strong>
-        <span>${[ev.venue, ev.city].filter(Boolean).join(' · ')}</span>
-        ${ev.genre ? `<span style="display:inline-block;margin-top:4px;font-size:0.7rem;font-weight:600;padding:2px 10px;border-radius:100px;background:rgba(139,92,246,0.12);border:1px solid rgba(139,92,246,0.3);color:var(--purple-l);">${ev.genre}</span>` : ''}
-      </div>
-      <div class="pk-ev-actions" style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;justify-content:flex-end;">
-        ${isPast ? '<span class="badge badge-purple" style="font-size:0.7rem;">Pasado</span>' : '<span class="badge badge-green" style="font-size:0.7rem;">Próximo</span>'}
-        ${!isPast && ev.ticket_url ? `<a href="${ev.ticket_url}" target="_blank" rel="noopener" class="btn btn-primary btn-sm" style="font-size:0.78rem;white-space:nowrap;">🎟️ Entradas</a>` : ''}
-        ${ev.flyer_url ? `<img src="${ev.flyer_url}" alt="Flyer" loading="lazy" style="height:44px;width:44px;border-radius:6px;border:1px solid var(--border2);object-fit:cover;cursor:pointer;flex-shrink:0;" onclick="openFlyer('${ev.flyer_url}','${ev.name.replace(/'/g,"\\'")}')">` : ''}
+      <div class="pk-ev-body">
+        <strong>${ev.name}</strong>
+        ${[ev.venue, ev.city].filter(Boolean).length ? `<span class="pk-ev-meta">${[ev.venue, ev.city].filter(Boolean).join(' · ')}</span>` : ''}
+        <div class="pk-ev-actions">
+          ${isPast ? '<span class="badge badge-purple" style="font-size:0.68rem;">Pasado</span>' : '<span class="badge badge-green" style="font-size:0.68rem;">Próximo</span>'}
+          ${ev.genre ? `<span style="font-size:0.68rem;font-weight:600;padding:2px 9px;border-radius:100px;background:rgba(139,92,246,0.12);border:1px solid rgba(139,92,246,0.3);color:var(--purple-l);">${ev.genre}</span>` : ''}
+          ${!isPast && ev.ticket_url ? `<a href="${ev.ticket_url}" target="_blank" rel="noopener" class="btn btn-primary btn-sm" style="font-size:0.75rem;padding:4px 12px;white-space:nowrap;">🎟️ Entradas</a>` : ''}
+          ${ev.flyer_url ? `<img src="${ev.flyer_url}" alt="Flyer" loading="lazy" style="height:38px;width:38px;border-radius:6px;border:1px solid var(--border2);object-fit:cover;cursor:pointer;flex-shrink:0;margin-left:auto;" onclick="openFlyer('${ev.flyer_url}','${ev.name.replace(/'/g,"\\'")}')">` : ''}
+        </div>
       </div>
     </div>`;
   }).join('');
