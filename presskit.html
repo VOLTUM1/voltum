@@ -1769,24 +1769,24 @@ async function downloadPDF() {
   const djName   = (document.getElementById('pkName')?.textContent || 'presskit').trim();
   const filename = djName.toLowerCase().replace(/\s+/g,'-') + '-presskit.pdf';
 
-  // Montar template en un contenedor fuera de pantalla
+  // Montar template con ancho fijo para que el layout sea correcto al medir
+  const W_PX = 794;
   const wrap = document.createElement('div');
-  wrap.style.cssText = 'position:fixed;left:-9999px;top:0;z-index:-999;background:#050508;';
+  wrap.style.cssText = `position:fixed;left:-9999px;top:0;z-index:-999;width:${W_PX}px;background:#050508;`;
   wrap.innerHTML = buildPdfTemplate();
   document.body.appendChild(wrap);
 
-  // Esperar que las imágenes carguen (avatar, banner)
+  // Esperar imágenes Y que el layout termine de calcularse
   await Promise.allSettled(Array.from(wrap.querySelectorAll('img')).map(img=>
     new Promise(res=>{ if(img.complete) return res(); img.onload=img.onerror=res; })
   ));
+  await new Promise(res => setTimeout(res, 400)); // fonts + layout pass
 
-  // Medir la altura real del template para crear UNA sola página sin cortes
-  const el = wrap.firstElementChild;
-  const W_PX = 794;
-  const H_PX = el.scrollHeight;
-  // Convertir a mm manteniendo la proporción (210mm = ancho A4)
-  const W_MM = 210;
-  const H_MM = Math.ceil(H_PX * (W_MM / W_PX));
+  // Medir altura real después del layout estabilizado
+  const el   = wrap.firstElementChild;
+  const H_PX = el.getBoundingClientRect().height || el.scrollHeight;
+  const W_MM = 210; // ancho A4 en mm
+  const H_MM = Math.ceil(H_PX * (W_MM / W_PX)) + 10; // +10mm margen de seguridad
 
   try {
     await html2pdf().set({
@@ -1800,9 +1800,10 @@ async function downloadPDF() {
         backgroundColor: '#050508',
         logging:         false,
         windowWidth:     W_PX,
-        height:          H_PX,
+        scrollX:         0,
+        scrollY:         0,
       },
-      // Página custom que coincide exactamente con el alto del contenido → sin cortes
+      // Página de altura exacta al contenido → sin cortes
       jsPDF: { unit:'mm', format:[W_MM, H_MM], orientation:'portrait' },
     }).from(el).save();
   } catch(e) {
