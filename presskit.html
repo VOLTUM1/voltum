@@ -193,6 +193,95 @@
       .sp-grid, .sc-grid { grid-template-columns: repeat(2, 1fr); }
       .pk-event { padding: 10px; }
     }
+
+    /* ── PDF / Print ── */
+    @media print {
+      /* Reset colores a blanco/negro para legibilidad */
+      *, *::before, *::after {
+        color: #111 !important;
+        background: transparent !important;
+        box-shadow: none !important;
+        text-shadow: none !important;
+        border-color: #ddd !important;
+      }
+      body { background: #fff !important; font-size: 11pt; }
+
+      /* Ocultar elementos que no van en el PDF */
+      .pk-nav,
+      .demo-badge,
+      .booking-modal,
+      #lightbox,
+      #flyerModal,
+      #pkEv-featured-wrap .pk-ev-actions a,
+      .btn-primary,
+      .btn-outline,
+      #shareBtn,
+      #pdfBtn,
+      [id$="Spinner"],
+      .sc-footer,
+      .sc-nowplaying,
+      iframe { display: none !important; }
+
+      /* Banner: altura reducida, imagen de fondo visible */
+      .presskit-banner {
+        height: 160px !important;
+        -webkit-print-color-adjust: exact;
+        print-color-adjust: exact;
+        background-size: cover !important;
+        background-position: center !important;
+        border-radius: 0 !important;
+        margin-bottom: 0 !important;
+      }
+      .presskit-banner-overlay { display: none !important; }
+
+      /* Contenido principal sin padding-top por la nav fija */
+      .presskit-page { padding-top: 0 !important; }
+      #pkContent { display: block !important; }
+
+      /* Secciones */
+      .presskit-section {
+        border: 1px solid #e0e0e0 !important;
+        background: #fafafa !important;
+        break-inside: avoid;
+        page-break-inside: avoid;
+        margin-bottom: 16px !important;
+      }
+      .presskit-section-title { color: #111 !important; border-bottom: 1px solid #e0e0e0 !important; }
+
+      /* Header DJ */
+      .presskit-header { gap: 16px !important; padding: 16px 0 !important; }
+      .presskit-name   { color: #111 !important; font-size: 22pt !important; }
+      .presskit-avatar { border-color: #ddd !important; }
+
+      /* Etiquetas de color */
+      .badge-green  { background: #d1fae5 !important; color: #065f46 !important; border-color: #6ee7b7 !important; }
+      .badge-purple { background: #ede9fe !important; color: #5b21b6 !important; border-color: #c4b5fd !important; }
+
+      /* Géneros/tags */
+      [style*="rgba(139,92,246"] {
+        background: #ede9fe !important;
+        border-color: #c4b5fd !important;
+        color: #5b21b6 !important;
+      }
+
+      /* Grids de eventos y fotos */
+      .pk-event { background: #f5f5f5 !important; break-inside: avoid; }
+      .pk-ev-actions img { display: none !important; } /* ocultar flyeritos en print */
+
+      /* Sub-títulos de sección de eventos */
+      #pkEv-featured-wrap span,
+      #pkEv-upcoming-wrap span,
+      #pkEv-past-wrap span { color: #444 !important; }
+
+      /* Redes sociales: mostrar URL como texto */
+      .pk-social-btn { border: 1px solid #ccc !important; background: #f5f5f5 !important; }
+
+      /* Pie de página automático */
+      @page {
+        margin: 15mm 12mm;
+        size: A4 portrait;
+      }
+    }
   </style>
 </head>
 <body class="presskit-page">
@@ -204,6 +293,7 @@
     VOLTUM
   </a>
   <div style="display:flex;gap:8px;" id="pkNavActions">
+    <button id="pdfBtn" class="btn btn-ghost btn-sm" onclick="window.print()" title="Descargar como PDF">⬇️ PDF</button>
     <button id="shareBtn" class="btn btn-outline btn-sm">📤 Compartir</button>
   </div>
 </nav>
