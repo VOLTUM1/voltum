@@ -1287,7 +1287,6 @@ function renderEvents() {
     const month = d.toLocaleDateString('es-CL', { month: 'short' }).toUpperCase();
     const day   = d.getDate();
     const year  = d.getFullYear();
-    const canStar = ev.featured || featuredCount < 5;
     return `
     <div class="event-item${ev.featured ? ' event-featured' : ''}">
       <div class="event-date-badge" style="${dimmed ? 'opacity:0.5' : ''}">
@@ -1304,8 +1303,7 @@ function renderEvents() {
       ${ev.flyer_url ? `<img src="${ev.flyer_url}" alt="Flyer" style="height:44px;width:auto;border-radius:6px;border:1px solid var(--border2);object-fit:cover;cursor:pointer;" onclick="window.open('${ev.flyer_url}','_blank')">` : ''}
       <button class="btn btn-ghost btn-sm btn-icon featured-btn${ev.featured ? ' active' : ''}"
         onclick="toggleFeatured('${ev.id}')"
-        title="${ev.featured ? 'Quitar de destacados' : canStar ? 'Destacar en press kit' : 'Máximo 5 destacados'}"
-        ${!canStar ? 'disabled' : ''}>
+        title="${ev.featured ? 'Quitar de destacados' : 'Destacar en press kit'}">
         ${ev.featured ? '⭐' : '☆'}
       </button>
       <button class="btn btn-ghost btn-sm btn-icon" onclick="editEvent('${ev.id}')" title="Editar evento" style="color:var(--muted);">✏️</button>
@@ -1333,8 +1331,8 @@ function renderEvents() {
 
   let html = `<div style="background:var(--bg3);border:1px solid var(--border2);border-radius:var(--radius);margin-bottom:16px;overflow:hidden;">
     <div style="display:flex;justify-content:space-between;align-items:center;padding:10px 14px;">
-      <span style="font-size:0.82rem;color:var(--muted);">⭐ Destacados en press kit <span style="color:var(--muted2);font-size:0.78rem;">(máx. 5)</span></span>
-      <span style="font-size:0.88rem;font-weight:700;color:${featuredCount >= 5 ? '#f59e0b' : 'var(--purple-l)'};">${featuredCount}/5</span>
+      <span style="font-size:0.82rem;color:var(--muted);">⭐ Destacados en press kit</span>
+      <span style="font-size:0.88rem;font-weight:700;color:var(--purple-l);">${featuredCount}</span>
     </div>
     ${featuredCount > 1 ? `
     <div style="padding:0 14px 14px;">
