@@ -1791,14 +1791,18 @@ function downloadPDF() {
   btn.disabled  = true;
 
   try {
-    const win = window.open('', '_blank', 'width=900,height=700');
-    if (!win) {
-      showToast('Habilitá las ventanas emergentes para generar el PDF', 'error');
-      btn.innerHTML = orig; btn.disabled = false; return;
-    }
-    win.document.open();
-    win.document.write(buildPrintHTML());
-    win.document.close();
+    const html = buildPrintHTML();
+    // Blob URL: el browser no lo bloquea como popup
+    const blob = new Blob([html], { type: 'text/html;charset=utf-8' });
+    const url  = URL.createObjectURL(blob);
+    const a    = document.createElement('a');
+    a.href   = url;
+    a.target = '_blank';
+    a.rel    = 'noopener';
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    setTimeout(() => URL.revokeObjectURL(url), 60000);
   } catch(e) {
     showToast('Error al generar PDF', 'error');
     console.error(e);
