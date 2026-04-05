@@ -1780,22 +1780,31 @@ async function downloadPDF() {
     new Promise(res=>{ if(img.complete) return res(); img.onload=img.onerror=res; })
   ));
 
+  // Medir la altura real del template para crear UNA sola página sin cortes
+  const el = wrap.firstElementChild;
+  const W_PX = 794;
+  const H_PX = el.scrollHeight;
+  // Convertir a mm manteniendo la proporción (210mm = ancho A4)
+  const W_MM = 210;
+  const H_MM = Math.ceil(H_PX * (W_MM / W_PX));
+
   try {
     await html2pdf().set({
       margin:      0,
       filename,
       image:       { type:'jpeg', quality:0.96 },
       html2canvas: {
-        scale:           2.5,
+        scale:           2,
         useCORS:         true,
         allowTaint:      false,
         backgroundColor: '#050508',
         logging:         false,
-        windowWidth:     794,
+        windowWidth:     W_PX,
+        height:          H_PX,
       },
-      jsPDF:       { unit:'mm', format:'a4', orientation:'portrait' },
-      pagebreak:   { mode:'avoid-all' },
-    }).from(wrap.firstElementChild).save();
+      // Página custom que coincide exactamente con el alto del contenido → sin cortes
+      jsPDF: { unit:'mm', format:[W_MM, H_MM], orientation:'portrait' },
+    }).from(el).save();
   } catch(e) {
     showToast('Error al generar PDF. Intentá de nuevo.', 'error');
     console.error(e);
