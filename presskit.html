@@ -1640,33 +1640,19 @@ document.getElementById('lbImg').addEventListener('touchend', e => {
   _lbTouchX = null;
 }, { passive: true });
 
-// ── PDF: paleta de colores (sin CSS variables) ───────────────────────────────
-const PDF_C = {
-  bg:'#050508', bg3:'#0d0d1a', card:'#0f0f1e',
-  border:'rgba(255,255,255,0.07)',
-  purple:'#8B5CF6', purpleL:'#A78BFA',
-  green:'#34d399', gold:'#F59E0B',
-  text:'#F1F5F9', muted:'#94A3B8', muted2:'#475569',
-  pBg:'rgba(139,92,246,0.14)', pBdr:'rgba(139,92,246,0.32)',
-  gBg:'rgba(52,211,153,0.12)', gBdr:'rgba(52,211,153,0.30)',
-};
-
-// ── Template HTML dedicado para el PDF ──────────────────────────────────────
-function buildPdfTemplate() {
-  const C = PDF_C;
-
+// ── PDF: genera documento HTML completo para imprimir ────────────────────────
+function buildPrintHTML() {
   const name     = document.getElementById('pkName')?.textContent?.trim()     || '';
   const location = document.getElementById('pkLocation')?.textContent?.trim() || '';
   const bio      = document.getElementById('pkBio')?.textContent?.trim()      || '';
-  const avatarImg= document.getElementById('pkAvatar')?.querySelector('img');
-  const avatarSrc= avatarImg?.src || null;
+  const avatarSrc= document.getElementById('pkAvatar')?.querySelector('img')?.src || null;
   const avatarInit=(name.charAt(0)||'?').toUpperCase();
   const bannerBg = document.getElementById('pkBanner')?.style.backgroundImage || '';
 
   const genres  = Array.from(document.querySelectorAll('#pkGenres span')).map(e=>e.textContent.trim()).filter(Boolean);
   const socials = Array.from(document.querySelectorAll('#pkSocials a.pk-social-btn')).map(a=>a.textContent.trim().replace(/\s+/g,' '));
 
-  const extractEvents = id => Array.from(document.querySelectorAll(`#${id} .pk-event`)).map(card=>({
+  const getEvents = id => Array.from(document.querySelectorAll(`#${id} .pk-event`)).map(card=>({
     month: card.querySelector('.event-date-month')?.textContent?.trim()||'',
     day:   card.querySelector('.event-date-day')?.textContent?.trim()||'',
     year:  card.querySelectorAll('.event-date-badge div')[2]?.textContent?.trim()||'',
@@ -1676,145 +1662,152 @@ function buildPdfTemplate() {
     isPast:!!card.querySelector('.badge-purple'),
   }));
 
-  const featured=extractEvents('pkEv-featured'), upcoming=extractEvents('pkEv-upcoming'), past=extractEvents('pkEv-past');
-  const hasEvents=featured.length+upcoming.length+past.length>0;
+  const featured = getEvents('pkEv-featured');
+  const upcoming = getEvents('pkEv-upcoming');
+  const past     = getEvents('pkEv-past');
+  const hasEv    = featured.length + upcoming.length + past.length > 0;
 
-  const bdg=(t,bg,bd,c)=>`<span style="font-size:0.57rem;font-weight:700;padding:2px 8px;border-radius:100px;background:${bg};border:1px solid ${bd};color:${c};">${t}</span>`;
-  const secTitle=(lbl,col=C.muted)=>`<div style="font-size:0.58rem;font-weight:700;letter-spacing:2.5px;text-transform:uppercase;color:${col};margin-bottom:12px;padding-bottom:9px;border-bottom:1px solid ${C.border};">${lbl}</div>`;
+  const badge = (t,bg,bd,c) =>
+    `<span style="display:inline-block;font-size:7pt;font-weight:700;padding:2px 9px;border-radius:100px;background:${bg};border:1px solid ${bd};color:${c};">${t}</span>`;
 
-  const evCard=ev=>`
-    <div style="display:flex;gap:10px;padding:10px 12px;border-radius:10px;background:${C.card};border:1px solid ${C.border};align-items:flex-start;">
-      <div style="background:${C.pBg};border:1px solid ${C.pBdr};border-radius:7px;padding:5px 8px;text-align:center;min-width:40px;flex-shrink:0;">
-        <div style="font-size:0.48rem;font-weight:700;letter-spacing:1px;color:${C.purpleL};text-transform:uppercase;">${ev.month}</div>
-        <div style="font-size:1.2rem;font-weight:800;line-height:1;color:${C.text};">${ev.day}</div>
-        <div style="font-size:0.45rem;color:${C.muted2};margin-top:1px;">${ev.year}</div>
+  const evCard = ev => `
+    <div style="display:flex;gap:10px;padding:10px 12px;border-radius:8px;background:#0f0f1e;border:1px solid rgba(255,255,255,0.08);page-break-inside:avoid;break-inside:avoid;">
+      <div style="background:rgba(139,92,246,0.15);border:1px solid rgba(139,92,246,0.35);border-radius:6px;padding:5px 8px;text-align:center;min-width:40px;flex-shrink:0;">
+        <div style="font-size:6pt;font-weight:700;letter-spacing:1px;color:#A78BFA;text-transform:uppercase;">${ev.month}</div>
+        <div style="font-size:16pt;font-weight:800;line-height:1;color:#F1F5F9;">${ev.day}</div>
+        <div style="font-size:6pt;color:#475569;margin-top:1px;">${ev.year}</div>
       </div>
       <div style="flex:1;min-width:0;">
-        <div style="font-weight:700;font-size:0.81rem;color:${C.text};margin-bottom:3px;line-height:1.3;">${ev.name}</div>
-        ${ev.meta?`<div style="font-size:0.68rem;color:${C.muted};margin-bottom:4px;">${ev.meta}</div>`:''}
+        <div style="font-weight:700;font-size:9pt;color:#F1F5F9;margin-bottom:3px;line-height:1.3;">${ev.name}</div>
+        ${ev.meta?`<div style="font-size:7.5pt;color:#94A3B8;margin-bottom:5px;">${ev.meta}</div>`:''}
         <div style="display:flex;gap:5px;flex-wrap:wrap;">
-          ${ev.isPast?bdg('Pasado',C.pBg,C.pBdr,C.purpleL):bdg('Próximo',C.gBg,C.gBdr,C.green)}
-          ${ev.genre?bdg(ev.genre,C.pBg,C.pBdr,C.purpleL):''}
+          ${ev.isPast
+            ? badge('Pasado','rgba(139,92,246,0.15)','rgba(139,92,246,0.35)','#A78BFA')
+            : badge('Próximo','rgba(52,211,153,0.12)','rgba(52,211,153,0.32)','#34d399')}
+          ${ev.genre ? badge(ev.genre,'rgba(139,92,246,0.15)','rgba(139,92,246,0.35)','#A78BFA') : ''}
         </div>
       </div>
     </div>`;
 
-  const evBlock=(label,color,evs)=>!evs.length?'':
-    `<div style="margin-bottom:16px;">
-      <div style="font-size:0.56rem;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:${color};margin-bottom:8px;">${label}</div>
-      <div style="display:grid;grid-template-columns:1fr 1fr;gap:6px;">${evs.map(evCard).join('')}</div>
+  const evSection = (label, color, evs) => !evs.length ? '' : `
+    <div style="margin-bottom:18px;page-break-inside:avoid;break-inside:avoid;">
+      <div style="font-size:7pt;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:${color};margin-bottom:9px;">${label}</div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:7px;">${evs.map(evCard).join('')}</div>
     </div>`;
 
-  return `
-  <div style="width:794px;background:${C.bg};font-family:'Space Grotesk',Arial,sans-serif;color:${C.text};box-sizing:border-box;">
+  const secTitle = label =>
+    `<div style="font-size:7pt;font-weight:700;letter-spacing:2.5px;text-transform:uppercase;color:#94A3B8;margin-bottom:14px;padding-bottom:9px;border-bottom:1px solid rgba(255,255,255,0.08);">${label}</div>`;
 
-    <!-- PORTADA -->
-    <div style="position:relative;height:250px;${bannerBg?`background-image:${bannerBg};background-size:cover;background-position:center;`:`background:linear-gradient(135deg,#1a0533 0%,#050514 55%,#0a1a2e 100%);`}overflow:hidden;">
-      <div style="position:absolute;inset:0;background:linear-gradient(160deg,rgba(5,5,8,0.2)0%,rgba(5,5,8,0.65)55%,${C.bg}100%);"></div>
-      <div style="position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);font-size:8.5rem;font-weight:800;color:rgba(255,255,255,0.035);letter-spacing:-5px;pointer-events:none;white-space:nowrap;">VOLTUM</div>
-      <div style="position:absolute;bottom:0;left:0;right:0;padding:16px 26px 20px;display:flex;align-items:flex-end;gap:16px;">
-        ${avatarSrc
-          ?`<img src="${avatarSrc}" crossorigin="anonymous" style="width:82px;height:82px;border-radius:50%;border:3px solid ${C.purple};object-fit:cover;flex-shrink:0;box-shadow:0 0 28px rgba(139,92,246,0.45);">`
-          :`<div style="width:82px;height:82px;border-radius:50%;border:3px solid ${C.purple};background:${C.pBg};display:flex;align-items:center;justify-content:center;font-size:2rem;font-weight:800;color:#fff;flex-shrink:0;">${avatarInit}</div>`
-        }
-        <div style="flex:1;">
-          <h1 style="font-size:1.9rem;font-weight:800;margin:0 0 3px;letter-spacing:-0.5px;color:#fff;text-shadow:0 2px 12px rgba(0,0,0,0.7);">${name}</h1>
-          ${location?`<p style="margin:0 0 8px;color:${C.muted};font-size:0.78rem;">${location}</p>`:''}
-          ${genres.length?`<div style="display:flex;flex-wrap:wrap;gap:5px;">${genres.map(g=>bdg(g,C.pBg,C.pBdr,C.purpleL)).join('')}</div>`:''}
-        </div>
-        <div style="flex-shrink:0;text-align:right;">
-          <div style="font-size:0.52rem;font-weight:700;letter-spacing:3px;color:${C.purpleL};opacity:0.75;margin-bottom:2px;">PRESS KIT</div>
-          <div style="font-size:1rem;font-weight:800;color:${C.purple};letter-spacing:2px;">VOLTUM</div>
-        </div>
-      </div>
+  const bannerStyle = bannerBg
+    ? `background-image:${bannerBg};background-size:cover;background-position:center;`
+    : `background:linear-gradient(135deg,#1a0533 0%,#050514 55%,#0a1a2e 100%);`;
+
+  return `<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<title>${name} — Press Kit · Voltum</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+  *, *::before, *::after {
+    margin:0; padding:0; box-sizing:border-box;
+    -webkit-print-color-adjust:exact !important;
+    print-color-adjust:exact !important;
+  }
+  @page { size:A4; margin:0; }
+  body { font-family:'Space Grotesk',Arial,sans-serif; background:#050508; color:#F1F5F9; width:210mm; }
+  .section { margin-bottom:24px; page-break-inside:avoid; break-inside:avoid; }
+  img { display:block; max-width:100%; }
+  @media print { body { width:210mm; } }
+</style>
+</head>
+<body>
+
+<!-- PORTADA -->
+<div style="width:100%;height:235px;${bannerStyle}position:relative;overflow:hidden;">
+  <div style="position:absolute;inset:0;background:linear-gradient(160deg,rgba(5,5,8,0.1) 0%,rgba(5,5,8,0.62) 55%,#050508 100%);"></div>
+  <div style="position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);font-size:90pt;font-weight:800;color:rgba(255,255,255,0.03);letter-spacing:-6px;white-space:nowrap;pointer-events:none;">VOLTUM</div>
+  <div style="position:absolute;bottom:0;left:0;right:0;padding:16px 26px 20px;display:flex;align-items:flex-end;gap:16px;">
+    ${avatarSrc
+      ? `<img src="${avatarSrc}" style="width:78px;height:78px;border-radius:50%;border:3px solid #8B5CF6;object-fit:cover;flex-shrink:0;">`
+      : `<div style="width:78px;height:78px;border-radius:50%;border:3px solid #8B5CF6;background:rgba(139,92,246,0.2);display:flex;align-items:center;justify-content:center;font-size:26pt;font-weight:800;color:#fff;flex-shrink:0;">${avatarInit}</div>`
+    }
+    <div style="flex:1;">
+      <div style="font-size:22pt;font-weight:800;color:#fff;letter-spacing:-0.5px;line-height:1.1;text-shadow:0 2px 14px rgba(0,0,0,0.8);">${name}</div>
+      ${location ? `<div style="font-size:8.5pt;color:#94A3B8;margin-top:5px;">${location}</div>` : ''}
+      ${genres.length ? `<div style="display:flex;flex-wrap:wrap;gap:5px;margin-top:9px;">${genres.map(g=>badge(g,'rgba(139,92,246,0.18)','rgba(139,92,246,0.4)','#A78BFA')).join('')}</div>` : ''}
     </div>
-
-    <!-- CUERPO -->
-    <div style="padding:24px 26px 32px;">
-
-      ${bio?`<div style="margin-bottom:22px;">${secTitle('Biografía')}<p style="margin:0;line-height:1.9;font-size:0.82rem;color:${C.text};white-space:pre-line;">${bio}</p></div>`:''}
-
-      ${socials.length?`
-      <div style="margin-bottom:22px;">
-        ${secTitle('Plataformas & Redes')}
-        <div style="display:flex;flex-wrap:wrap;gap:6px;">${socials.map(s=>`<div style="padding:6px 12px;border-radius:8px;background:${C.card};border:1px solid ${C.border};font-size:0.72rem;color:${C.muted};">${s}</div>`).join('')}</div>
-      </div>`:''}
-
-      ${hasEvents?`
-      <div>
-        ${secTitle('Fechas & Eventos')}
-        ${evBlock('⭐ Destacados',C.gold,featured)}
-        ${evBlock('Próximos',C.green,upcoming)}
-        ${evBlock('Realizados',C.muted2,past)}
-      </div>`:''}
-
+    <div style="text-align:right;flex-shrink:0;padding-bottom:2px;">
+      <div style="font-size:5.5pt;font-weight:700;letter-spacing:3px;color:#A78BFA;opacity:0.8;margin-bottom:3px;">PRESS KIT</div>
+      <div style="font-size:12pt;font-weight:800;color:#8B5CF6;letter-spacing:2px;">VOLTUM</div>
     </div>
+  </div>
+</div>
 
-    <!-- FOOTER -->
-    <div style="padding:11px 26px;border-top:1px solid ${C.border};display:flex;justify-content:space-between;align-items:center;">
-      <span style="font-size:0.58rem;color:${C.muted2};">Press Kit · ${name}</span>
-      <span style="font-size:0.58rem;font-weight:700;color:${C.purpleL};letter-spacing:1.5px;">VOLTUM</span>
+<!-- CUERPO -->
+<div style="padding:22px 26px 30px;">
+
+  ${bio ? `<div class="section">${secTitle('Biografía')}<p style="line-height:1.85;font-size:9.5pt;color:#F1F5F9;white-space:pre-line;">${bio}</p></div>` : ''}
+
+  ${socials.length ? `
+  <div class="section">
+    ${secTitle('Plataformas & Redes')}
+    <div style="display:flex;flex-wrap:wrap;gap:7px;">
+      ${socials.map(s=>`<div style="padding:6px 13px;border-radius:8px;background:#0f0f1e;border:1px solid rgba(255,255,255,0.08);font-size:8pt;color:#94A3B8;">${s}</div>`).join('')}
     </div>
+  </div>` : ''}
 
-  </div>`;
+  ${hasEv ? `
+  <div class="section">
+    ${secTitle('Fechas & Eventos')}
+    ${evSection('⭐ Destacados','#F59E0B',featured)}
+    ${evSection('Próximos','#34d399',upcoming)}
+    ${evSection('Realizados','#475569',past)}
+  </div>` : ''}
+
+</div>
+
+<!-- FOOTER -->
+<div style="padding:11px 26px;border-top:1px solid rgba(255,255,255,0.07);display:flex;justify-content:space-between;align-items:center;">
+  <span style="font-size:7pt;color:#475569;">Press Kit · ${name}</span>
+  <span style="font-size:7pt;font-weight:700;color:#A78BFA;letter-spacing:1.5px;">VOLTUM</span>
+</div>
+
+<script>
+  document.fonts.ready.then(function() {
+    setTimeout(function() { window.print(); }, 500);
+  });
+</script>
+</body>
+</html>`;
 }
 
 // ── Descarga PDF ─────────────────────────────────────────────────────────────
-async function downloadPDF() {
+function downloadPDF() {
   const btn  = document.getElementById('pdfBtn');
   const orig = btn.innerHTML;
-  btn.innerHTML = '⏳ Generando PDF...';
+  btn.innerHTML = '⏳ Preparando...';
   btn.disabled  = true;
 
-  const djName   = (document.getElementById('pkName')?.textContent || 'presskit').trim();
-  const filename = djName.toLowerCase().replace(/\s+/g,'-') + '-presskit.pdf';
-
-  // Montar template con ancho fijo para que el layout sea correcto al medir
-  const W_PX = 794;
-  const wrap = document.createElement('div');
-  wrap.style.cssText = `position:fixed;left:-9999px;top:0;z-index:-999;width:${W_PX}px;background:#050508;`;
-  wrap.innerHTML = buildPdfTemplate();
-  document.body.appendChild(wrap);
-
-  // Esperar imágenes Y que el layout termine de calcularse
-  await Promise.allSettled(Array.from(wrap.querySelectorAll('img')).map(img=>
-    new Promise(res=>{ if(img.complete) return res(); img.onload=img.onerror=res; })
-  ));
-  await new Promise(res => setTimeout(res, 400)); // fonts + layout pass
-
-  // Medir altura real después del layout estabilizado
-  const el   = wrap.firstElementChild;
-  const H_PX = el.getBoundingClientRect().height || el.scrollHeight;
-  const W_MM = 210; // ancho A4 en mm
-  const H_MM = Math.ceil(H_PX * (W_MM / W_PX)) + 10; // +10mm margen de seguridad
-
   try {
-    await html2pdf().set({
-      margin:      0,
-      filename,
-      image:       { type:'jpeg', quality:0.96 },
-      html2canvas: {
-        scale:           2,
-        useCORS:         true,
-        allowTaint:      false,
-        backgroundColor: '#050508',
-        logging:         false,
-        windowWidth:     W_PX,
-        scrollX:         0,
-        scrollY:         0,
-      },
-      // Página de altura exacta al contenido → sin cortes
-      jsPDF: { unit:'mm', format:[W_MM, H_MM], orientation:'portrait' },
-    }).from(el).save();
+    const win = window.open('', '_blank', 'width=900,height=700');
+    if (!win) {
+      showToast('Habilitá las ventanas emergentes para generar el PDF', 'error');
+      btn.innerHTML = orig; btn.disabled = false; return;
+    }
+    win.document.open();
+    win.document.write(buildPrintHTML());
+    win.document.close();
   } catch(e) {
-    showToast('Error al generar PDF. Intentá de nuevo.', 'error');
+    showToast('Error al generar PDF', 'error');
     console.error(e);
   }
 
-  document.body.removeChild(wrap);
   btn.innerHTML = orig;
   btn.disabled  = false;
 }
 </script>
 </body>
 </html>
+
