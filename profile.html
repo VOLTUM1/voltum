@@ -1438,7 +1438,6 @@ async function toggleFeatured(id) {
   const ev = events.find(e => e.id === id);
   if (!ev) return;
   const featuredNow = events.filter(e => e.featured);
-  if (!ev.featured && featuredNow.length >= 5) { showToast('Máximo 5 eventos destacados', 'error'); return; }
   const newVal = !ev.featured;
 
   // 1. Actualizar el campo featured (siempre existe)
