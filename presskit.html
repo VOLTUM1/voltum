@@ -1644,13 +1644,13 @@ document.getElementById('lbImg').addEventListener('touchend', e => {
 async function downloadPDF() {
   const btn = document.getElementById('pdfBtn');
   const orig = btn.innerHTML;
-  btn.innerHTML = '⏳ Generando...';
+  btn.innerHTML = '⏳ Generando PDF...';
   btn.disabled = true;
 
-  // Ocultar elementos que no deben aparecer en el PDF
+  // ── 1. Ocultar elementos que no van en el PDF ──────────────
   const toHide = ['#pdfBtn', '#shareBtn', '.pk-nav', '#demoBadge',
                   '#bookingModal', '#lightbox', '#flyerModal',
-                  '.sc-nowplaying', '.sc-footer'];
+                  '#pkSpinner', '.sc-nowplaying', '.sc-footer'];
   const snapshot = toHide.map(sel => {
     const el = document.querySelector(sel);
     if (!el) return null;
@@ -1659,55 +1659,98 @@ async function downloadPDF() {
     return { el, prev };
   }).filter(Boolean);
 
-  // Ocultar botones de entradas y miniaturas de flyer dentro de eventos
+  // Ocultar botones de entradas y miniaturas de flyer
   const actionEls = document.querySelectorAll('.pk-ev-actions a.btn, .pk-ev-actions img');
   actionEls.forEach(el => { el._pdfHide = el.style.display; el.style.display = 'none'; });
 
   window.scrollTo(0, 0);
 
+  // ── 2. Referencias a elementos clave ──────────────────────
   const content = document.getElementById('pkContent');
-  const djName  = (document.getElementById('pkName')?.textContent || 'presskit').trim();
-  const filename = djName.toLowerCase().replace(/\s+/g, '-') + '-presskit.pdf';
+  const banner  = document.getElementById('pkBanner');
+  const overlay = banner?.querySelector('.presskit-banner-overlay');
+  const body    = document.body;
+  const W       = 900; // ancho de renderizado
 
-  // Forzar fondo oscuro explícito (html2canvas no hereda el background del body)
-  const prevContentBg = content.style.background;
-  const prevBodyBg    = document.body.style.background;
-  content.style.background = '#050508';
-  document.body.style.background = '#050508';
+  // ── 3. Guardar estilos para restaurar después ─────────────
+  const _body    = { bg: body.style.background };
+  const _content = { style: content.getAttribute('style') || '' };
+  const _banner  = banner  ? { style: banner.getAttribute('style')  || '' } : null;
+  const _overlay = overlay ? { style: overlay.getAttribute('style') || '' } : null;
 
-  // Forzar también el fondo de todas las secciones que usen variables CSS
-  const sections = content.querySelectorAll('.presskit-section');
-  sections.forEach(s => { s._bg = s.style.background; s.style.background = '#0d0d1a'; });
-  const cards = content.querySelectorAll('.pk-event, .event-date-badge');
-  cards.forEach(c => { c._bg = c.style.background; c.style.background = '#0a0a14'; });
+  // ── 4. Aplicar estilos de impresión ───────────────────────
+  body.style.background = '#050508';
 
+  content.style.cssText = (_content.style ? _content.style + ';' : '') +
+    `background:#050508;width:${W}px;max-width:${W}px;box-sizing:border-box;padding-top:0;`;
+
+  if (banner) {
+    banner.style.height       = '220px';
+    banner.style.borderRadius = '0';
+    banner.style.marginBottom = '0';
+    banner.style.flexShrink   = '0';
+  }
+  // Suavizar el overlay para que el banner se vea bien
+  if (overlay) overlay.style.background = 'linear-gradient(180deg, rgba(0,0,0,0.15) 0%, #050508 100%)';
+
+  // Fondos sólidos en elementos que usan variables CSS
+  const applyBg = (sel, color) => {
+    content.querySelectorAll(sel).forEach(el => {
+      el._pdfBg = el.style.background; el.style.background = color;
+    });
+  };
+  applyBg('.presskit-section',  '#0d0d1a');
+  applyBg('.pk-event',          '#0f0f1e');
+  applyBg('.event-date-badge',  '#161628');
+  applyBg('.pk-social-btn',     '#0f0f1e');
+  applyBg('.sc-track-card',     '#0f0f1e');
+
+  const djName   = (document.getElementById('pkName')?.textContent || 'presskit').trim();
+  const filename = djName.toLowerCase().replace(/\s+/g,'-') + '-presskit.pdf';
+
+  // ── 5. Generar PDF ────────────────────────────────────────
   try {
     await html2pdf().set({
-      margin:      0,
+      margin:      [10, 0, 10, 0],   // top/bottom en mm; el contenido ya tiene padding lateral
       filename,
-      image:       { type: 'jpeg', quality: 0.92 },
+      image:       { type: 'jpeg', quality: 0.95 },
       html2canvas: {
-        scale:           2,
+        scale:           2.5,          // alta resolución para texto nítido
         useCORS:         true,
         allowTaint:      false,
         backgroundColor: '#050508',
         logging:         false,
         scrollX:         0,
         scrollY:         0,
-        windowWidth:     document.documentElement.scrollWidth,
+        windowWidth:     W,
       },
       jsPDF:       { unit: 'mm', format: 'a4', orientation: 'portrait' },
-      pagebreak:   { mode: ['css', 'legacy'], avoid: '.presskit-section' },
+      pagebreak:   {
+        mode:   'avoid-all',
+        before: ['#eventsSection', '#reviewsSection', '#soundcloudSection'],
+        avoid:  ['.presskit-section', '.pk-event'],
+      },
     }).from(content).save();
   } catch(e) {
     showToast('Error al generar PDF. Intentá de nuevo.', 'error');
+    console.error(e);
   }
 
-  // Restaurar todo
-  content.style.background = prevContentBg;
-  document.body.style.background = prevBodyBg;
-  sections.forEach(s => { s.style.background = s._bg; delete s._bg; });
-  cards.forEach(c => { c.style.background = c._bg; delete c._bg; });
+  // ── 6. Restaurar todo al estado original ──────────────────
+  body.style.background = _body.bg;
+  content.setAttribute('style', _content.style);
+  if (_banner  && banner)  banner.setAttribute('style',  _banner.style);
+  if (_overlay && overlay) overlay.setAttribute('style', _overlay.style);
+
+  const restoreBg = sel => content.querySelectorAll(sel).forEach(el => {
+    el.style.background = el._pdfBg; delete el._pdfBg;
+  });
+  restoreBg('.presskit-section');
+  restoreBg('.pk-event');
+  restoreBg('.event-date-badge');
+  restoreBg('.pk-social-btn');
+  restoreBg('.sc-track-card');
+
   snapshot.forEach(({ el, prev }) => el.style.display = prev);
   actionEls.forEach(el => { el.style.display = el._pdfHide; delete el._pdfHide; });
   btn.innerHTML = orig;
