@@ -1422,15 +1422,18 @@ function initFeaturedSort() {
 }
 
 async function saveFeaturedOrder(orderedIds) {
-  await Promise.all(orderedIds.map((id, i) =>
+  const results = await Promise.all(orderedIds.map((id, i) =>
     sb.from('events').update({ featured_order: i }).eq('id', id)
   ));
-  orderedIds.forEach((id, i) => {
-    const ev = events.find(e => e.id === id);
-    if (ev) ev.featured_order = i;
-  });
+  const hasError = results.some(r => r.error);
+  if (!hasError) {
+    orderedIds.forEach((id, i) => {
+      const ev = events.find(e => e.id === id);
+      if (ev) ev.featured_order = i;
+    });
+    showToast('Orden actualizado', 'success');
+  }
   renderEvents();
-  showToast('Orden actualizado', 'success');
 }
 
 async function toggleFeatured(id) {
@@ -1439,18 +1442,26 @@ async function toggleFeatured(id) {
   const featuredNow = events.filter(e => e.featured);
   if (!ev.featured && featuredNow.length >= 5) { showToast('Máximo 5 eventos destacados', 'error'); return; }
   const newVal = !ev.featured;
-  const newOrder = newVal ? featuredNow.length : null;
-  const { error } = await sb.from('events').update({ featured: newVal, featured_order: newOrder }).eq('id', id);
+
+  // 1. Actualizar el campo featured (siempre existe)
+  const { error } = await sb.from('events').update({ featured: newVal }).eq('id', id);
   if (error) { showToast(error.message, 'error'); return; }
   ev.featured = newVal;
-  ev.featured_order = newOrder;
-  // Si se quitó, reindexar los restantes
-  if (!newVal) {
-    const remaining = events.filter(e => e.featured)
-      .sort((a,b) => (a.featured_order ?? 999) - (b.featured_order ?? 999));
-    await saveFeaturedOrder(remaining.map(e => e.id));
-    return;
+
+  // 2. Intentar actualizar featured_order (puede no existir si no se corrió el SQL)
+  const newOrder = newVal ? featuredNow.length : null;
+  const { error: orderErr } = await sb.from('events').update({ featured_order: newOrder }).eq('id', id);
+  if (!orderErr) {
+    ev.featured_order = newOrder;
+    // Si se quitó, reindexar los restantes
+    if (!newVal) {
+      const remaining = events.filter(e => e.featured)
+        .sort((a,b) => (a.featured_order ?? 999) - (b.featured_order ?? 999));
+      await saveFeaturedOrder(remaining.map(e => e.id));
+      return;
+    }
   }
+
   renderEvents();
   showToast(newVal ? '⭐ Evento destacado en press kit' : 'Quitado de destacados', 'success');
 }
