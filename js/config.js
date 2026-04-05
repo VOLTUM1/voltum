@@ -35,6 +35,9 @@
 // alter table public.profiles add column if not exists custom_link1 text;
 // alter table public.profiles add column if not exists custom_link2 text;
 //
+// -- Orden de eventos destacados en el press kit:
+// alter table public.events add column if not exists featured_order integer;
+//
 // create table public.memberships (
 //   id uuid primary key default gen_random_uuid(),
 //   user_id uuid references auth.users on delete cascade unique,

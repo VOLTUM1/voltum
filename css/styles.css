@@ -381,6 +381,9 @@ footer { padding: 60px 0 32px; border-top: 1px solid var(--border2); background:
 .event-date-badge { background: rgba(139,92,246,0.1); border: 1px solid var(--border); border-radius: 10px; padding: 8px 12px; text-align: center; min-width: 56px; flex-shrink: 0; }
 .featured-btn { font-size: 1rem; opacity: 0.4; transition: opacity 0.15s, color 0.15s; padding: 4px 6px !important; }
 .featured-btn:hover:not(:disabled) { opacity: 1; }
+.feat-sort-row { transition: opacity 0.15s, border-color 0.15s, background 0.15s; }
+.feat-sort-row.drag-over { border-color: var(--purple-l) !important; background: rgba(139,92,246,0.1) !important; }
+.feat-sort-row.dragging  { opacity: 0.4; }
 .featured-btn.active { opacity: 1; color: #f59e0b; }
 .featured-btn:disabled { cursor: not-allowed; }
 .event-date-month { font-size: 0.7rem; color: var(--purple-l); font-weight: 700; text-transform: uppercase; }

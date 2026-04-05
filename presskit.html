@@ -787,7 +787,7 @@ function initPkEvents(events) {
   const now = new Date();
   const buckets = {
     featured: events.filter(ev => ev.featured)
-                    .sort((a,b) => new Date(a.date)-new Date(b.date)),
+                    .sort((a,b) => (a.featured_order ?? 999) - (b.featured_order ?? 999) || new Date(a.date)-new Date(b.date)),
     upcoming: events.filter(ev => !ev.featured && new Date(ev.date+'T12:00:00') >= now)
                     .sort((a,b) => new Date(a.date)-new Date(b.date)),
     past:     events.filter(ev => !ev.featured && new Date(ev.date+'T12:00:00') <  now)
