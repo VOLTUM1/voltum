@@ -184,10 +184,6 @@
       .sp-grid, .sc-grid { grid-template-columns: repeat(auto-fill, minmax(130px, 1fr)); }
       .pk-social-btn { font-size: 0.8rem; padding: 8px 12px; }
 
-      /* Pills header: apila título y pills */
-      #eventsSection > div:first-child { flex-direction: column; align-items: flex-start; gap: 8px; }
-      #evFilterPills button { font-size: 0.68rem !important; padding: 4px 10px !important; }
-
       /* Event card */
       .pk-event { padding: 12px 13px; gap: 11px; }
       .event-date-badge { padding: 7px 10px; min-width: 48px; }
@@ -268,12 +264,31 @@
 
     <!-- EVENTS -->
     <div class="presskit-section" id="eventsSection">
-      <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:10px;margin-bottom:16px;">
-        <div class="presskit-section-title" style="margin-bottom:0;">Fechas & Eventos</div>
-        <div id="evFilterPills" style="display:flex;gap:6px;flex-wrap:wrap;"></div>
+      <div class="presskit-section-title">Fechas & Eventos</div>
+
+      <!-- ⭐ Destacados -->
+      <div id="pkEv-featured-wrap">
+        <div style="display:flex;align-items:center;gap:8px;margin-bottom:10px;margin-top:4px;">
+          <span style="font-size:0.78rem;font-weight:700;letter-spacing:0.5px;text-transform:uppercase;color:#f59e0b;">⭐ Destacados</span>
+        </div>
+        <div class="pk-event-grid" id="pkEv-featured"></div>
       </div>
-      <div class="pk-event-grid" id="pkEventsFiltered"></div>
-      <button id="pkEvShowMore" style="display:none;width:100%;margin-top:12px;" class="btn btn-ghost btn-sm" onclick="pkEvToggleMore()"></button>
+
+      <!-- Próximos -->
+      <div id="pkEv-upcoming-wrap" style="margin-top:22px;">
+        <div style="display:flex;align-items:center;gap:8px;margin-bottom:10px;">
+          <span style="font-size:0.78rem;font-weight:700;letter-spacing:0.5px;text-transform:uppercase;color:#34d399;">Próximos</span>
+        </div>
+        <div class="pk-event-grid" id="pkEv-upcoming"></div>
+      </div>
+
+      <!-- Realizados -->
+      <div id="pkEv-past-wrap" style="margin-top:22px;">
+        <div style="display:flex;align-items:center;gap:8px;margin-bottom:10px;">
+          <span style="font-size:0.78rem;font-weight:700;letter-spacing:0.5px;text-transform:uppercase;color:var(--muted2);">Realizados</span>
+        </div>
+        <div class="pk-event-grid" id="pkEv-past"></div>
+      </div>
     </div>
 
     <!-- SOUNDCLOUD -->
@@ -601,11 +616,7 @@ const ACCESSORIES_ICONS = {
   'Cubierta anti-líquidos':   { icon: '🛡️', desc: 'Cubierta anti-líquidos' },
 };
 
-// Variables de estado para el filtro de eventos (deben estar antes del IIFE)
-const PK_EV_LIMIT = 4;
-let _pkEvBuckets  = {};
-let _pkEvFilter   = 'upcoming';
-let _pkEvExpanded = false;
+// (variables de filtro eliminadas — ahora se muestran todas las secciones a la vez)
 
 (async () => {
   try {
@@ -681,10 +692,10 @@ let _pkEvExpanded = false;
   }
 })();
 
-// ── Eventos con filtro y "Ver más" ──────────────────────────────────────────
+// ── Eventos — tres secciones siempre visibles ────────────────────────────────
 function initPkEvents(events) {
   const now = new Date();
-  _pkEvBuckets = {
+  const buckets = {
     featured: events.filter(ev => ev.featured)
                     .sort((a,b) => new Date(a.date)-new Date(b.date)),
     upcoming: events.filter(ev => !ev.featured && new Date(ev.date+'T12:00:00') >= now)
@@ -693,101 +704,47 @@ function initPkEvents(events) {
                     .sort((a,b) => new Date(b.date)-new Date(a.date)),
   };
 
-  const total = events.length;
-  if (!total) { document.getElementById('eventsSection').style.display = 'none'; return; }
+  if (!events.length) { document.getElementById('eventsSection').style.display = 'none'; return; }
 
-  // Filtro activo por defecto
-  _pkEvFilter   = _pkEvBuckets.featured.length ? 'featured' :
-                  _pkEvBuckets.upcoming.length  ? 'upcoming' : 'past';
-  _pkEvExpanded = false;
-
-  // Pills — solo las que tienen eventos
-  const pillDefs = [
-    { key:'featured', label:'⭐ Destacados', color:'#f59e0b' },
-    { key:'upcoming', label:'Próximos',      color:'#34d399' },
-    { key:'past',     label:'Realizados',    color:'var(--muted2)' },
-  ];
-  const pillsEl = document.getElementById('evFilterPills');
-  pillsEl.innerHTML = pillDefs
-    .filter(p => _pkEvBuckets[p.key].length)
-    .map(p => `<button
-      id="evPill-${p.key}"
-      onclick="pkEvSetFilter('${p.key}')"
-      style="font-size:0.72rem;font-weight:700;padding:5px 12px;border-radius:100px;border:1px solid ${p.color};background:transparent;color:${p.color};cursor:pointer;transition:background 0.15s,color 0.15s;letter-spacing:0.3px;"
-      onmouseover="this.style.background='${p.color}22'"
-      onmouseout="if(!this.classList.contains('active'))this.style.background='transparent'">
-      ${p.label} <span style="opacity:0.7;font-weight:400;">(${_pkEvBuckets[p.key].length})</span>
-    </button>`).join('');
-
-  pkEvRender();
-}
-
-function pkEvSetFilter(key) {
-  _pkEvFilter   = key;
-  _pkEvExpanded = false;
-  pkEvRender();
-}
-
-function pkEvToggleMore() {
-  _pkEvExpanded = !_pkEvExpanded;
-  pkEvRender();
-}
-
-function pkEvRender() {
-  const now    = new Date();
-  const list   = _pkEvBuckets[_pkEvFilter] || [];
-  const dim    = _pkEvFilter === 'past';
-  const shown  = _pkEvExpanded ? list : list.slice(0, PK_EV_LIMIT);
-  const hidden = list.length - PK_EV_LIMIT;
-
-  // Actualizar pills
-  ['featured','upcoming','past'].forEach(k => {
-    const pill = document.getElementById('evPill-'+k);
-    if (!pill) return;
-    const pillColors = { featured:'#f59e0b', upcoming:'#34d399', past:'var(--muted2)' };
-    const c = pillColors[k];
-    if (k === _pkEvFilter) {
-      pill.style.background = c === 'var(--muted2)' ? 'rgba(120,120,140,0.2)' : c+'33';
-      pill.classList.add('active');
-    } else {
-      pill.style.background = 'transparent';
-      pill.classList.remove('active');
-    }
+  [
+    { key:'featured', dim:false },
+    { key:'upcoming', dim:false },
+    { key:'past',     dim:true  },
+  ].forEach(({ key, dim }) => {
+    const wrap = document.getElementById(`pkEv-${key}-wrap`);
+    const grid = document.getElementById(`pkEv-${key}`);
+    const list = buckets[key];
+    if (!list.length) { wrap.style.display = 'none'; return; }
+    wrap.style.display = '';
+    grid.innerHTML = list.map(ev => pkEventCard(ev, dim)).join('');
   });
+}
 
-  document.getElementById('pkEventsFiltered').innerHTML = shown.map(ev => {
-    const d     = new Date(ev.date+'T12:00:00');
-    const month = d.toLocaleDateString('es-CL',{month:'short'}).toUpperCase();
-    const day   = d.getDate();
-    const year  = d.getFullYear();
-    const isPast = d < now;
-    return `
-    <div class="pk-event"${dim ? ' style="opacity:0.7"' : ''}>
-      <div class="event-date-badge">
-        <div class="event-date-month">${month}</div>
-        <div class="event-date-day">${day}</div>
-        <div style="font-size:0.62rem;color:var(--muted2);margin-top:1px;">${year}</div>
+function pkEventCard(ev, dim) {
+  const now   = new Date();
+  const d     = new Date(ev.date+'T12:00:00');
+  const month = d.toLocaleDateString('es-CL',{month:'short'}).toUpperCase();
+  const day   = d.getDate();
+  const year  = d.getFullYear();
+  const isPast = d < now;
+  return `
+  <div class="pk-event"${dim ? ' style="opacity:0.75"' : ''}>
+    <div class="event-date-badge">
+      <div class="event-date-month">${month}</div>
+      <div class="event-date-day">${day}</div>
+      <div style="font-size:0.62rem;color:var(--muted2);margin-top:1px;">${year}</div>
+    </div>
+    <div class="pk-ev-body">
+      <strong>${ev.name}</strong>
+      ${[ev.venue, ev.city].filter(Boolean).length ? `<span class="pk-ev-meta">${[ev.venue, ev.city].filter(Boolean).join(' · ')}</span>` : ''}
+      <div class="pk-ev-actions">
+        ${isPast ? '<span class="badge badge-purple" style="font-size:0.68rem;">Pasado</span>' : '<span class="badge badge-green" style="font-size:0.68rem;">Próximo</span>'}
+        ${ev.genre ? `<span style="font-size:0.68rem;font-weight:600;padding:2px 9px;border-radius:100px;background:rgba(139,92,246,0.12);border:1px solid rgba(139,92,246,0.3);color:var(--purple-l);">${ev.genre}</span>` : ''}
+        ${!isPast && ev.ticket_url ? `<a href="${ev.ticket_url}" target="_blank" rel="noopener" class="btn btn-primary btn-sm" style="font-size:0.75rem;padding:4px 12px;white-space:nowrap;">🎟️ Entradas</a>` : ''}
+        ${ev.flyer_url ? `<img src="${ev.flyer_url}" alt="Flyer" loading="lazy" style="height:38px;width:38px;border-radius:6px;border:1px solid var(--border2);object-fit:cover;cursor:pointer;flex-shrink:0;margin-left:auto;" onclick="openFlyer('${ev.flyer_url}','${ev.name.replace(/'/g,"\\'")}')">` : ''}
       </div>
-      <div class="pk-ev-body">
-        <strong>${ev.name}</strong>
-        ${[ev.venue, ev.city].filter(Boolean).length ? `<span class="pk-ev-meta">${[ev.venue, ev.city].filter(Boolean).join(' · ')}</span>` : ''}
-        <div class="pk-ev-actions">
-          ${isPast ? '<span class="badge badge-purple" style="font-size:0.68rem;">Pasado</span>' : '<span class="badge badge-green" style="font-size:0.68rem;">Próximo</span>'}
-          ${ev.genre ? `<span style="font-size:0.68rem;font-weight:600;padding:2px 9px;border-radius:100px;background:rgba(139,92,246,0.12);border:1px solid rgba(139,92,246,0.3);color:var(--purple-l);">${ev.genre}</span>` : ''}
-          ${!isPast && ev.ticket_url ? `<a href="${ev.ticket_url}" target="_blank" rel="noopener" class="btn btn-primary btn-sm" style="font-size:0.75rem;padding:4px 12px;white-space:nowrap;">🎟️ Entradas</a>` : ''}
-          ${ev.flyer_url ? `<img src="${ev.flyer_url}" alt="Flyer" loading="lazy" style="height:38px;width:38px;border-radius:6px;border:1px solid var(--border2);object-fit:cover;cursor:pointer;flex-shrink:0;margin-left:auto;" onclick="openFlyer('${ev.flyer_url}','${ev.name.replace(/'/g,"\\'")}')">` : ''}
-        </div>
-      </div>
-    </div>`;
-  }).join('');
-
-  const moreBtn = document.getElementById('pkEvShowMore');
-  if (list.length > PK_EV_LIMIT) {
-    moreBtn.style.display = '';
-    moreBtn.textContent = _pkEvExpanded ? 'Ver menos ↑' : `Ver ${hidden} más ↓`;
-  } else {
-    moreBtn.style.display = 'none';
-  }
+    </div>
+  </div>`;
 }
 // ────────────────────────────────────────────────────────────────────────────
 
