@@ -1665,9 +1665,21 @@ async function downloadPDF() {
 
   window.scrollTo(0, 0);
 
-  const content  = document.getElementById('pkContent');
-  const djName   = (document.getElementById('pkName')?.textContent || 'presskit').trim();
+  const content = document.getElementById('pkContent');
+  const djName  = (document.getElementById('pkName')?.textContent || 'presskit').trim();
   const filename = djName.toLowerCase().replace(/\s+/g, '-') + '-presskit.pdf';
+
+  // Forzar fondo oscuro explícito (html2canvas no hereda el background del body)
+  const prevContentBg = content.style.background;
+  const prevBodyBg    = document.body.style.background;
+  content.style.background = '#050508';
+  document.body.style.background = '#050508';
+
+  // Forzar también el fondo de todas las secciones que usen variables CSS
+  const sections = content.querySelectorAll('.presskit-section');
+  sections.forEach(s => { s._bg = s.style.background; s.style.background = '#0d0d1a'; });
+  const cards = content.querySelectorAll('.pk-event, .event-date-badge');
+  cards.forEach(c => { c._bg = c.style.background; c.style.background = '#0a0a14'; });
 
   try {
     await html2pdf().set({
@@ -1682,6 +1694,7 @@ async function downloadPDF() {
         logging:         false,
         scrollX:         0,
         scrollY:         0,
+        windowWidth:     document.documentElement.scrollWidth,
       },
       jsPDF:       { unit: 'mm', format: 'a4', orientation: 'portrait' },
       pagebreak:   { mode: ['css', 'legacy'], avoid: '.presskit-section' },
@@ -1690,7 +1703,11 @@ async function downloadPDF() {
     showToast('Error al generar PDF. Intentá de nuevo.', 'error');
   }
 
-  // Restaurar visibilidad
+  // Restaurar todo
+  content.style.background = prevContentBg;
+  document.body.style.background = prevBodyBg;
+  sections.forEach(s => { s.style.background = s._bg; delete s._bg; });
+  cards.forEach(c => { c.style.background = c._bg; delete c._bg; });
   snapshot.forEach(({ el, prev }) => el.style.display = prev);
   actionEls.forEach(el => { el.style.display = el._pdfHide; delete el._pdfHide; });
   btn.innerHTML = orig;
