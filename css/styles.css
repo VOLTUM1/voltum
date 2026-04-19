@@ -904,11 +904,20 @@ footer {
   background: rgba(255, 213, 74, 0.04);
 }
 .event-date-badge {
-  background: var(--lime-dim);
+  background: linear-gradient(145deg, rgba(212,255,58,0.14), rgba(212,255,58,0.04));
   border: 1px solid var(--border);
   border-radius: var(--radius);
-  padding: 8px 12px; text-align: center;
-  min-width: 58px; flex-shrink: 0;
+  padding: 10px 12px 8px; text-align: center;
+  min-width: 64px; flex-shrink: 0;
+  position: relative;
+  box-shadow: 0 2px 10px rgba(212,255,58,0.08);
+}
+.event-date-badge::before {
+  content: ''; position: absolute;
+  top: 0; left: 10%; right: 10%;
+  height: 2px;
+  background: var(--lime);
+  border-radius: 0 0 2px 2px;
 }
 .featured-btn { font-size: 1rem; opacity: 0.4; transition: opacity 0.15s, color 0.15s; padding: 4px 6px !important; }
 .featured-btn:hover:not(:disabled) { opacity: 1; }
@@ -919,14 +928,27 @@ footer {
 .featured-btn:disabled { cursor: not-allowed; }
 .event-date-month {
   font-family: var(--font-mono);
-  font-size: 0.68rem; color: var(--lime);
+  font-size: 0.72rem;
+  color: var(--lime);
   font-weight: 700; text-transform: uppercase;
-  letter-spacing: 0.1em;
+  letter-spacing: 0.14em;
+  margin-bottom: 2px;
 }
 .event-date-day {
   font-family: var(--font-display);
-  font-size: 1.4rem; font-weight: 900;
+  font-size: 1.65rem; font-weight: 900;
   line-height: 1;
+  color: var(--text);
+  letter-spacing: -0.02em;
+  text-shadow: 0 0 12px rgba(212, 255, 58, 0.25);
+}
+.event-date-year {
+  font-family: var(--font-mono);
+  font-size: 0.68rem;
+  color: var(--muted);
+  font-weight: 600;
+  margin-top: 3px;
+  letter-spacing: 0.08em;
 }
 .event-info        { flex: 1; }
 .event-info strong { font-size: 0.95rem; font-weight: 600; }
@@ -965,11 +987,58 @@ footer {
 .presskit-banner  {
   height: 340px; position: relative; overflow: hidden;
   background: linear-gradient(135deg, var(--bg3), var(--bg2));
+  background-size: cover;
+  background-position: center;
+}
+.presskit-banner.has-image {
+  filter: saturate(1.05) contrast(1.02);
+}
+.presskit-banner.has-image::before {
+  /* Subtle vignette para unificar imágenes mal expuestas */
+  content: ''; position: absolute; inset: 0; z-index: 1;
+  background:
+    radial-gradient(ellipse 120% 80% at 50% 30%, transparent 40%, rgba(0,0,0,0.35) 100%),
+    linear-gradient(180deg, rgba(0,0,0,0.15) 0%, transparent 30%);
+  pointer-events: none;
+}
+.presskit-banner.no-image {
+  background:
+    linear-gradient(135deg, rgba(212,255,58,0.08) 0%, transparent 50%),
+    radial-gradient(ellipse at 30% 40%, rgba(212,255,58,0.12) 0%, transparent 55%),
+    var(--bg2);
+}
+.presskit-banner.no-image::after {
+  /* Grid pattern */
+  content: ''; position: absolute; inset: 0;
+  background-image:
+    linear-gradient(rgba(212,255,58,0.06) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(212,255,58,0.06) 1px, transparent 1px);
+  background-size: 56px 56px;
+  mask-image: radial-gradient(ellipse at center, #000 30%, transparent 80%);
+  -webkit-mask-image: radial-gradient(ellipse at center, #000 30%, transparent 80%);
+  pointer-events: none;
+}
+.pk-banner-placeholder {
+  position: absolute; inset: 0; z-index: 2;
+  display: flex; align-items: center; justify-content: center;
+  pointer-events: none;
+}
+.pk-banner-initials {
+  font-family: var(--font-display);
+  font-weight: 900;
+  font-size: clamp(4rem, 12vw, 8rem);
+  letter-spacing: -0.04em;
+  color: transparent;
+  -webkit-text-stroke: 1.5px rgba(212, 255, 58, 0.45);
+  text-stroke: 1.5px rgba(212, 255, 58, 0.45);
+  filter: drop-shadow(0 0 24px rgba(212, 255, 58, 0.18));
 }
 .presskit-banner img { width: 100%; height: 100%; object-fit: cover; }
 .presskit-banner-overlay {
-  position: absolute; inset: 0;
-  background: linear-gradient(180deg, transparent 30%, var(--bg) 100%);
+  position: absolute; inset: 0; z-index: 2;
+  background:
+    linear-gradient(180deg, transparent 45%, rgba(0,0,0,0.55) 80%, var(--bg) 100%);
+  pointer-events: none;
 }
 .presskit-header {
   max-width: 900px; margin: 0 auto;
@@ -979,7 +1048,7 @@ footer {
 }
 .presskit-avatar {
   width: 140px; height: 140px;
-  border-radius: var(--radius-lg);
+  border-radius: 50%;
   flex-shrink: 0;
   border: 3px solid var(--bg);
   object-fit: cover;
@@ -989,8 +1058,14 @@ footer {
   font-family: var(--font-display);
   font-size: 3rem; font-weight: 900;
   overflow: hidden;
-  box-shadow: var(--glow);
+  box-shadow:
+    0 0 0 1px rgba(212, 255, 58, 0.25),
+    0 0 40px rgba(212, 255, 58, 0.32),
+    0 20px 50px rgba(0, 0, 0, 0.5);
+  position: relative;
+  z-index: 3;
 }
+.presskit-avatar img { border-radius: 50%; }
 .presskit-name {
   font-family: var(--font-display);
   font-size: clamp(2rem, 5vw, 3rem);
@@ -1355,6 +1430,12 @@ footer {
 
 /* Lazy sections below fold: save layout work on initial paint */
 .cv-auto { content-visibility: auto; contain-intrinsic-size: 1px 800px; }
+
+/* Componentes que no necesitan relayout externo */
+.card, .feature-card, .stat-card, .testimonial, .pricing-card,
+.pk-event, .quick-action {
+  contain: layout style;
+}
 
 /* ─── SCROLL-REVEAL ──────────────────────────────────────── */
 [data-reveal] {

@@ -47,11 +47,42 @@
     }
     .pk-social-btn:hover { border-color: var(--border); color: var(--text); background: var(--card-hover); }
     .pk-event-grid { display: grid; gap: 10px; }
-    .pk-event { display: flex; gap: 14px; padding: 16px 18px; border-radius: var(--radius-lg); background: var(--card); border: 1px solid var(--border2); align-items: flex-start; }
+    .pk-event {
+      display: flex; gap: 14px;
+      padding: 16px 18px;
+      border-radius: var(--radius-lg);
+      background: var(--bg2);
+      border: 1px solid var(--border2);
+      align-items: flex-start;
+      transition: var(--transition);
+      position: relative;
+    }
+    .pk-event:hover {
+      border-color: var(--border);
+      background: var(--bg3);
+      transform: translateY(-1px);
+    }
+    .pk-event.is-upcoming::after {
+      content: ''; position: absolute;
+      top: 14px; right: 14px;
+      width: 8px; height: 8px; border-radius: 50%;
+      background: var(--green);
+      box-shadow: 0 0 0 0 rgba(94,228,107,0.6);
+      animation: pulse 2.2s infinite;
+    }
+    .pk-event.is-past { opacity: 0.78; }
+    .pk-event.is-past .event-date-badge {
+      background: var(--bg3);
+      border-color: var(--border2);
+      box-shadow: none;
+    }
+    .pk-event.is-past .event-date-badge::before { background: var(--muted2); }
+    .pk-event.is-past .event-date-day { color: var(--muted); text-shadow: none; }
+    .pk-event.is-past .event-date-month { color: var(--muted2); }
     .pk-ev-body { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 3px; }
-    .pk-ev-body strong { font-size: 0.97rem; font-weight: 700; color: var(--text); }
-    .pk-ev-body .pk-ev-meta { font-size: 0.8rem; color: var(--muted); }
-    .pk-ev-actions { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; margin-top: 7px; }
+    .pk-ev-body strong { font-size: 1rem; font-weight: 700; color: var(--text); line-height: 1.3; }
+    .pk-ev-body .pk-ev-meta { font-size: 0.82rem; color: var(--muted); margin-top: 2px; }
+    .pk-ev-actions { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; margin-top: 10px; }
     .demo-badge {
       position: fixed; bottom: 24px; left: 50%; transform: translateX(-50%);
       padding: 12px 28px; border-radius: 100px; z-index: 200;
@@ -196,20 +227,44 @@
     @media (max-width:480px) { .bk-grid { grid-template-columns:1fr; } }
 
     /* ── Responsive mobile fixes ── */
+    @media (max-width: 768px) {
+      .presskit-banner { height: 220px; }
+      .pk-banner-initials { font-size: clamp(3rem, 14vw, 5rem); }
+      .presskit-header { transform: translateY(-40px); margin-bottom: -24px; padding: 0 16px; gap: 14px; }
+      .presskit-avatar { width: 96px !important; height: 96px !important; font-size: 2rem !important; border-width: 3px; }
+      .presskit-body { padding: 20px 16px 60px; }
+      .presskit-section { margin-bottom: 34px; }
+      .presskit-section-title { font-size: 0.72rem; }
+    }
     @media (max-width: 600px) {
       .pk-nav { padding: 12px 16px; }
       .demo-badge { font-size: 0.8rem; padding: 10px 18px; bottom: 16px; max-width: calc(100vw - 32px); }
       .sp-grid, .sc-grid { grid-template-columns: repeat(auto-fill, minmax(130px, 1fr)); }
       .pk-social-btn { font-size: 0.8rem; padding: 8px 12px; }
 
-      /* Event card */
+      /* Header en mobile: avatar centrado arriba, texto abajo */
+      .presskit-header { flex-direction: column; align-items: flex-start; gap: 16px; }
+      .presskit-header > div:last-child { padding-bottom: 0; }
+      .presskit-name { font-size: clamp(1.6rem, 7vw, 2.2rem) !important; line-height: 1; }
+
+      /* Event card compacto */
       .pk-event { padding: 12px 13px; gap: 11px; }
-      .event-date-badge { padding: 7px 10px; min-width: 48px; }
+      .event-date-badge { padding: 8px 10px 6px; min-width: 54px; }
+      .event-date-day { font-size: 1.35rem !important; }
+      .event-date-month { font-size: 0.66rem; }
+      .event-date-year { font-size: 0.62rem; }
+      .pk-ev-body strong { font-size: 0.92rem; }
+      .pk-ev-body .pk-ev-meta { font-size: 0.76rem; }
       .pk-ev-actions img { height: 32px !important; width: 32px !important; }
+      .pk-event.is-upcoming::after { top: 10px; right: 10px; }
     }
     @media (max-width: 400px) {
+      .presskit-banner { height: 180px; }
+      .presskit-avatar { width: 80px !important; height: 80px !important; font-size: 1.7rem !important; }
       .sp-grid, .sc-grid { grid-template-columns: repeat(2, 1fr); }
       .pk-event { padding: 10px; }
+      .pk-ev-actions { gap: 6px; }
+      .pk-ev-actions .btn-sm { font-size: 0.7rem !important; padding: 4px 10px !important; }
     }
 
     /* ── PDF loading state ── */
@@ -751,11 +806,11 @@ function pkEventCard(ev, dim) {
   const year  = d.getFullYear();
   const isPast = d < now;
   return `
-  <div class="pk-event"${dim ? ' style="opacity:0.75"' : ''}>
+  <div class="pk-event${isPast ? ' is-past' : ' is-upcoming'}"${dim ? ' style="opacity:0.75"' : ''}>
     <div class="event-date-badge">
       <div class="event-date-month">${month}</div>
       <div class="event-date-day">${day}</div>
-      <div style="font-size:0.62rem;color:var(--muted2);margin-top:1px;">${year}</div>
+      <div class="event-date-year">${year}</div>
     </div>
     <div class="pk-ev-body">
       <strong>${ev.name}</strong>
@@ -789,10 +844,12 @@ async function renderPressKit(p, events) {
     banner.style.backgroundImage = `url(${p.banner_url})`;
     banner.style.backgroundSize = 'cover';
     banner.style.backgroundPosition = 'center';
+    banner.classList.add('has-image');
   } else {
-    banner.style.background = 'linear-gradient(135deg, #1a0533 0%, #050514 40%, #0a1a2e 100%)';
-    // Decoración visual si no hay banner
-    banner.innerHTML += `<div style="position:absolute;inset:0;display:flex;align-items:center;justify-content:center;opacity:0.15;font-size:8rem;font-weight:800;letter-spacing:-4px;color:white;pointer-events:none;">VOLTUM</div>`;
+    banner.classList.add('no-image');
+    // Placeholder: grid pattern + iniciales grandes en lime
+    const initials = (p.dj_name || 'V').split(' ').map(s=>s[0]).slice(0,2).join('').toUpperCase();
+    banner.innerHTML += `<div class="pk-banner-placeholder"><span class="pk-banner-initials">${initials}</span></div>`;
   }
 
   // Avatar
@@ -965,8 +1022,11 @@ async function renderCompany(p, events) {
     banner.style.backgroundImage = `url(${p.banner_url})`;
     banner.style.backgroundSize = 'cover';
     banner.style.backgroundPosition = 'center';
+    banner.classList.add('has-image');
   } else {
-    banner.style.background = 'linear-gradient(135deg, #0a1a2e 0%, #050514 50%, #1a0533 100%)';
+    banner.classList.add('no-image');
+    const initials = (p.dj_name || 'V').split(' ').map(s=>s[0]).slice(0,2).join('').toUpperCase();
+    banner.innerHTML += `<div class="pk-banner-placeholder"><span class="pk-banner-initials">${initials}</span></div>`;
   }
 
   // Logo / avatar
