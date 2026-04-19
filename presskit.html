@@ -445,18 +445,19 @@
 
     <div class="bk-header">
       <div class="bk-dj-avatar" id="bkDjAvatar">D</div>
-      <div>
-        <div style="font-size:0.72rem;color:var(--muted2);text-transform:uppercase;letter-spacing:0.08em;margin-bottom:3px;">Solicitud de booking para</div>
+      <div style="flex:1;min-width:0;">
+        <div style="font-size:0.7rem;color:var(--lime);text-transform:uppercase;letter-spacing:0.14em;margin-bottom:3px;font-family:var(--font-mono);font-weight:600;">Reservar con Voltum · Gestión profesional</div>
         <div style="font-weight:800;font-size:1.1rem;" id="bkDjName">DJ</div>
+        <div style="font-size:0.75rem;color:var(--muted);margin-top:2px;">Voltum valida tu solicitud y coordina con el DJ</div>
       </div>
     </div>
 
     <!-- No logueado -->
     <div id="bkNoAuth" style="display:none;text-align:center;padding:20px 0;">
       <div style="font-size:2rem;margin-bottom:12px;"><i data-lucide="building-2"></i></div>
-      <div style="font-weight:700;margin-bottom:8px;">Regístrate como empresa</div>
-      <div style="font-size:0.875rem;color:var(--muted);margin-bottom:24px;">Para solicitar bookings necesitas una cuenta de empresa en Voltum.</div>
-      <a href="auth.html?tab=register" class="btn btn-primary">Crear cuenta empresa →</a>
+      <div style="font-weight:700;margin-bottom:8px;">Regístrate como empresa · Gratis</div>
+      <div style="font-size:0.875rem;color:var(--muted);margin-bottom:24px;">El perfil de empresa es gratuito. Creas tu cuenta y solicitas bookings al instante.</div>
+      <a href="auth.html?tab=register" class="btn btn-primary">Crear cuenta gratis →</a>
     </div>
 
     <!-- Es DJ, no empresa -->
@@ -514,26 +515,52 @@
       <div class="form-group">
         <label class="form-label">Presupuesto (CLP)</label>
         <input type="number" id="bkBudget" class="form-input" placeholder="ej: 150000" min="0" step="1000">
+        <div class="form-hint">Voltum aplica una comisión por la gestión y paga al DJ el neto acordado.</div>
       </div>
+
+      <!-- EQUIPAMIENTO -->
+      <div class="form-group" style="background:var(--bg3);border:1px solid var(--border2);border-radius:var(--radius);padding:14px 16px;">
+        <label class="form-label" style="margin-bottom:10px;">¿El lugar cuenta con equipamiento? *</label>
+        <div style="display:flex;gap:10px;flex-wrap:wrap;margin-bottom:10px;">
+          <label style="flex:1;min-width:120px;display:flex;align-items:center;gap:8px;padding:10px 14px;border:1px solid var(--border2);border-radius:var(--radius);cursor:pointer;background:var(--bg2);transition:var(--transition);">
+            <input type="radio" name="bkEquipment" value="yes" required style="accent-color:var(--lime);">
+            <span style="font-weight:600;font-size:0.88rem;">Sí, tiene equipo</span>
+          </label>
+          <label style="flex:1;min-width:120px;display:flex;align-items:center;gap:8px;padding:10px 14px;border:1px solid var(--border2);border-radius:var(--radius);cursor:pointer;background:var(--bg2);transition:var(--transition);">
+            <input type="radio" name="bkEquipment" value="no" required style="accent-color:var(--lime);">
+            <span style="font-weight:600;font-size:0.88rem;">No, DJ debe llevar</span>
+          </label>
+        </div>
+        <textarea id="bkEquipmentDetails" class="form-input" rows="2" placeholder="Detalla equipamiento disponible o requisitos (mixer, monitores, cabinas, etc.)" style="resize:vertical;font-size:0.88rem;"></textarea>
+      </div>
+
       <div class="form-group">
-        <label class="form-label">Mensaje para el DJ</label>
-        <textarea id="bkMessage" class="form-input" rows="3" placeholder="Cuéntale sobre el evento, el ambiente que buscan, expectativas..." style="resize:vertical;"></textarea>
+        <label class="form-label">Detalles adicionales del evento</label>
+        <textarea id="bkMessage" class="form-input" rows="3" placeholder="Público esperado, ambiente buscado, estilo musical, horarios específicos..." style="resize:vertical;"></textarea>
       </div>
+
+      <!-- Disclaimer -->
+      <div style="display:flex;gap:10px;padding:12px 14px;background:var(--lime-dim);border:1px solid var(--border);border-radius:var(--radius);margin-bottom:14px;font-size:0.8rem;color:var(--text-dim);">
+        <i data-lucide="shield-check" style="color:var(--lime);flex-shrink:0;margin-top:2px;"></i>
+        <span>Voltum revisa tu solicitud, valida la disponibilidad del DJ y coordina todos los detalles. Te contactamos por email/WhatsApp dentro de 24h.</span>
+      </div>
+
       <div style="display:flex;gap:10px;justify-content:flex-end;margin-top:8px;">
         <button type="button" onclick="closeBookingModal()" class="btn btn-outline">Cancelar</button>
         <button type="submit" id="bkSubmitBtn" class="btn btn-primary">
-          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>
-          Enviar solicitud
+          <i data-lucide="send"></i>
+          Enviar solicitud a Voltum
         </button>
       </div>
     </form>
 
     <!-- Enviado OK -->
     <div id="bkSuccess" style="display:none;text-align:center;padding:20px 0;">
-      <div style="font-size:2.5rem;margin-bottom:16px;"><i data-lucide="check-circle"></i></div>
-      <div style="font-weight:700;font-size:1.1rem;margin-bottom:8px;">¡Solicitud enviada!</div>
-      <div style="font-size:0.875rem;color:var(--muted);margin-bottom:24px;">El DJ recibirá tu solicitud y podrá aceptarla o rechazarla desde su panel.</div>
-      <a href="company-dashboard.html" class="btn btn-primary btn-sm">Ver mis bookings →</a>
+      <div class="confetti-ring" style="width:80px;height:80px;margin:0 auto 20px;"><i data-lucide="check-circle"></i></div>
+      <div style="font-weight:800;font-size:1.15rem;margin-bottom:8px;">¡Solicitud recibida por Voltum!</div>
+      <div style="font-size:0.88rem;color:var(--muted);margin-bottom:18px;line-height:1.6;">Revisaremos tu solicitud, verificaremos disponibilidad del DJ, y te contactaremos dentro de 24h por email o WhatsApp para coordinar los detalles finales.</div>
+      <div style="font-family:var(--font-mono);font-size:0.72rem;color:var(--lime);letter-spacing:0.14em;text-transform:uppercase;margin-bottom:22px;">— GESTIÓN VOLTUM ACTIVA</div>
+      <a href="company-dashboard.html" class="btn btn-primary btn-sm"><i data-lucide="clipboard-list"></i> Ver mis bookings</a>
     </div>
   </div>
 </div>
@@ -1595,23 +1622,33 @@ async function submitBooking(e) {
   if (!_bkCompany || !_bkDjUserId) return;
 
   const btn = document.getElementById('bkSubmitBtn');
-  btn.disabled = true; btn.textContent = 'Enviando...';
+  btn.disabled = true;
+  btn.innerHTML = '<i data-lucide="loader-2" style="animation:spin 0.8s linear infinite;"></i> Enviando a Voltum...';
+  window.renderIcons?.();
+
+  const equipmentRadio = document.querySelector('input[name="bkEquipment"]:checked');
+  const equipmentProvided = equipmentRadio ? equipmentRadio.value === 'yes' : null;
 
   const { error } = await sb.from('bookings').insert({
-    dj_user_id:   _bkDjUserId,
-    company_id:   _bkCompany.id,
-    event_date:   document.getElementById('bkDate').value,
-    event_time:   document.getElementById('bkTime').value || null,
-    event_type:   document.getElementById('bkEventType').value || null,
-    duration_hrs: document.getElementById('bkDuration').value ? parseFloat(document.getElementById('bkDuration').value) : null,
-    venue_name:   document.getElementById('bkVenue').value.trim() || null,
-    city:         document.getElementById('bkCity').value.trim() || null,
-    budget:       document.getElementById('bkBudget').value ? parseInt(document.getElementById('bkBudget').value) : null,
-    message:      document.getElementById('bkMessage').value.trim() || null,
+    dj_user_id:         _bkDjUserId,
+    company_id:         _bkCompany.id,
+    event_date:         document.getElementById('bkDate').value,
+    event_time:         document.getElementById('bkTime').value || null,
+    event_type:         document.getElementById('bkEventType').value || null,
+    duration_hrs:       document.getElementById('bkDuration').value ? parseFloat(document.getElementById('bkDuration').value) : null,
+    venue_name:         document.getElementById('bkVenue').value.trim() || null,
+    city:               document.getElementById('bkCity').value.trim() || null,
+    budget:             document.getElementById('bkBudget').value ? parseInt(document.getElementById('bkBudget').value) : null,
+    message:            document.getElementById('bkMessage').value.trim() || null,
+    equipment_provided: equipmentProvided,
+    equipment_details:  document.getElementById('bkEquipmentDetails').value.trim() || null,
+    voltum_status:      'review_voltum',
+    status:             'pendiente',
   });
 
   btn.disabled = false;
-  btn.innerHTML = '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg> Enviar solicitud';
+  btn.innerHTML = '<i data-lucide="send"></i> Enviar solicitud a Voltum';
+  window.renderIcons?.();
 
   if (error) {
     showToast('Error al enviar: ' + error.message, 'error');

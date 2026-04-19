@@ -697,14 +697,18 @@
   // ── Bookings ──────────────────────────────────────────────────────────────
   let _allBookings = [];
 
+  // Solo se cargan bookings que Voltum ya aprobó/envió al DJ
+  // (la RLS policy los filtra también en el servidor)
   const { data: bookingsData } = await sb.from('bookings')
     .select(`*, company:companies!bookings_company_id_fkey(name, type, city, contact_name, contact_phone, instagram)`)
     .eq('dj_user_id', user.id)
+    .in('voltum_status', ['approved_voltum', 'dj_review', 'confirmed', 'dj_declined', 'cancelled'])
     .order('created_at', { ascending: false });
 
   _allBookings = bookingsData || [];
 
-  const pending = _allBookings.filter(b => b.status === 'pendiente');
+  // Pendiente de respuesta del DJ = dj_review
+  const pending = _allBookings.filter(b => b.voltum_status === 'dj_review');
   if (pending.length) {
     const badge = document.getElementById('bookingBadge');
     badge.textContent = pending.length;
@@ -721,21 +725,36 @@
     });
   });
 
+  // Mapeo: filtro UI → voltum_status(es) permitido(s)
+  const _filterToVoltumStatus = {
+    pendiente: ['dj_review', 'approved_voltum'],
+    aceptado:  ['confirmed'],
+    rechazado: ['dj_declined'],
+    cancelado: ['cancelled'],
+  };
+
   function renderDjBookings(filter) {
-    const list = filter === 'all' ? _allBookings : _allBookings.filter(b => b.status === filter);
+    const allowed = _filterToVoltumStatus[filter];
+    const list = filter === 'all' ? _allBookings : _allBookings.filter(b => allowed && allowed.includes(b.voltum_status));
     const el = document.getElementById('djBookingsList');
 
     if (!list.length) {
       el.innerHTML = `<div style="background:var(--card);border:1px solid var(--border2);border-radius:var(--radius-xl);padding:36px 24px;text-align:center;">
         <div style="font-size:2rem;margin-bottom:12px;opacity:0.4;"><i data-lucide="clipboard-list"></i></div>
         <div style="font-weight:600;margin-bottom:6px;">${filter === 'pendiente' ? 'Sin solicitudes pendientes' : 'Sin solicitudes aún'}</div>
-        <div style="font-size:0.82rem;color:var(--muted);">Cuando una empresa te solicite un booking aparecerá aquí</div>
+        <div style="font-size:0.82rem;color:var(--muted);">Voltum te enviará los bookings aprobados a través de este panel</div>
       </div>`;
       return;
     }
 
-    const statusMap   = { pendiente:'status-pendiente', aceptado:'status-aceptado', rechazado:'status-rechazado', cancelado:'status-cancelado' };
-    const statusLabel = { pendiente:'● Pendiente', aceptado:'✓ Aceptado', rechazado:'✕ Rechazado', cancelado:'— Cancelado' };
+    // Mapeo voltum_status → UI
+    const voltumLabel = {
+      dj_review:       { cls:'status-pendiente', text:'● Voltum envió · responde' },
+      approved_voltum: { cls:'status-pendiente', text:'● Aprobado por Voltum' },
+      confirmed:       { cls:'status-aceptado',  text:'✓ Confirmado' },
+      dj_declined:     { cls:'status-rechazado', text:'✕ Rechazado por ti' },
+      cancelled:       { cls:'status-cancelado', text:'— Cancelado' },
+    };
 
     el.innerHTML = `<div style="background:var(--card);border:1px solid var(--border2);border-radius:var(--radius-xl);overflow:hidden;">
       ${list.map((b, i) => {
@@ -751,33 +770,46 @@
             <div style="font-size:0.75rem;color:var(--muted2);margin-top:2px;">${b.event_type || ''}</div>
           </div>
           <div style="font-size:0.82rem;color:var(--muted);">${b.venue_name || b.city || '—'}</div>
-          <div><span class="status-badge ${statusMap[b.status] || ''}">${statusLabel[b.status] || b.status}</span></div>
+          <div><span class="status-badge ${(voltumLabel[b.voltum_status] || {}).cls || ''}">${(voltumLabel[b.voltum_status] || {}).text || b.voltum_status || ''}</span></div>
         </div>`;
       }).join('')}
     </div>`;
   }
 
   window.openDjBookingModal = function(idx, filter) {
-    const list = filter === 'all' ? _allBookings : _allBookings.filter(b => b.status === filter);
+    const allowed = _filterToVoltumStatus[filter];
+    const list = filter === 'all' ? _allBookings : _allBookings.filter(b => allowed && allowed.includes(b.voltum_status));
     const b = list[idx];
     if (!b) return;
     const co = b.company;
     const date = b.event_date ? new Date(b.event_date + 'T12:00:00').toLocaleDateString('es-CL', { day:'numeric', month:'long', year:'numeric' }) : '—';
     const budget = b.budget ? formatPrice(b.budget) : '—';
-    const statusMap   = { pendiente:'status-pendiente', aceptado:'status-aceptado', rechazado:'status-rechazado', cancelado:'status-cancelado' };
-    const statusLabel = { pendiente:'● Pendiente', aceptado:'✓ Aceptado', rechazado:'✕ Rechazado', cancelado:'— Cancelado' };
+    const djNet  = b.dj_net_amount ? formatPrice(b.dj_net_amount) : null;
+    const voltumLabel = {
+      dj_review:       { cls:'status-pendiente', text:'● Voltum envió · responde' },
+      approved_voltum: { cls:'status-pendiente', text:'● Aprobado por Voltum' },
+      confirmed:       { cls:'status-aceptado',  text:'✓ Confirmado' },
+      dj_declined:     { cls:'status-rechazado', text:'✕ Rechazado por ti' },
+      cancelled:       { cls:'status-cancelado', text:'— Cancelado' },
+    };
+    const canRespond = b.voltum_status === 'dj_review' || b.voltum_status === 'approved_voltum';
 
     document.getElementById('djBookingModalContent').innerHTML = `
       <div style="display:flex;align-items:center;gap:12px;margin-bottom:20px;padding-bottom:16px;border-bottom:1px solid var(--border2);">
-        <div style="width:44px;height:44px;border-radius:12px;background:rgba(34,211,238,0.1);display:flex;align-items:center;justify-content:center;font-weight:700;color:#22d3ee;font-size:1.1rem;flex-shrink:0;">
+        <div style="width:44px;height:44px;border-radius:12px;background:var(--lime-dim);display:flex;align-items:center;justify-content:center;font-weight:700;color:var(--lime);font-size:1.1rem;flex-shrink:0;">
           ${(co?.name || 'E')[0].toUpperCase()}
         </div>
         <div>
           <div style="font-weight:700;font-size:1.05rem;">${co?.name || '—'}</div>
           <div style="font-size:0.8rem;color:var(--muted2);">${[co?.type, co?.city].filter(Boolean).join(' · ') || ''}</div>
         </div>
-        <span class="status-badge ${statusMap[b.status] || ''}" style="margin-left:auto;">${statusLabel[b.status] || b.status}</span>
+        <span class="status-badge ${(voltumLabel[b.voltum_status]||{}).cls||''}" style="margin-left:auto;">${(voltumLabel[b.voltum_status]||{}).text||b.voltum_status||''}</span>
       </div>
+
+      ${djNet ? `<div style="padding:14px 16px;background:linear-gradient(145deg,rgba(212,255,58,0.1),rgba(212,255,58,0.02));border:1px solid var(--border);border-radius:var(--radius);margin-bottom:16px;">
+        <div style="font-family:var(--font-mono);font-size:0.68rem;color:var(--lime);text-transform:uppercase;letter-spacing:0.15em;margin-bottom:4px;">Tu pago neto (post comisión Voltum)</div>
+        <div style="font-family:var(--font-display);font-size:1.6rem;font-weight:900;color:var(--lime);">${djNet}</div>
+      </div>` : ''}
 
       <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:16px;">
         <div style="background:var(--bg3);border-radius:var(--radius);padding:12px;">
@@ -806,29 +838,39 @@
         </div>
       </div>
 
+      ${b.equipment_provided !== null && b.equipment_provided !== undefined ? `<div style="background:var(--bg3);border-radius:var(--radius);padding:14px;margin-bottom:16px;">
+        <div style="font-size:0.7rem;color:var(--muted2);text-transform:uppercase;letter-spacing:0.06em;margin-bottom:6px;">Equipamiento del lugar</div>
+        <div style="font-size:0.88rem;font-weight:600;display:flex;align-items:center;gap:8px;">
+          <i data-lucide="${b.equipment_provided ? 'check-circle' : 'alert-triangle'}" style="color:${b.equipment_provided ? 'var(--green)' : 'var(--warn)'};"></i>
+          ${b.equipment_provided ? 'El lugar cuenta con equipamiento' : 'DJ debe llevar su propio equipo'}
+        </div>
+        ${b.equipment_details ? `<div style="font-size:0.82rem;color:var(--muted);margin-top:6px;line-height:1.5;">${b.equipment_details}</div>` : ''}
+      </div>` : ''}
+
       ${b.message ? `<div style="background:var(--bg3);border-radius:var(--radius);padding:14px;margin-bottom:16px;">
-        <div style="font-size:0.7rem;color:var(--muted2);text-transform:uppercase;letter-spacing:0.06em;margin-bottom:6px;">Mensaje de la empresa</div>
+        <div style="font-size:0.7rem;color:var(--muted2);text-transform:uppercase;letter-spacing:0.06em;margin-bottom:6px;">Detalles del evento</div>
         <div style="font-size:0.875rem;line-height:1.6;">${b.message}</div>
       </div>` : ''}
 
-      ${co?.contact_name || co?.contact_phone || co?.instagram ? `<div style="background:rgba(34,211,238,0.05);border:1px solid rgba(34,211,238,0.15);border-radius:var(--radius);padding:14px;margin-bottom:16px;">
-        <div style="font-size:0.7rem;color:#22d3ee;text-transform:uppercase;letter-spacing:0.06em;margin-bottom:8px;">Contacto empresa</div>
-        <div style="font-size:0.83rem;display:flex;flex-direction:column;gap:4px;">
-          ${co.contact_name ? `<span>${co.contact_name}</span>` : ''}
-          ${co.contact_phone ? `<a href="tel:${co.contact_phone}" style="color:var(--purple-l);"><i data-lucide="phone"></i> ${co.contact_phone}</a>` : ''}
-          ${co.instagram ? `<a href="https://instagram.com/${co.instagram}" target="_blank" style="color:var(--purple-l);">@${co.instagram}</a>` : ''}
-        </div>
+      ${b.admin_notes ? `<div style="background:var(--lime-dim);border:1px solid var(--border);border-radius:var(--radius);padding:14px;margin-bottom:16px;">
+        <div style="font-size:0.7rem;color:var(--lime);text-transform:uppercase;letter-spacing:0.1em;margin-bottom:6px;font-family:var(--font-mono);font-weight:600;">Notas de Voltum</div>
+        <div style="font-size:0.875rem;line-height:1.6;color:var(--text);">${b.admin_notes}</div>
       </div>` : ''}
 
-      ${b.status === 'pendiente' ? `
-      <div style="margin-bottom:14px;">
-        <label style="font-size:0.82rem;font-weight:600;display:block;margin-bottom:6px;">Mensaje de respuesta <span style="color:var(--muted2);font-weight:400;">(opcional)</span></label>
-        <textarea id="djResponseMsg" class="form-input" rows="2" placeholder="Ej: ¡Me interesa! Podemos coordinar los detalles..." style="resize:vertical;font-size:0.875rem;"></textarea>
+      <div style="background:var(--bg3);border-radius:var(--radius);padding:12px 14px;margin-bottom:16px;font-size:0.78rem;color:var(--muted);display:flex;align-items:center;gap:8px;">
+        <i data-lucide="info" style="color:var(--lime);flex-shrink:0;"></i>
+        <span>El contacto directo con la empresa lo gestiona Voltum. Responde aquí para confirmar o declinar.</span>
       </div>
-      <div style="display:flex;gap:10px;justify-content:flex-end;">
+
+      ${canRespond ? `
+      <div style="margin-bottom:14px;">
+        <label style="font-size:0.82rem;font-weight:600;display:block;margin-bottom:6px;">Mensaje para Voltum <span style="color:var(--muted2);font-weight:400;">(opcional)</span></label>
+        <textarea id="djResponseMsg" class="form-input" rows="2" placeholder="Ej: Confirmado, disponible en la fecha. / No disponible por X razón..." style="resize:vertical;font-size:0.875rem;"></textarea>
+      </div>
+      <div style="display:flex;gap:10px;justify-content:flex-end;flex-wrap:wrap;">
         <button onclick="closeDjBookingModal()" class="btn btn-outline btn-sm">Cerrar</button>
-        <button onclick="respondBooking('${b.id}', 'rechazado')" class="btn btn-sm" style="background:rgba(239,68,68,0.1);border:1px solid rgba(239,68,68,0.3);color:#f87171;"><i data-lucide="x"></i> Rechazar</button>
-        <button onclick="respondBooking('${b.id}', 'aceptado')" class="btn btn-primary btn-sm"><i data-lucide="check"></i> Aceptar booking</button>
+        <button onclick="respondBooking('${b.id}', 'dj_declined')" class="btn btn-danger btn-sm"><i data-lucide="x"></i> No disponible</button>
+        <button onclick="respondBooking('${b.id}', 'confirmed')" class="btn btn-primary btn-sm"><i data-lucide="check"></i> Confirmar booking</button>
       </div>` : `
       <div style="display:flex;justify-content:flex-end;">
         <button onclick="closeDjBookingModal()" class="btn btn-outline btn-sm">Cerrar</button>
@@ -838,26 +880,29 @@
     document.getElementById('djBookingModal').style.display = 'flex';
   };
 
-  window.respondBooking = async function(bookingId, status) {
+  // voltum_status recibe: 'confirmed' o 'dj_declined'
+  window.respondBooking = async function(bookingId, voltumStatus) {
     const msg = document.getElementById('djResponseMsg')?.value.trim() || null;
-    const btn = document.querySelector(`button[onclick="respondBooking('${bookingId}', '${status}')"]`);
+    const btn = document.querySelector(`button[onclick="respondBooking('${bookingId}', '${voltumStatus}')"]`);
     if (btn) { btn.disabled = true; btn.textContent = 'Guardando...'; }
 
+    // Mapeo a status legacy para compatibilidad
+    const legacyStatus = voltumStatus === 'confirmed' ? 'aceptado' : 'rechazado';
+
     const { error } = await sb.from('bookings')
-      .update({ status, dj_response: msg })
+      .update({ voltum_status: voltumStatus, status: legacyStatus, dj_response: msg })
       .eq('id', bookingId);
 
     if (error) { showToast('Error: ' + error.message, 'error'); return; }
 
-    // Actualizar estado local
     const bk = _allBookings.find(b => b.id === bookingId);
-    if (bk) { bk.status = status; bk.dj_response = msg; }
+    if (bk) { bk.voltum_status = voltumStatus; bk.status = legacyStatus; bk.dj_response = msg; }
 
-    showToast(status === 'aceptado' ? '✓ Booking aceptado' : '✕ Booking rechazado', status === 'aceptado' ? 'success' : 'error');
+    showToast(voltumStatus === 'confirmed' ? 'Booking confirmado · Voltum coordina' : 'Booking rechazado · Voltum informará a la empresa', voltumStatus === 'confirmed' ? 'success' : 'info');
     closeDjBookingModal();
 
-    // Refrescar badge y lista
-    const p = _allBookings.filter(b => b.status === 'pendiente');
+    // Refrescar badge (bookings en dj_review)
+    const p = _allBookings.filter(b => b.voltum_status === 'dj_review');
     const badge = document.getElementById('bookingBadge');
     if (p.length) { badge.textContent = p.length; badge.style.display = 'inline-block'; }
     else badge.style.display = 'none';

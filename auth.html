@@ -63,8 +63,15 @@
         <div class="auth-feature">
           <div class="auth-feature-icon"><i data-lucide="zap"></i></div>
           <div class="auth-feature-text">
-            <h4>Membresía mensual</h4>
-            <p>Solo $11.990 CLP al mes. Todo incluido.</p>
+            <h4>DJs · Membresía mensual</h4>
+            <p>$9.990 CLP al mes. Todo incluido.</p>
+          </div>
+        </div>
+        <div class="auth-feature">
+          <div class="auth-feature-icon"><i data-lucide="building-2"></i></div>
+          <div class="auth-feature-text">
+            <h4>Empresas · Perfil gratuito</h4>
+            <p>Voltum gestiona los bookings y cobra comisión al confirmar. Sin membresía, sin tarjeta.</p>
           </div>
         </div>
       </div>
@@ -108,18 +115,35 @@
               <i data-lucide="headphones"></i> Soy DJ / Artista
             </button>
             <button type="button" class="account-type-btn" id="typeEmpresa" onclick="setAccountType('empresa')">
+              <span class="acct-free-badge">GRATIS</span>
               <i data-lucide="building-2"></i> Soy Empresa
             </button>
+          </div>
+          <div class="form-hint" id="acctTypeHint" style="margin-top:8px;">
+            <strong style="color:var(--text);">DJs:</strong> membresía mensual $9.990 CLP (7 días gratis para probar).
           </div>
         </div>
         <style>
           .account-type-btn {
+            position:relative;
             padding:10px 8px; border-radius:var(--radius); border:1px solid var(--border2);
             background:var(--bg3); color:var(--muted); font-family:inherit; font-size:0.85rem;
             cursor:pointer; transition:var(--transition); font-weight:500;
           }
           .account-type-btn.active {
             border-color:var(--purple); background:rgba(139,92,246,0.1); color:var(--text);
+          }
+          #typeEmpresa.active {
+            border-color: var(--cyan, #22D3EE); background: rgba(34,211,238,0.10);
+          }
+          .acct-free-badge {
+            position:absolute; top:-8px; right:-8px;
+            background: linear-gradient(135deg, #10B981, #22D3EE);
+            color:#001;
+            font-size:0.62rem; font-weight:800; letter-spacing:0.08em;
+            padding:2px 6px; border-radius:100px;
+            border:1px solid rgba(0,0,0,0.2);
+            box-shadow: 0 2px 8px rgba(16,185,129,0.35);
           }
         </style>
         <div class="form-group">
@@ -151,7 +175,7 @@
         <button class="btn btn-primary btn-full btn-lg" id="registerBtn" style="margin-bottom:16px;">
           Crear cuenta gratis →
         </button>
-        <p style="font-size:0.8rem;color:var(--muted2);text-align:center;">
+        <p id="regDisclaimer" style="font-size:0.8rem;color:var(--muted2);text-align:center;">
           Al crear tu cuenta, activas una prueba de 7 días.<br>
           Después necesitas activar tu membresía Voltum Pro.
         </p>
@@ -258,6 +282,17 @@
     document.getElementById('regNameLabel').textContent = type === 'dj' ? 'Nombre artístico (DJ Name)' : 'Nombre de la empresa';
     document.getElementById('regDjName').placeholder = type === 'dj' ? 'ej: DJ Nova' : 'ej: Northsound Producciones';
     document.getElementById('regNameHint').textContent = type === 'dj' ? 'Este será tu nombre público en el press kit' : 'Nombre con que aparecerá tu empresa en la plataforma';
+
+    // Ajustar hint y disclaimer según tipo
+    const hintEl = document.getElementById('acctTypeHint');
+    const disclaimerEl = document.getElementById('regDisclaimer');
+    if (type === 'empresa') {
+      if (hintEl) hintEl.innerHTML = '<strong style="color:var(--cyan,#22D3EE);">Empresas: perfil 100% gratuito</strong> · sin tarjeta · sin membresía. Voltum gestiona los bookings y cobra una comisión al confirmarse cada contratación.';
+      if (disclaimerEl) disclaimerEl.innerHTML = 'Perfil de empresa gratis · sin tarjeta · sin membresía.<br>Voltum gestiona el booking y cobra comisión solo al confirmar.';
+    } else {
+      if (hintEl) hintEl.innerHTML = '<strong style="color:var(--text);">DJs:</strong> membresía mensual $9.990 CLP (7 días gratis para probar).';
+      if (disclaimerEl) disclaimerEl.innerHTML = 'Al crear tu cuenta, activas una prueba de 7 días.<br>Después necesitas activar tu membresía Voltum Pro.';
+    }
   };
 
   // REGISTER

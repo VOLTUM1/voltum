@@ -350,6 +350,7 @@
       <!-- TABS -->
       <div class="admin-tabs">
         <button class="admin-tab active" data-tab="charts"><i data-lucide="trending-up"></i> Gráficos</button>
+        <button class="admin-tab" data-tab="bookings"><i data-lucide="send"></i> Bookings <span id="bkPendingBadge" class="badge badge-lime" style="display:none;margin-left:4px;font-size:0.62rem;"></span></button>
         <button class="admin-tab" data-tab="users"><i data-lucide="users"></i> Usuarios</button>
         <button class="admin-tab" data-tab="memberships"><i data-lucide="credit-card"></i> Membresías</button>
         <button class="admin-tab" data-tab="events"><i data-lucide="calendar-check"></i> Eventos</button>
@@ -528,8 +529,49 @@
 
       </div><!-- /tab-platform -->
 
+      <!-- ═══════════════════════════════════════════════
+           TAB · BOOKINGS (gestión Voltum)
+      ═══════════════════════════════════════════════ -->
+      <div id="tab-bookings" class="hidden">
+        <div style="display:flex;gap:10px;margin-bottom:18px;flex-wrap:wrap;">
+          <button class="btn btn-outline btn-sm bk-admin-filter active" data-bkf="review_voltum"><i data-lucide="eye"></i> Por revisar</button>
+          <button class="btn btn-outline btn-sm bk-admin-filter" data-bkf="approved_voltum"><i data-lucide="check"></i> Aprobados</button>
+          <button class="btn btn-outline btn-sm bk-admin-filter" data-bkf="dj_review"><i data-lucide="send"></i> Enviados al DJ</button>
+          <button class="btn btn-outline btn-sm bk-admin-filter" data-bkf="confirmed"><i data-lucide="check-circle"></i> Confirmados</button>
+          <button class="btn btn-outline btn-sm bk-admin-filter" data-bkf="rejected_voltum"><i data-lucide="x"></i> Rechazados</button>
+          <button class="btn btn-outline btn-sm bk-admin-filter" data-bkf="all"><i data-lucide="list"></i> Todos</button>
+        </div>
+
+        <div class="admin-table-wrap">
+          <table class="admin-table">
+            <thead><tr>
+              <th>Empresa</th>
+              <th>DJ</th>
+              <th>Fecha evento</th>
+              <th>Venue / Ciudad</th>
+              <th>Presupuesto</th>
+              <th>Equipo</th>
+              <th>Estado</th>
+              <th></th>
+            </tr></thead>
+            <tbody id="bookingsAdminBody"><tr><td colspan="8" class="empty-state">Cargando…</td></tr></tbody>
+          </table>
+        </div>
+      </div><!-- /tab-bookings -->
+
     </div><!-- /adminContent -->
   </main>
+</div>
+
+<!-- MODAL GESTIÓN BOOKING -->
+<div class="modal-overlay hidden" id="bookingAdminModal">
+  <div class="modal" style="max-width:640px;">
+    <div class="modal-header">
+      <h3>Gestión de booking</h3>
+      <button class="modal-close" id="closeBookingAdminModal">×</button>
+    </div>
+    <div id="bookingAdminBody"></div>
+  </div>
 </div>
 
 <!-- MODAL DETALLE USUARIO -->
@@ -674,6 +716,7 @@ async function loadAll() {
   renderEvents();
   renderDJofWeek();
   renderPlatform();
+  updateBookingsBadge?.();
   window.renderIcons?.();
 }
 
@@ -1115,9 +1158,10 @@ function setupTabs() {
     tab.addEventListener('click', () => {
       document.querySelectorAll('.admin-tab').forEach(t => t.classList.remove('active'));
       tab.classList.add('active');
-      ['charts', 'users', 'memberships', 'events', 'platform'].forEach(name => {
+      ['charts', 'bookings', 'users', 'memberships', 'events', 'platform'].forEach(name => {
         document.getElementById(`tab-${name}`).classList.toggle('hidden', name !== tab.dataset.tab);
       });
+      if (tab.dataset.tab === 'bookings') loadBookingsAdmin();
     });
   });
 }
@@ -1289,10 +1333,243 @@ function setupRefresh() {
     document.getElementById('refreshBtn').textContent = '↻ Actualizando...';
     await loadAll();
     renderCharts();
+    updateBookingsBadge();
     document.getElementById('refreshBtn').textContent = '↻ Actualizar';
     showToast('Datos actualizados', 'success');
   });
 }
+
+// ═══════════════════════════════════════════════════════════
+// GESTIÓN BOOKINGS — Voltum como intermediario
+// ═══════════════════════════════════════════════════════════
+let _bkAdminFilter = 'review_voltum';
+
+function updateBookingsBadge() {
+  const badge = document.getElementById('bkPendingBadge');
+  if (!badge || !allBookings) return;
+  const pending = allBookings.filter(b => b.voltum_status === 'review_voltum').length;
+  if (pending > 0) {
+    badge.textContent = pending;
+    badge.style.display = 'inline-block';
+  } else {
+    badge.style.display = 'none';
+  }
+}
+
+async function loadBookingsAdmin() {
+  // Re-fetch para datos frescos con joins
+  const { data, error } = await sb.from('bookings')
+    .select(`*,
+      dj:profiles!bookings_dj_user_id_fkey(id, dj_name, slug, photo_url, bank_name, bank_rut, bank_holder_name),
+      company:companies!bookings_company_id_fkey(name, type, contact_name, contact_phone, instagram, user_id)
+    `)
+    .order('created_at', { ascending: false });
+  if (error) { showToast('Error cargando bookings: ' + error.message, 'error'); return; }
+  allBookings = data || [];
+  updateBookingsBadge();
+  renderBookingsAdmin();
+
+  // Listeners de filtros
+  document.querySelectorAll('.bk-admin-filter').forEach(btn => {
+    btn.onclick = () => {
+      document.querySelectorAll('.bk-admin-filter').forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+      _bkAdminFilter = btn.dataset.bkf;
+      renderBookingsAdmin();
+    };
+  });
+}
+
+function renderBookingsAdmin() {
+  const body = document.getElementById('bookingsAdminBody');
+  const list = _bkAdminFilter === 'all' ? allBookings : allBookings.filter(b => b.voltum_status === _bkAdminFilter);
+
+  if (!list.length) {
+    body.innerHTML = `<tr><td colspan="8" class="empty-state" style="text-align:center;padding:40px;color:var(--muted);">Sin bookings en este estado</td></tr>`;
+    return;
+  }
+
+  const voltumLabel = {
+    review_voltum:   { cls:'badge-lime',   text:'Por revisar' },
+    approved_voltum: { cls:'badge-cyan',   text:'Aprobado · buscando DJ' },
+    dj_review:       { cls:'badge-cyan',   text:'Enviado al DJ' },
+    confirmed:       { cls:'badge-green',  text:'Confirmado' },
+    rejected_voltum: { cls:'badge-red',    text:'Rechazado' },
+    dj_declined:     { cls:'badge-red',    text:'DJ no disponible' },
+    cancelled:       { cls:'badge-dark',   text:'Cancelado' },
+  };
+
+  body.innerHTML = list.map(b => {
+    const d = b.event_date ? new Date(b.event_date + 'T12:00:00').toLocaleDateString('es-CL', { day:'numeric', month:'short', year:'numeric' }) : '—';
+    const lbl = voltumLabel[b.voltum_status] || { cls:'badge-dark', text: b.voltum_status || '—' };
+    const budget = b.budget ? formatPrice(b.budget) : '—';
+    const eq = b.equipment_provided === true ? '<i data-lucide="check-circle" class="icon-sm" style="color:var(--green);"></i>' :
+               b.equipment_provided === false ? '<i data-lucide="alert-triangle" class="icon-sm" style="color:var(--warn);"></i>' : '—';
+    return `<tr onclick="openAdminBookingModal('${b.id}')" style="cursor:pointer;">
+      <td>
+        <div style="font-weight:600;">${b.company?.name || '—'}</div>
+        <div class="muted">${b.company?.contact_name || b.event_type || ''}</div>
+      </td>
+      <td>
+        <div style="font-weight:600;">${b.dj?.dj_name || '—'}</div>
+        <div class="muted">${b.city || ''}</div>
+      </td>
+      <td>${d}<div class="muted">${b.event_time || ''}</div></td>
+      <td>${b.venue_name || '—'}<div class="muted">${b.city || ''}</div></td>
+      <td style="white-space:nowrap;">${budget}</td>
+      <td style="text-align:center;">${eq}</td>
+      <td><span class="badge ${lbl.cls}">${lbl.text}</span></td>
+      <td><i data-lucide="chevron-right" class="icon-sm" style="color:var(--muted);"></i></td>
+    </tr>`;
+  }).join('');
+  window.renderIcons?.();
+}
+
+window.openAdminBookingModal = function(bookingId) {
+  const b = allBookings.find(x => x.id === bookingId);
+  if (!b) return;
+  const dj = b.dj, co = b.company;
+  const date = b.event_date ? new Date(b.event_date + 'T12:00:00').toLocaleDateString('es-CL', { day:'numeric', month:'long', year:'numeric' }) : '—';
+  const budget = b.budget ? formatPrice(b.budget) : null;
+  const budgetNum = b.budget || 0;
+  const commissionPct = b.commission_percent || 12;
+  const commissionAmt = b.commission_amount || Math.round(budgetNum * commissionPct / 100);
+  const djNet = b.dj_net_amount || (budgetNum - commissionAmt);
+
+  const voltumLabel = {
+    review_voltum:   'Por revisar',
+    approved_voltum: 'Aprobado · buscando DJ',
+    dj_review:       'Enviado al DJ',
+    confirmed:       'Confirmado',
+    rejected_voltum: 'Rechazado',
+    dj_declined:     'DJ no disponible',
+    cancelled:       'Cancelado',
+  };
+
+  const body = document.getElementById('bookingAdminBody');
+  body.innerHTML = `
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:16px;">
+      <div style="background:var(--bg3);border-radius:var(--radius);padding:12px;">
+        <div class="uppercase-label" style="margin-bottom:4px;">Empresa</div>
+        <div style="font-weight:700;">${co?.name || '—'}</div>
+        <div class="muted">${co?.type || ''} · ${co?.contact_name || ''}</div>
+        ${co?.contact_phone ? `<a href="tel:${co.contact_phone}" class="btn btn-outline btn-sm" style="margin-top:8px;"><i data-lucide="phone"></i> ${co.contact_phone}</a>` : ''}
+      </div>
+      <div style="background:var(--bg3);border-radius:var(--radius);padding:12px;">
+        <div class="uppercase-label" style="margin-bottom:4px;">DJ</div>
+        <div style="font-weight:700;">${dj?.dj_name || '—'}</div>
+        <div class="muted">${dj?.bank_holder_name || ''}</div>
+        ${dj?.slug ? `<a href="presskit.html?slug=${dj.slug}" target="_blank" class="btn btn-outline btn-sm" style="margin-top:8px;"><i data-lucide="external-link"></i> Press kit</a>` : ''}
+      </div>
+    </div>
+
+    <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:14px;">
+      <div style="background:var(--bg3);border-radius:var(--radius);padding:10px;"><div class="uppercase-label">Fecha</div><div style="font-weight:600;">${date}</div></div>
+      <div style="background:var(--bg3);border-radius:var(--radius);padding:10px;"><div class="uppercase-label">Hora</div><div style="font-weight:600;">${b.event_time || '—'}</div></div>
+      <div style="background:var(--bg3);border-radius:var(--radius);padding:10px;"><div class="uppercase-label">Duración</div><div style="font-weight:600;">${b.duration_hrs ? b.duration_hrs+' hrs' : '—'}</div></div>
+      <div style="background:var(--bg3);border-radius:var(--radius);padding:10px;"><div class="uppercase-label">Tipo</div><div style="font-weight:600;">${b.event_type || '—'}</div></div>
+      <div style="background:var(--bg3);border-radius:var(--radius);padding:10px;"><div class="uppercase-label">Venue</div><div style="font-weight:600;">${b.venue_name || '—'}</div></div>
+      <div style="background:var(--bg3);border-radius:var(--radius);padding:10px;"><div class="uppercase-label">Ciudad</div><div style="font-weight:600;">${b.city || '—'}</div></div>
+    </div>
+
+    <div style="background:var(--bg3);border-radius:var(--radius);padding:12px 14px;margin-bottom:14px;">
+      <div class="uppercase-label" style="margin-bottom:6px;">Equipamiento</div>
+      <div style="font-weight:600;display:flex;align-items:center;gap:8px;">
+        <i data-lucide="${b.equipment_provided ? 'check-circle' : 'alert-triangle'}" style="color:${b.equipment_provided ? 'var(--green)' : 'var(--warn)'};"></i>
+        ${b.equipment_provided === true ? 'Lugar tiene equipamiento' : b.equipment_provided === false ? 'DJ debe llevar equipo' : 'No especificado'}
+      </div>
+      ${b.equipment_details ? `<div class="muted" style="margin-top:6px;font-size:0.82rem;">${b.equipment_details}</div>` : ''}
+    </div>
+
+    ${b.message ? `<div style="background:var(--bg3);border-radius:var(--radius);padding:12px 14px;margin-bottom:14px;">
+      <div class="uppercase-label" style="margin-bottom:6px;">Mensaje de la empresa</div>
+      <div style="font-size:0.88rem;line-height:1.55;">${b.message}</div>
+    </div>` : ''}
+
+    <!-- Comisión + neto DJ (editables) -->
+    <div style="background:linear-gradient(145deg,rgba(212,255,58,0.08),rgba(212,255,58,0.02));border:1px solid var(--border);border-radius:var(--radius);padding:14px;margin-bottom:14px;">
+      <div class="uppercase-label accent" style="margin-bottom:10px;">Comisión Voltum</div>
+      <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;font-size:0.85rem;">
+        <div>
+          <label class="uppercase-label" style="font-size:0.64rem;">Presupuesto</label>
+          <input type="number" id="bkBudget_${b.id}" class="form-input" value="${budgetNum}" min="0" step="1000" style="font-size:0.88rem;">
+        </div>
+        <div>
+          <label class="uppercase-label" style="font-size:0.64rem;">Comisión %</label>
+          <input type="number" id="bkCommPct_${b.id}" class="form-input" value="${commissionPct}" min="0" max="100" step="0.5" style="font-size:0.88rem;">
+        </div>
+        <div>
+          <label class="uppercase-label" style="font-size:0.64rem;">Neto DJ</label>
+          <input type="number" id="bkDjNet_${b.id}" class="form-input" value="${djNet}" min="0" step="1000" style="font-size:0.88rem;">
+        </div>
+      </div>
+      <div class="muted" style="margin-top:8px;font-size:0.78rem;">Voltum cobra ${formatPrice(commissionAmt)} y paga al DJ ${formatPrice(djNet)}</div>
+    </div>
+
+    <!-- Notas admin -->
+    <div style="margin-bottom:14px;">
+      <label class="uppercase-label" style="display:block;margin-bottom:6px;">Notas internas / mensaje al DJ</label>
+      <textarea id="bkAdminNotes_${b.id}" class="form-input" rows="2" style="font-size:0.88rem;">${b.admin_notes || ''}</textarea>
+    </div>
+
+    <div class="muted" style="font-size:0.78rem;margin-bottom:14px;display:flex;gap:8px;align-items:center;">
+      <i data-lucide="info"></i> Estado actual: <strong style="color:var(--text);">${voltumLabel[b.voltum_status] || b.voltum_status}</strong>
+    </div>
+
+    <div style="display:flex;gap:8px;justify-content:flex-end;flex-wrap:wrap;">
+      <button onclick="closeAdminBookingModal()" class="btn btn-outline btn-sm">Cerrar</button>
+      ${b.voltum_status === 'review_voltum' ? `
+        <button onclick="updateBooking('${b.id}', 'rejected_voltum')" class="btn btn-danger btn-sm"><i data-lucide="x"></i> Rechazar</button>
+        <button onclick="updateBooking('${b.id}', 'approved_voltum')" class="btn btn-outline btn-sm" style="color:var(--lime);border-color:var(--border);"><i data-lucide="check"></i> Aprobar</button>
+        <button onclick="updateBooking('${b.id}', 'dj_review')" class="btn btn-primary btn-sm"><i data-lucide="send"></i> Aprobar y enviar al DJ</button>
+      ` : b.voltum_status === 'approved_voltum' ? `
+        <button onclick="updateBooking('${b.id}', 'dj_review')" class="btn btn-primary btn-sm"><i data-lucide="send"></i> Enviar al DJ</button>
+      ` : b.voltum_status === 'dj_review' ? `
+        <button onclick="updateBooking('${b.id}', 'confirmed')" class="btn btn-primary btn-sm"><i data-lucide="check-circle"></i> Marcar confirmado</button>
+      ` : `
+        <button onclick="updateBooking('${b.id}', null)" class="btn btn-outline btn-sm"><i data-lucide="save"></i> Guardar cambios</button>
+      `}
+    </div>
+  `;
+  document.getElementById('bookingAdminModal').classList.remove('hidden');
+  window.renderIcons?.();
+};
+
+window.closeAdminBookingModal = function() {
+  document.getElementById('bookingAdminModal').classList.add('hidden');
+};
+
+window.updateBooking = async function(bookingId, newStatus) {
+  const budget       = parseFloat(document.getElementById('bkBudget_'+bookingId)?.value) || 0;
+  const commissionPct= parseFloat(document.getElementById('bkCommPct_'+bookingId)?.value) || 12;
+  const djNet        = parseFloat(document.getElementById('bkDjNet_'+bookingId)?.value) || 0;
+  const notes        = document.getElementById('bkAdminNotes_'+bookingId)?.value.trim() || null;
+  const commissionAmt= Math.round(budget * commissionPct / 100);
+
+  const { data: { user } } = await sb.auth.getUser();
+  const updates = {
+    budget,
+    commission_percent: commissionPct,
+    commission_amount:  commissionAmt,
+    dj_net_amount:      djNet,
+    admin_notes:        notes,
+    admin_reviewed_at:  new Date().toISOString(),
+    admin_reviewed_by:  user?.id,
+  };
+  if (newStatus) updates.voltum_status = newStatus;
+
+  const { error } = await sb.from('bookings').update(updates).eq('id', bookingId);
+  if (error) { showToast('Error: '+error.message, 'error'); return; }
+
+  showToast('Booking actualizado', 'success');
+  closeAdminBookingModal();
+  await loadBookingsAdmin();
+};
+
+document.getElementById('closeBookingAdminModal')?.addEventListener('click', closeAdminBookingModal);
+document.getElementById('bookingAdminModal')?.addEventListener('click', e => {
+  if (e.target.id === 'bookingAdminModal') closeAdminBookingModal();
+});
 </script>
 <script>
 // Mobile sidebar toggle

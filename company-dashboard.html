@@ -315,20 +315,20 @@
     document.getElementById('setupBanner').style.display = 'flex';
   }
 
-  // Obtener bookings
+  // Obtener bookings — sin datos bancarios del DJ (ahora Voltum gestiona el pago)
   let bookingsQuery = company
     ? await sb.from('bookings').select(`
         *,
-        dj:profiles!bookings_dj_user_id_fkey(dj_name, photo_url, slug, bank_name, bank_account_type, bank_account_number, bank_rut, bank_holder_name, bank_email)
+        dj:profiles!bookings_dj_user_id_fkey(dj_name, photo_url, slug)
       `).eq('company_id', company.id).order('created_at', { ascending: false })
     : { data: [] };
 
   const bookings = bookingsQuery.data || [];
 
-  // Stats
+  // Stats: voltum_status workflow
   document.getElementById('statTotal').textContent = bookings.length;
-  document.getElementById('statPending').textContent = bookings.filter(b => b.status === 'pendiente').length;
-  document.getElementById('statAccepted').textContent = bookings.filter(b => b.status === 'aceptado').length;
+  document.getElementById('statPending').textContent = bookings.filter(b => ['review_voltum','approved_voltum','dj_review'].includes(b.voltum_status)).length;
+  document.getElementById('statAccepted').textContent = bookings.filter(b => b.voltum_status === 'confirmed').length;
   const uniqueDJs = new Set(bookings.map(b => b.dj_user_id));
   document.getElementById('statDJs').textContent = uniqueDJs.size;
 
@@ -344,15 +344,33 @@
     });
   });
 
+  // Filtro UI → voltum_status
+  const _companyFilterMap = {
+    pendiente: ['review_voltum', 'approved_voltum', 'dj_review'],
+    aceptado:  ['confirmed'],
+    rechazado: ['rejected_voltum', 'dj_declined'],
+    cancelado: ['cancelled'],
+  };
+  const _voltumCompanyLabel = {
+    review_voltum:   { cls:'status-pendiente', text:'● En revisión por Voltum' },
+    approved_voltum: { cls:'status-pendiente', text:'● Aprobado · buscando DJ' },
+    dj_review:       { cls:'status-pendiente', text:'● Enviado al DJ' },
+    confirmed:       { cls:'status-aceptado',  text:'✓ Confirmado con DJ' },
+    rejected_voltum: { cls:'status-rechazado', text:'✕ Rechazado por Voltum' },
+    dj_declined:     { cls:'status-rechazado', text:'✕ DJ no disponible' },
+    cancelled:       { cls:'status-cancelado', text:'— Cancelado' },
+  };
+
   function renderBookings(list, filter) {
-    const filtered = filter === 'all' ? list : list.filter(b => b.status === filter);
+    const allowed = _companyFilterMap[filter];
+    const filtered = filter === 'all' ? list : list.filter(b => allowed && allowed.includes(b.voltum_status));
     const el = document.getElementById('bookingsList');
 
     if (!filtered.length) {
       el.innerHTML = `<div class="empty-state">
         <div class="empty-state-icon"><i data-lucide="${filter === 'all' ? 'clipboard-list' : 'search'}"></i></div>
         <div style="font-weight:600;margin-bottom:8px;">${filter === 'all' ? 'Sin solicitudes aún' : 'Sin solicitudes ' + filter + 's'}</div>
-        ${filter === 'all' ? `<div style="font-size:0.85rem;color:var(--muted);margin-bottom:20px;">Busca un DJ y envía tu primera solicitud</div><a href="buscar.html" class="btn btn-primary btn-sm">Buscar DJs →</a>` : ''}
+        ${filter === 'all' ? `<div style="font-size:0.85rem;color:var(--muted);margin-bottom:20px;">Busca un DJ y envía tu primera solicitud. Voltum gestiona todo.</div><a href="buscar.html" class="btn btn-primary btn-sm">Buscar DJs →</a>` : ''}
       </div>`;
       return;
     }
@@ -361,8 +379,7 @@
       const date = b.event_date ? new Date(b.event_date + 'T12:00:00').toLocaleDateString('es-CL', { day: 'numeric', month: 'short', year: 'numeric' }) : '—';
       const budget = b.budget ? formatPrice(b.budget) : '—';
       const djName = b.dj?.dj_name || 'DJ desconocido';
-      const statusMap = { pendiente: 'status-pendiente', aceptado: 'status-aceptado', rechazado: 'status-rechazado', cancelado: 'status-cancelado' };
-      const statusLabel = { pendiente: '● Pendiente', aceptado: '✓ Aceptado', rechazado: '✕ Rechazado', cancelado: '— Cancelado' };
+      const lbl = _voltumCompanyLabel[b.voltum_status] || { cls:'', text: b.voltum_status || '' };
       return `
       <div class="booking-row" onclick="openBookingDetail(${JSON.stringify(b).replace(/"/g, '&quot;')})" style="cursor:pointer;">
         <div>
@@ -375,7 +392,7 @@
         </div>
         <div class="booking-venue">${b.venue_name || b.city || '—'}</div>
         <div class="booking-budget">${budget}</div>
-        <div><span class="status-badge ${statusMap[b.status] || ''}">${statusLabel[b.status] || b.status}</span></div>
+        <div><span class="status-badge ${lbl.cls}">${lbl.text}</span></div>
       </div>`;
     }).join('');
   }
@@ -384,16 +401,32 @@
     const date = b.event_date ? new Date(b.event_date + 'T12:00:00').toLocaleDateString('es-CL', { day: 'numeric', month: 'long', year: 'numeric' }) : '—';
     const budget = b.budget ? formatPrice(b.budget) : '—';
     const djName = b.dj?.dj_name || 'DJ desconocido';
-    const statusMap = { pendiente: 'status-pendiente', aceptado: 'status-aceptado', rechazado: 'status-rechazado', cancelado: 'status-cancelado' };
-    const statusLabel = { pendiente: '● Pendiente', aceptado: '✓ Aceptado', rechazado: '✕ Rechazado', cancelado: '— Cancelado' };
+    const lbl = _voltumCompanyLabel[b.voltum_status] || { cls:'', text: b.voltum_status || '' };
+
+    // Explicación del estado actual para la empresa
+    const stateHints = {
+      review_voltum:   'Voltum está revisando tu solicitud. Te contactamos por email/WhatsApp dentro de 24h con el detalle.',
+      approved_voltum: 'Voltum aprobó tu solicitud y está buscando la mejor disponibilidad con el DJ.',
+      dj_review:       'El DJ está revisando la propuesta enviada por Voltum. Te avisamos su respuesta.',
+      confirmed:       'Booking confirmado con el DJ. Voltum coordinará el pago y los detalles finales.',
+      rejected_voltum: 'Voltum no pudo avanzar con esta solicitud. Revisa tus datos o contáctanos.',
+      dj_declined:     'El DJ no está disponible para esta fecha. Podemos sugerirte otros artistas.',
+      cancelled:       'Solicitud cancelada.',
+    };
 
     document.getElementById('modalContent').innerHTML = `
-      <div style="display:flex;align-items:center;gap:12px;margin-bottom:20px;">
-        <div style="width:44px;height:44px;border-radius:50%;background:rgba(139,92,246,0.15);display:flex;align-items:center;justify-content:center;font-weight:700;color:var(--purple-l);font-size:1.1rem;">${djName.charAt(0)}</div>
-        <div>
+      <div style="display:flex;align-items:center;gap:12px;margin-bottom:16px;">
+        <div style="width:44px;height:44px;border-radius:var(--radius);background:var(--lime-dim);display:flex;align-items:center;justify-content:center;font-weight:700;color:var(--lime);font-size:1.1rem;">${djName.charAt(0)}</div>
+        <div style="flex:1;">
           <div style="font-weight:700;font-size:1.05rem;">${djName}</div>
-          <span class="status-badge ${statusMap[b.status] || ''}" style="margin-top:4px;">${statusLabel[b.status] || b.status}</span>
+          <span class="status-badge ${lbl.cls}" style="margin-top:4px;">${lbl.text}</span>
         </div>
+      </div>
+
+      <!-- Estado Voltum explicado -->
+      <div style="padding:14px 16px;background:var(--bg3);border:1px solid var(--border2);border-radius:var(--radius);margin-bottom:16px;display:flex;gap:10px;">
+        <i data-lucide="info" style="color:var(--lime);flex-shrink:0;margin-top:2px;"></i>
+        <div style="font-size:0.85rem;color:var(--text-dim);line-height:1.6;">${stateHints[b.voltum_status] || 'Estado desconocido.'}</div>
       </div>
       <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:16px;">
         <div style="background:var(--bg3);border-radius:var(--radius);padding:12px;">
@@ -429,25 +462,18 @@
         <div style="font-size:0.72rem;color:var(--purple-l);text-transform:uppercase;letter-spacing:0.06em;margin-bottom:6px;">Respuesta del DJ</div>
         <div style="font-size:0.875rem;color:var(--text);line-height:1.6;">${b.dj_response}</div>
       </div>` : ''}
-      ${b.status === 'aceptado' && b.dj?.bank_name ? `
-      <div style="background:rgba(34,197,94,0.06);border:1px solid rgba(34,197,94,0.2);border-radius:var(--radius);padding:16px;margin-bottom:16px;">
-        <div style="font-size:0.72rem;color:#4ade80;text-transform:uppercase;letter-spacing:0.08em;font-weight:700;margin-bottom:12px;display:flex;align-items:center;gap:6px;">
-          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><rect x="1" y="4" width="22" height="16" rx="2"/><line x1="1" y1="10" x2="23" y2="10"/></svg>
-          Datos para transferencia
+      ${b.voltum_status === 'confirmed' ? `
+      <div style="background:linear-gradient(145deg,rgba(212,255,58,0.08),rgba(212,255,58,0.02));border:1px solid var(--border);border-radius:var(--radius);padding:16px;margin-bottom:16px;">
+        <div style="font-family:var(--font-mono);font-size:0.7rem;color:var(--lime);text-transform:uppercase;letter-spacing:0.14em;font-weight:600;margin-bottom:10px;display:flex;align-items:center;gap:6px;">
+          <i data-lucide="shield-check"></i> Pago gestionado por Voltum
         </div>
-        <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;font-size:0.82rem;">
-          <div><span style="color:var(--muted2);">Banco</span><br><strong>${b.dj.bank_name}</strong></div>
-          <div><span style="color:var(--muted2);">Tipo de cuenta</span><br><strong>${b.dj.bank_account_type || '—'}</strong></div>
-          <div><span style="color:var(--muted2);">N° de cuenta</span><br><strong>${b.dj.bank_account_number || '—'}</strong></div>
-          <div><span style="color:var(--muted2);">RUT titular</span><br><strong>${b.dj.bank_rut || '—'}</strong></div>
-          <div><span style="color:var(--muted2);">Nombre titular</span><br><strong>${b.dj.bank_holder_name || '—'}</strong></div>
-          <div><span style="color:var(--muted2);">Email transferencia</span><br><strong>${b.dj.bank_email || '—'}</strong></div>
-        </div>
-      </div>` : b.status === 'aceptado' ? `
-      <div style="background:rgba(251,191,36,0.06);border:1px solid rgba(251,191,36,0.2);border-radius:var(--radius);padding:12px 14px;margin-bottom:16px;font-size:0.82rem;color:var(--muted);">
-        <i data-lucide="alert-triangle"></i> El DJ aún no ha cargado sus datos bancarios. Contáctalo directamente para coordinar el pago.
+        <div style="font-size:0.86rem;line-height:1.65;color:var(--text-dim);">Voltum coordinará el pago del DJ por ti. Recibirás las instrucciones de pago por email junto con la confirmación final del evento.</div>
+        ${b.commission_amount ? `<div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:14px;padding-top:14px;border-top:1px solid var(--border2);font-size:0.82rem;">
+          <div><span style="color:var(--muted);font-size:0.72rem;text-transform:uppercase;letter-spacing:0.08em;">Presupuesto</span><br><strong>${budget}</strong></div>
+          <div><span style="color:var(--muted);font-size:0.72rem;text-transform:uppercase;letter-spacing:0.08em;">Comisión Voltum (${b.commission_percent||12}%)</span><br><strong>${formatPrice(b.commission_amount)}</strong></div>
+        </div>` : ''}
       </div>` : ''}
-      ${b.status === 'aceptado' ? `
+      ${b.voltum_status === 'confirmed' ? `
       <div style="border-top:1px solid var(--border2);padding-top:16px;margin-bottom:16px;">
         <div style="font-size:0.72rem;color:var(--muted2);text-transform:uppercase;letter-spacing:0.06em;font-weight:700;margin-bottom:10px;"><i data-lucide="star"></i> Reseña del evento</div>
         ${b.company_review ? `
@@ -459,9 +485,9 @@
         <button onclick="submitReview('${b.id}')" class="btn btn-outline btn-sm" style="margin-top:8px;width:100%;">Publicar reseña en el press kit →</button>
         `}
       </div>` : ''}
-      <div style="display:flex;gap:8px;justify-content:flex-end;margin-top:8px;">
-        ${b.status === 'pendiente' ? `<button onclick="cancelBooking('${b.id}')" class="btn btn-outline btn-sm" style="color:var(--red);border-color:rgba(239,68,68,0.3);">Cancelar solicitud</button>` : ''}
-        ${b.dj?.slug ? `<a href="presskit.html?slug=${b.dj.slug}" target="_blank" class="btn btn-outline btn-sm">Ver press kit →</a>` : ''}
+      <div style="display:flex;gap:8px;justify-content:flex-end;margin-top:8px;flex-wrap:wrap;">
+        ${['review_voltum','approved_voltum','dj_review'].includes(b.voltum_status) ? `<button onclick="cancelBooking('${b.id}')" class="btn btn-danger btn-sm"><i data-lucide="x"></i> Cancelar solicitud</button>` : ''}
+        ${b.dj?.slug ? `<a href="presskit.html?slug=${b.dj.slug}" target="_blank" class="btn btn-outline btn-sm"><i data-lucide="external-link"></i> Ver press kit</a>` : ''}
         <button onclick="closeModal()" class="btn btn-primary btn-sm">Cerrar</button>
       </div>`;
 
@@ -470,7 +496,7 @@
 
   window.cancelBooking = async function(id) {
     if (!confirm('¿Cancelar esta solicitud de booking?')) return;
-    await sb.from('bookings').update({ status: 'cancelado' }).eq('id', id);
+    await sb.from('bookings').update({ status: 'cancelado', voltum_status: 'cancelled' }).eq('id', id);
     showToast('Solicitud cancelada', 'success');
     closeModal();
     setTimeout(() => window.location.reload(), 800);

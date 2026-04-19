@@ -251,6 +251,19 @@
   const user = await Auth.requireAuth();
   if (!user) return;
 
+  // Guard: perfiles de EMPRESA no requieren membresía. Voltum gestiona
+  // los bookings y cobra comisión al confirmarse la contratación.
+  const { data: companyCheck } = await sb
+    .from('profiles')
+    .select('is_company')
+    .eq('id', user.id)
+    .single();
+
+  if (companyCheck?.is_company === true) {
+    renderCompanyFreeState();
+    return;
+  }
+
   const { data: mem } = await sb.from('memberships').select('*').eq('user_id', user.id).single();
   const { data: profile } = await sb.from('profiles').select('dj_name, is_admin').eq('id', user.id).single();
   const isAdmin = !!profile?.is_admin;
@@ -294,6 +307,56 @@
     setupDevSimulate(user, isAdmin);
   }
 })();
+
+function renderCompanyFreeState() {
+  // Ocultar la ficha de pago estándar y mostrar mensaje claro
+  const card = document.querySelector('.payment-card');
+  if (!card) { window.location.href = 'company-dashboard.html'; return; }
+
+  card.innerHTML = `
+    <div style="text-align:center;margin-bottom:24px;">
+      <div style="display:inline-flex;align-items:center;gap:8px;padding:6px 14px;border-radius:100px;background:rgba(34,211,238,0.10);border:1px solid rgba(34,211,238,0.3);color:var(--cyan);font-size:0.78rem;font-weight:700;letter-spacing:0.05em;text-transform:uppercase;">
+        <i data-lucide="building-2"></i> Perfil de empresa · Gratis
+      </div>
+      <h1 style="font-size:1.6rem;margin:16px 0 8px;">Tu perfil de empresa es gratuito</h1>
+      <p style="color:var(--muted);">No necesitas activar ninguna membresía ni registrar tarjeta.</p>
+    </div>
+
+    <div style="padding:18px 20px;border-radius:var(--radius-lg);background:rgba(34,211,238,0.06);border:1px solid rgba(34,211,238,0.25);margin-bottom:20px;">
+      <div style="display:flex;gap:12px;align-items:flex-start;">
+        <div style="flex-shrink:0;width:36px;height:36px;border-radius:10px;background:rgba(34,211,238,0.12);display:flex;align-items:center;justify-content:center;color:var(--cyan);">
+          <i data-lucide="handshake"></i>
+        </div>
+        <div style="font-size:0.92rem;line-height:1.55;">
+          <strong style="color:var(--text);">Voltum gestiona los bookings.</strong>
+          Cuando confirmes una contratación con un DJ, cobramos una comisión del
+          <strong style="color:var(--cyan);">12%</strong> sobre el monto del booking.
+          Sin cobros mensuales, sin sorpresas.
+        </div>
+      </div>
+    </div>
+
+    <ul class="payment-benefits" style="margin-bottom:24px;">
+      <li>Perfil de empresa completo · gratis</li>
+      <li>Acceso al directorio de DJs</li>
+      <li>Solicitudes de booking ilimitadas</li>
+      <li>Dashboard de gestión de bookings</li>
+      <li>Voltum gestiona el pago al DJ (comisión 12%)</li>
+    </ul>
+
+    <a href="company-dashboard.html" class="btn btn-primary btn-full btn-lg" style="font-size:1.02rem;">
+      <i data-lucide="arrow-right"></i> Ir a mi Dashboard de empresa
+    </a>
+    <p style="text-align:center;font-size:0.8rem;color:var(--muted2);margin-top:14px;">
+      ¿Eres DJ y llegaste aquí por error? <a href="dashboard.html" style="color:var(--purple-l);">Ir al dashboard de DJ →</a>
+    </p>
+  `;
+
+  // Re-inicializar iconos lucide si están disponibles
+  if (window.lucide && typeof window.lucide.createIcons === 'function') {
+    try { window.lucide.createIcons(); } catch (_) {}
+  }
+}
 
 function setupSubscribeButton(user, profile) {
   const btn = document.getElementById('subscribeBtn');

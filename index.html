@@ -492,7 +492,10 @@
 
     <div class="ftabs">
       <button class="ftab-btn active" onclick="switchTab('dj',this)"><i data-lucide="headphones"></i> Para DJs</button>
-      <button class="ftab-btn" onclick="switchTab('empresa',this)"><i data-lucide="building-2"></i> Para Empresas</button>
+      <button class="ftab-btn" onclick="switchTab('empresa',this)" style="position:relative;">
+        <i data-lucide="building-2"></i> Para Empresas
+        <span style="margin-left:8px;display:inline-block;padding:2px 8px;border-radius:100px;background:linear-gradient(135deg,#10B981,#22D3EE);color:#001;font-size:0.62rem;font-weight:800;letter-spacing:0.08em;vertical-align:middle;">GRATIS</span>
+      </button>
     </div>
 
     <!-- TAB DJs -->
@@ -531,10 +534,18 @@
 
     <!-- TAB EMPRESAS -->
     <div class="ftab-panel features-grid" id="tab-empresa" style="grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:24px;">
+      <!-- Banner · Gratis para empresas -->
+      <div style="grid-column:1/-1;padding:16px 20px;border-radius:var(--radius-lg);background:linear-gradient(135deg,rgba(34,211,238,0.10),rgba(16,185,129,0.06));border:1px solid rgba(34,211,238,0.3);display:flex;gap:14px;align-items:center;flex-wrap:wrap;">
+        <span style="display:inline-flex;align-items:center;gap:6px;padding:4px 10px;border-radius:100px;background:linear-gradient(135deg,#10B981,#22D3EE);color:#001;font-size:0.7rem;font-weight:800;letter-spacing:0.08em;">GRATIS · SIN TARJETA</span>
+        <span style="font-size:0.95rem;flex:1;min-width:220px;">
+          <strong style="color:var(--text);">Perfil de empresa 100% gratuito.</strong>
+          <span style="color:var(--muted);">Voltum gestiona el booking y cobra una comisión del <strong style="color:var(--cyan);">12%</strong> solo al confirmar la contratación.</span>
+        </span>
+      </div>
       <div class="feature-card">
         <div class="feature-icon"><i data-lucide="building-2"></i></div>
-        <h3>Perfil de empresa</h3>
-        <p>Crea el perfil de tu productora, agencia o club. Tipo de empresa, ciudad, contacto y redes sociales en un solo lugar.</p>
+        <h3>Perfil de empresa · gratis</h3>
+        <p>Crea el perfil de tu productora, agencia o club sin membresía ni tarjeta. Tipo de empresa, ciudad, contacto y redes sociales en un solo lugar.</p>
       </div>
       <div class="feature-card">
         <div class="feature-icon"><i data-lucide="send"></i></div>
@@ -547,9 +558,9 @@
         <p>Gestiona todos tus bookings activos, revisa su estado en tiempo real, y cancela o hace seguimiento desde un solo panel.</p>
       </div>
       <div class="feature-card">
-        <div class="feature-icon"><i data-lucide="banknote"></i></div>
-        <h3>Datos de pago automáticos</h3>
-        <p>Cuando el DJ acepta el booking, se liberan automáticamente sus datos bancarios para que puedas procesar el pago sin más idas y vueltas.</p>
+        <div class="feature-icon"><i data-lucide="handshake"></i></div>
+        <h3>Voltum gestiona el pago</h3>
+        <p>No te preocupes por transferencias ni datos bancarios: Voltum cobra el booking, paga al DJ y retiene una comisión del 12% como intermediario.</p>
       </div>
       <div class="feature-card">
         <div class="feature-icon"><i data-lucide="search"></i></div>
@@ -557,7 +568,7 @@
         <p>Busca entre todos los DJs activos de la plataforma. Filtra por género, ciudad y estilo. Encuentra al artista perfecto para tu evento.</p>
       </div>
       <div class="feature-card">
-        <div class="feature-icon"><i data-lucide="handshake"></i></div>
+        <div class="feature-icon"><i data-lucide="message-circle"></i></div>
         <h3>Comunicación directa</h3>
         <p>Agrega mensajes personalizados en cada solicitud. El DJ puede responder con una nota al aceptar o rechazar el booking.</p>
       </div>
@@ -616,8 +627,8 @@ function switchTab(id, btn) {
           <div class="bflow-icon"><i data-lucide="banknote"></i></div>
           <div class="bflow-num">4</div>
         </div>
-        <div class="bflow-title">Se liberan los datos de pago</div>
-        <div class="bflow-desc">Al aceptar, la empresa ve los datos bancarios del DJ para procesar la transferencia.</div>
+        <div class="bflow-title">Voltum gestiona el pago</div>
+        <div class="bflow-desc">La empresa paga a través de Voltum. Nosotros retenemos una comisión del 12% y transferimos el resto al DJ.</div>
       </div>
     </div>
 
@@ -669,26 +680,26 @@ function switchTab(id, btn) {
           </div>
           <div style="font-size:0.75rem;color:var(--muted2);margin-bottom:12px;">Sáb 12 Abr · Club Chocolate · 23:00</div>
           <div class="bank-preview">
-            <div class="bank-title"><i data-lucide="landmark" class="icon-sm"></i> Datos para transferencia</div>
+            <div class="bank-title"><i data-lucide="handshake" class="icon-sm"></i> Pago gestionado por Voltum</div>
             <div class="bank-row">
-              <span class="bank-key">Banco</span>
-              <span class="bank-val">Banco de Chile</span>
+              <span class="bank-key">Monto booking</span>
+              <span class="bank-val">$350.000</span>
             </div>
             <div class="bank-row">
-              <span class="bank-key">Tipo</span>
-              <span class="bank-val">Cuenta Corriente</span>
+              <span class="bank-key">Comisión Voltum (12%)</span>
+              <span class="bank-val">$42.000</span>
             </div>
             <div class="bank-row">
-              <span class="bank-key">Número</span>
-              <span class="bank-val">00-123-45678-9</span>
+              <span class="bank-key">Total a pagar</span>
+              <span class="bank-val" style="color:var(--cyan);font-weight:700;">$350.000</span>
             </div>
             <div class="bank-row">
-              <span class="bank-key">RUT</span>
-              <span class="bank-val">12.345.678-9</span>
+              <span class="bank-key">Método</span>
+              <span class="bank-val">Webpay / Transferencia</span>
             </div>
             <div class="bank-row">
-              <span class="bank-key">Titular</span>
-              <span class="bank-val">Nicolás Vega</span>
+              <span class="bank-key">Paga al DJ</span>
+              <span class="bank-val" style="color:#10B981;">Voltum, al confirmar</span>
             </div>
           </div>
         </div>
@@ -749,16 +760,18 @@ function switchTab(id, btn) {
       </div>
       <!-- Flujo Empresa -->
       <div>
-        <div style="display:flex;align-items:center;gap:10px;margin-bottom:28px;">
+        <div style="display:flex;align-items:center;gap:10px;margin-bottom:8px;flex-wrap:wrap;">
           <div style="width:36px;height:36px;border-radius:10px;background:rgba(34,211,238,0.1);border:1px solid rgba(34,211,238,0.25);display:flex;align-items:center;justify-content:center;font-size:1.1rem;"><i data-lucide="building-2"></i></div>
           <span style="font-weight:800;font-size:1rem;">Soy Empresa / Venue</span>
+          <span style="padding:3px 10px;border-radius:100px;background:linear-gradient(135deg,#10B981,#22D3EE);color:#001;font-size:0.65rem;font-weight:800;letter-spacing:0.08em;">GRATIS</span>
         </div>
+        <p style="font-size:0.82rem;color:var(--muted2);margin:0 0 22px;">Sin membresía · sin tarjeta. Voltum cobra 12% de comisión al confirmar el booking.</p>
         <div class="steps" style="display:flex;flex-direction:column;gap:20px;">
           <div style="display:flex;gap:16px;align-items:flex-start;">
             <div class="step-number" style="min-width:36px;height:36px;font-size:0.85rem;background:rgba(34,211,238,0.12);border-color:rgba(34,211,238,0.3);color:var(--cyan);">01</div>
             <div>
-              <h4 style="margin-bottom:4px;font-size:0.95rem;">Crea cuenta de empresa</h4>
-              <p style="font-size:0.82rem;color:var(--muted2);margin:0;">Regístrate como empresa (productora, agencia, club) y activa tu membresía mensual.</p>
+              <h4 style="margin-bottom:4px;font-size:0.95rem;">Crea cuenta de empresa · gratis</h4>
+              <p style="font-size:0.82rem;color:var(--muted2);margin:0;">Regístrate como empresa (productora, agencia, club). Sin tarjeta ni cobros mensuales.</p>
             </div>
           </div>
           <div style="display:flex;gap:16px;align-items:flex-start;">
@@ -771,13 +784,13 @@ function switchTab(id, btn) {
           <div style="display:flex;gap:16px;align-items:flex-start;">
             <div class="step-number" style="min-width:36px;height:36px;font-size:0.85rem;background:rgba(34,211,238,0.12);border-color:rgba(34,211,238,0.3);color:var(--cyan);">03</div>
             <div>
-              <h4 style="margin-bottom:4px;font-size:0.95rem;">Envía solicitud y paga</h4>
-              <p style="font-size:0.82rem;color:var(--muted2);margin:0;">Solicita el booking, el DJ acepta y accedes a sus datos para transferir.</p>
+              <h4 style="margin-bottom:4px;font-size:0.95rem;">Voltum gestiona el pago</h4>
+              <p style="font-size:0.82rem;color:var(--muted2);margin:0;">Solicitas el booking, el DJ acepta y pagas a través de Voltum. Cobramos 12% y pagamos al DJ.</p>
             </div>
           </div>
         </div>
         <div style="margin-top:28px;">
-          <a href="auth.html?tab=register&type=empresa" class="btn btn-outline" style="border-color:var(--cyan);color:var(--cyan);">Registrar empresa →</a>
+          <a href="auth.html?tab=register&type=empresa" class="btn btn-outline" style="border-color:var(--cyan);color:var(--cyan);">Registrar empresa gratis →</a>
         </div>
       </div>
     </div>
@@ -906,19 +919,22 @@ function switchTab(id, btn) {
         <div class="pricing-name">Voltum Empresa</div>
         <div class="pricing-price">
           <span class="price-currency">$</span>
-          <span class="price-amount" style="color:var(--cyan);">9.990</span>
+          <span class="price-amount" style="color:var(--cyan);">0</span>
         </div>
-        <p class="pricing-period">CLP · Membresía mensual</p>
+        <p class="pricing-period">Gratis · Sin tarjeta · Sin membresía</p>
+        <div style="margin:6px auto 18px;max-width:260px;padding:8px 12px;border-radius:10px;background:rgba(34,211,238,0.08);border:1px solid rgba(34,211,238,0.25);font-size:0.78rem;color:var(--cyan);text-align:center;line-height:1.45;">
+          Voltum cobra <strong>12% de comisión</strong> solo al confirmar cada booking
+        </div>
         <ul class="pricing-features">
           <li>Perfil de empresa completo</li>
           <li>Acceso al directorio de DJs</li>
           <li>Envía solicitudes de booking ilimitadas</li>
           <li>Dashboard de gestión de bookings</li>
-          <li>Datos bancarios del DJ al aceptar</li>
+          <li>Voltum gestiona el pago al DJ</li>
           <li>Historial de contrataciones</li>
           <li>Soporte prioritario</li>
         </ul>
-        <a href="auth.html?tab=register&type=empresa" class="btn btn-outline btn-full" style="border-color:var(--cyan);color:var(--cyan);">Comenzar ahora →</a>
+        <a href="auth.html?tab=register&type=empresa" class="btn btn-outline btn-full" style="border-color:var(--cyan);color:var(--cyan);">Registrar empresa gratis →</a>
       </div>
     </div>
   </div>
@@ -1045,7 +1061,7 @@ function switchTab(id, btn) {
     <div class="section-header">
       <span class="section-badge">Empresas</span>
       <h2>Venues y productoras que usan Voltum</h2>
-      <p>Conecta directamente con los mejores DJs de Chile sin intermediarios</p>
+      <p>Conecta con los mejores DJs de Chile · Perfil de empresa gratis · Voltum gestiona el pago</p>
     </div>
     <div id="empresasGrid" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:20px;max-width:960px;margin:0 auto 48px;">
       <div id="empresasLoading" style="grid-column:1/-1;text-align:center;padding:40px 0;">
@@ -1101,8 +1117,8 @@ function switchTab(id, btn) {
     })();
     </script>
     <div style="text-align:center;margin-top:16px;">
-      <p style="font-size:0.85rem;color:var(--muted2);margin-bottom:16px;">¿Tu empresa trabaja con DJs? Regístrate y empieza a contratar artistas hoy.</p>
-      <a href="auth.html?tab=register&type=empresa" class="btn btn-outline" style="border-color:var(--cyan);color:var(--cyan);">Registrar mi empresa →</a>
+      <p style="font-size:0.85rem;color:var(--muted2);margin-bottom:16px;">¿Tu empresa trabaja con DJs? Regístrate gratis y empieza a contratar artistas hoy. Solo pagas 12% al confirmar cada booking.</p>
+      <a href="auth.html?tab=register&type=empresa" class="btn btn-outline" style="border-color:var(--cyan);color:var(--cyan);">Registrar mi empresa gratis →</a>
     </div>
   </div>
 </section>
@@ -1129,9 +1145,11 @@ function switchTab(id, btn) {
       </div>
       <div class="cta-card">
         <div class="cta-card-icon"><i data-lucide="building-2"></i></div>
-        <h3>Soy Empresa / Venue</h3>
-        <p>Accede al directorio de DJs, envía solicitudes de booking y coordina pagos sin intermediarios.</p>
-        <a href="auth.html?tab=register&type=empresa" class="btn btn-outline btn-full btn-lg" style="border-color:var(--cyan);color:var(--cyan);">Registrar empresa →</a>
+        <h3>Soy Empresa / Venue
+          <span style="margin-left:6px;padding:3px 10px;border-radius:100px;background:linear-gradient(135deg,#10B981,#22D3EE);color:#001;font-size:0.6rem;font-weight:800;letter-spacing:0.08em;vertical-align:middle;">GRATIS</span>
+        </h3>
+        <p>Accede al directorio de DJs y envía solicitudes de booking. Perfil gratis · sin tarjeta. Voltum gestiona el pago y cobra 12% al confirmar.</p>
+        <a href="auth.html?tab=register&type=empresa" class="btn btn-outline btn-full btn-lg" style="border-color:var(--cyan);color:var(--cyan);">Registrar empresa gratis →</a>
         <div style="margin-top:12px;">
           <a href="buscar.html" style="font-size:0.8rem;color:var(--muted2);">Explorar DJs disponibles →</a>
         </div>
