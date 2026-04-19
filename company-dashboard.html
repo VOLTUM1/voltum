@@ -132,7 +132,7 @@
       <div>
         <div class="section-title" style="margin-bottom:6px;">Panel de empresa</div>
         <h1 style="font-size:1.75rem;font-weight:800;margin-bottom:4px;">
-          Hola, <span id="welcomeName" class="gradient-text"></span> 👋
+          Hola, <span id="welcomeName" class="gradient-text"></span> <i data-lucide="hand"></i>
         </h1>
         <p style="font-size:0.9rem;color:var(--muted);">Gestiona tus bookings y encuentra nuevos DJs</p>
       </div>
@@ -227,7 +227,7 @@
 
       <div id="bookingsList">
         <div class="empty-state">
-          <div class="empty-state-icon">📋</div>
+          <div class="empty-state-icon"><i data-lucide="clipboard-list"></i></div>
           <div style="font-weight:600;margin-bottom:8px;">Sin solicitudes aún</div>
           <div style="font-size:0.85rem;color:var(--muted);margin-bottom:20px;">Busca un DJ y envía tu primera solicitud de booking</div>
           <a href="buscar.html" class="btn btn-primary btn-sm">Buscar DJs →</a>
@@ -253,7 +253,7 @@
 <!-- MODAL DETALLE BOOKING -->
 <div id="bookingModal" style="display:none;position:fixed;inset:0;z-index:200;background:rgba(0,0,0,0.7);align-items:center;justify-content:center;padding:24px;">
   <div style="background:var(--bg2);border:1px solid var(--border);border-radius:var(--radius-xl);width:100%;max-width:520px;padding:28px;position:relative;max-height:90vh;overflow-y:auto;">
-    <button onclick="closeModal()" style="position:absolute;top:16px;right:16px;background:none;border:none;color:var(--muted);font-size:1.4rem;cursor:pointer;line-height:1;">✕</button>
+    <button onclick="closeModal()" style="position:absolute;top:16px;right:16px;background:none;border:none;color:var(--muted);font-size:1.4rem;cursor:pointer;line-height:1;"><i data-lucide="x"></i></button>
     <div id="modalContent"></div>
   </div>
 </div>
@@ -326,7 +326,7 @@
 
     if (!filtered.length) {
       el.innerHTML = `<div class="empty-state">
-        <div class="empty-state-icon">${filter === 'all' ? '📋' : '🔍'}</div>
+        <div class="empty-state-icon"><i data-lucide="${filter === 'all' ? 'clipboard-list' : 'search'}"></i></div>
         <div style="font-weight:600;margin-bottom:8px;">${filter === 'all' ? 'Sin solicitudes aún' : 'Sin solicitudes ' + filter + 's'}</div>
         ${filter === 'all' ? `<div style="font-size:0.85rem;color:var(--muted);margin-bottom:20px;">Busca un DJ y envía tu primera solicitud</div><a href="buscar.html" class="btn btn-primary btn-sm">Buscar DJs →</a>` : ''}
       </div>`;
@@ -421,11 +421,11 @@
         </div>
       </div>` : b.status === 'aceptado' ? `
       <div style="background:rgba(251,191,36,0.06);border:1px solid rgba(251,191,36,0.2);border-radius:var(--radius);padding:12px 14px;margin-bottom:16px;font-size:0.82rem;color:var(--muted);">
-        ⚠️ El DJ aún no ha cargado sus datos bancarios. Contáctalo directamente para coordinar el pago.
+        <i data-lucide="alert-triangle"></i> El DJ aún no ha cargado sus datos bancarios. Contáctalo directamente para coordinar el pago.
       </div>` : ''}
       ${b.status === 'aceptado' ? `
       <div style="border-top:1px solid var(--border2);padding-top:16px;margin-bottom:16px;">
-        <div style="font-size:0.72rem;color:var(--muted2);text-transform:uppercase;letter-spacing:0.06em;font-weight:700;margin-bottom:10px;">⭐ Reseña del evento</div>
+        <div style="font-size:0.72rem;color:var(--muted2);text-transform:uppercase;letter-spacing:0.06em;font-weight:700;margin-bottom:10px;"><i data-lucide="star"></i> Reseña del evento</div>
         ${b.company_review ? `
         <div style="background:rgba(139,92,246,0.06);border:1px solid rgba(139,92,246,0.2);border-radius:var(--radius);padding:14px;">
           <div style="font-size:0.875rem;line-height:1.6;color:var(--text);">"${b.company_review}"</div>
@@ -489,7 +489,7 @@
     if (!all.length) {
       residentEl.innerHTML = `
         <div style="background:var(--card);border:1px dashed var(--border2);border-radius:var(--radius-xl);padding:40px;text-align:center;">
-          <div style="font-size:2rem;margin-bottom:12px;opacity:0.4;">🎧</div>
+          <div style="font-size:2rem;margin-bottom:12px;opacity:0.4;"><i data-lucide="headphones"></i></div>
           <div style="font-weight:600;margin-bottom:6px;">Aún no tienes DJs residentes</div>
           <div style="font-size:0.83rem;color:var(--muted);margin-bottom:18px;">Busca DJs y envíales una invitación de residencia desde sus cards</div>
           <a href="buscar.html" class="btn btn-primary btn-sm">Buscar DJs →</a>
@@ -524,7 +524,7 @@
     const genres = (dj?.genres || []).slice(0, 2).join(', ') || '—';
     const statusBadge = status === 'pending'
       ? `<span style="font-size:0.7rem;padding:2px 8px;border-radius:100px;background:rgba(251,191,36,0.1);color:#fbbf24;border:1px solid rgba(251,191,36,0.25);">Pendiente</span>`
-      : `<span style="font-size:0.7rem;padding:2px 8px;border-radius:100px;background:rgba(34,197,94,0.1);color:#4ade80;border:1px solid rgba(34,197,94,0.2);">✓ Residente</span>`;
+      : `<span style="font-size:0.7rem;padding:2px 8px;border-radius:100px;background:rgba(34,197,94,0.1);color:#4ade80;border:1px solid rgba(34,197,94,0.2);"><i data-lucide="check"></i> Residente</span>`;
 
     return `
     <div style="background:var(--card);border:1px solid var(--border2);border-radius:var(--radius-lg);padding:16px;display:flex;align-items:center;gap:12px;">

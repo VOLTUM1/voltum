@@ -159,7 +159,7 @@
     <!-- Botón suscripción -->
     <div id="mpButtonContainer" style="display:none;">
       <button class="btn btn-primary btn-full btn-lg" id="subscribeBtn" style="font-size:1.05rem;">
-        ⚡ Suscribirse — $9.990/mes
+        <i data-lucide="zap"></i> Suscribirse — $9.990/mes
       </button>
       <p style="text-align:center;font-size:0.8rem;color:var(--muted2);margin-top:12px;">
         Serás redirigido a Mercado Pago para autorizar el cobro automático.
@@ -191,7 +191,7 @@
     <!-- Estado con suscripción activa -->
     <div id="activeSubContainer" style="display:none;">
       <div style="padding:16px;border-radius:var(--radius-lg);background:rgba(34,197,94,0.06);border:1px solid rgba(34,197,94,0.2);margin-bottom:16px;text-align:center;">
-        <div style="font-size:0.9rem;color:var(--green);font-weight:600;margin-bottom:4px;">✓ Renovación automática activa</div>
+        <div style="font-size:0.9rem;color:var(--green);font-weight:600;margin-bottom:4px;"><i data-lucide="check"></i> Renovación automática activa</div>
         <div style="font-size:0.8rem;color:var(--muted);" id="nextChargeInfo"></div>
       </div>
       <button class="btn btn-outline btn-sm btn-full" id="cancelSubBtn" style="color:var(--muted);border-color:var(--border2);">
@@ -203,9 +203,9 @@
     </div>
 
     <div class="trust-badges">
-      <div class="trust-badge">🔒 Pago seguro</div>
-      <div class="trust-badge">💳 Mercado Pago</div>
-      <div class="trust-badge">🔄 Cancela cuando quieras</div>
+      <div class="trust-badge"><i data-lucide="lock"></i> Pago seguro</div>
+      <div class="trust-badge"><i data-lucide="credit-card"></i> Mercado Pago</div>
+      <div class="trust-badge"><i data-lucide="refresh-cw"></i> Cancela cuando quieras</div>
     </div>
 
     <div style="margin-top:24px;text-align:center;">
@@ -238,8 +238,8 @@
     const days = Math.ceil((expires - new Date()) / (1000 * 60 * 60 * 24));
     const isTrial = mem.payment_id === 'TRIAL_7D';
     infoEl.innerHTML = isTrial
-      ? `<span style="color:var(--gold);">⏳ Prueba gratuita activa</span> · Vence el ${expires.toLocaleDateString('es-CL')} (${days} días restantes) — suscríbete para no perder tu press kit`
-      : `<span style="color:var(--green);">✓ Membresía activa</span> · Vence el ${expires.toLocaleDateString('es-CL')} (${days} días)`;
+      ? `<span style="color:var(--gold);"><i data-lucide="hourglass"></i> Prueba gratuita activa</span> · Vence el ${expires.toLocaleDateString('es-CL')} (${days} días restantes) — suscríbete para no perder tu press kit`
+      : `<span style="color:var(--green);"><i data-lucide="check"></i> Membresía activa</span> · Vence el ${expires.toLocaleDateString('es-CL')} (${days} días)`;
 
     if (mem.subscription_id) {
       // Tiene auto-renovación activa
@@ -251,7 +251,7 @@
       document.getElementById('cancelSubBtn').addEventListener('click', () => cancelSubscription(user));
     } else {
       // Membresía activa pero sin auto-renovación (cancelada o pago manual)
-      infoEl.innerHTML += ' · <span style="color:var(--gold);">⚠ Sin renovación automática</span>';
+      infoEl.innerHTML += ' · <span style="color:var(--gold);"><i data-lucide="alert-triangle"></i> Sin renovación automática</span>';
       loadingEl.style.display = 'none';
       btnContainer.style.display = 'block';
       setupSubscribeButton(user, profile);
@@ -406,7 +406,7 @@ function setupPromoCode(user) {
         const usesLeft = refCode.max_uses ? `· <strong style="color:var(--gold);">${refCode.max_uses} cupos totales</strong>` : '';
 
         promoSuccess.innerHTML = `
-          🎉 <strong>Código aplicado — ${refCode.discount_percent}% off por ${refCode.discount_months} mes${refCode.discount_months > 1 ? 'es' : ''}</strong> ${usesLeft}<br>
+          <i data-lucide="party-popper"></i> <strong>Código aplicado — ${refCode.discount_percent}% off por ${refCode.discount_months} mes${refCode.discount_months > 1 ? 'es' : ''}</strong> ${usesLeft}<br>
           <span style="font-size:0.85rem;">Pagas <strong>$${discounted.toLocaleString('es-CL')}/mes</strong> en vez de $9.990 — ahorrás $${saving.toLocaleString('es-CL')}/mes</span>`;
         promoSuccess.style.display = 'block';
 
@@ -436,7 +436,7 @@ function setupPromoCode(user) {
       if (!res.ok) { showPromoError(json.error || 'Código inválido'); return; }
 
       const expires = new Date(json.expires_at).toLocaleDateString('es-CL');
-      promoSuccess.innerHTML = `🎉 <strong>¡Código canjeado exitosamente!</strong><br>Membresía Voltum Pro activa por 1 año — hasta el <strong>${expires}</strong>.<br><span style="font-size:0.8rem;opacity:0.8;">Redirigiendo...</span>`;
+      promoSuccess.innerHTML = `<i data-lucide="party-popper"></i> <strong>¡Código canjeado exitosamente!</strong><br>Membresía Voltum Pro activa por 1 año — hasta el <strong>${expires}</strong>.<br><span style="font-size:0.8rem;opacity:0.8;">Redirigiendo...</span>`;
       promoSuccess.style.display = 'block';
       document.getElementById('subscribeBtn').style.display = 'none';
       setTimeout(() => { window.location.href = 'success.html'; }, 2500);

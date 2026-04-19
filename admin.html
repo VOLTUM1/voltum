@@ -224,14 +224,14 @@
     </div>
     <nav class="sidebar-nav">
       <a href="admin.html" class="sidebar-nav-item active">
-        <span class="nav-icon">🛡️</span> Panel Admin
+        <span class="nav-icon"><i data-lucide="shield"></i></span> Panel Admin
       </a>
       <div style="height:1px;background:var(--border2);margin:12px 4px;"></div>
       <a href="dashboard.html" class="sidebar-nav-item">
-        <span class="nav-icon">📊</span> Mi Dashboard
+        <span class="nav-icon"><i data-lucide="bar-chart-3"></i></span> Mi Dashboard
       </a>
       <a href="profile.html" class="sidebar-nav-item">
-        <span class="nav-icon">✏️</span> Mi Press Kit
+        <span class="nav-icon"><i data-lucide="pen-line"></i></span> Mi Press Kit
       </a>
     </nav>
     <div class="sidebar-footer">
@@ -240,7 +240,7 @@
         <div id="adminEmail" style="font-size:0.82rem;font-weight:600;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;color:var(--gold);"></div>
       </div>
       <button class="sidebar-nav-item btn-danger" id="logoutBtn" style="width:100%;">
-        <span class="nav-icon">🚪</span> Cerrar sesión
+        <span class="nav-icon"><i data-lucide="log-out"></i></span> Cerrar sesión
       </button>
     </div>
   </aside>
@@ -255,7 +255,7 @@
         <div>
           <div style="display:flex;align-items:center;gap:10px;margin-bottom:4px;">
             <h1 style="font-size:1.75rem;">Panel de Administración</h1>
-            <span class="admin-badge">🛡️ ADMIN</span>
+            <span class="admin-badge"><i data-lucide="shield"></i> ADMIN</span>
           </div>
           <p style="font-size:0.875rem;">Gestiona usuarios, membresías y actividad de la plataforma</p>
         </div>
@@ -292,32 +292,32 @@
       <!-- MINI STATS GRID -->
       <div class="mini-stats-grid">
         <div class="mini-stat">
-          <div class="mini-stat-icon">🏢</div>
+          <div class="mini-stat-icon"><i data-lucide="building-2"></i></div>
           <div class="mini-stat-value" id="statCompanies">—</div>
           <div class="mini-stat-label">Empresas</div>
         </div>
         <div class="mini-stat">
-          <div class="mini-stat-icon">📋</div>
+          <div class="mini-stat-icon"><i data-lucide="clipboard-list"></i></div>
           <div class="mini-stat-value" id="statBookingsPending" style="color:var(--gold);">—</div>
           <div class="mini-stat-label">Bookings pendientes</div>
         </div>
         <div class="mini-stat">
-          <div class="mini-stat-icon">🤝</div>
+          <div class="mini-stat-icon"><i data-lucide="handshake"></i></div>
           <div class="mini-stat-value" id="statResidencies" style="color:var(--purple-l);">—</div>
           <div class="mini-stat-label">Residencias activas</div>
         </div>
         <div class="mini-stat">
-          <div class="mini-stat-icon">🎁</div>
+          <div class="mini-stat-icon"><i data-lucide="gift"></i></div>
           <div class="mini-stat-value" id="statFreeActive" style="color:var(--cyan);">—</div>
           <div class="mini-stat-label">Accesos gratuitos</div>
         </div>
         <div class="mini-stat">
-          <div class="mini-stat-icon">👁</div>
+          <div class="mini-stat-icon"><i data-lucide="eye"></i></div>
           <div class="mini-stat-value" id="statWeekViews">—</div>
           <div class="mini-stat-label">Vistas esta semana</div>
         </div>
         <div class="mini-stat">
-          <div class="mini-stat-icon">💰</div>
+          <div class="mini-stat-icon"><i data-lucide="wallet"></i></div>
           <div class="mini-stat-value" id="statTotalRevenue" style="color:var(--green);font-size:1.1rem;margin-top:4px;">—</div>
           <div class="mini-stat-label">Ingresos totales</div>
         </div>
@@ -325,11 +325,11 @@
 
       <!-- TABS -->
       <div class="admin-tabs">
-        <button class="admin-tab active" data-tab="charts">📈 Gráficos</button>
-        <button class="admin-tab" data-tab="users">👥 Usuarios</button>
-        <button class="admin-tab" data-tab="memberships">💳 Membresías</button>
-        <button class="admin-tab" data-tab="events">📅 Eventos</button>
-        <button class="admin-tab" data-tab="platform">🔗 Plataforma</button>
+        <button class="admin-tab active" data-tab="charts"><i data-lucide="trending-up"></i> Gráficos</button>
+        <button class="admin-tab" data-tab="users"><i data-lucide="users"></i> Usuarios</button>
+        <button class="admin-tab" data-tab="memberships"><i data-lucide="credit-card"></i> Membresías</button>
+        <button class="admin-tab" data-tab="events"><i data-lucide="calendar-check"></i> Eventos</button>
+        <button class="admin-tab" data-tab="platform"><i data-lucide="link-2"></i> Plataforma</button>
       </div>
 
       <!-- TAB: GRÁFICOS -->
@@ -338,7 +338,7 @@
         <!-- DJ DE LA SEMANA -->
         <div class="dj-week-wrap" style="margin-bottom:20px;">
           <div class="dj-week-card" id="djWeekFeatured">
-            <div style="font-size:0.7rem;font-weight:700;letter-spacing:0.1em;text-transform:uppercase;color:var(--purple-l);margin-bottom:4px;">⭐ DJ de la semana</div>
+            <div style="font-size:0.7rem;font-weight:700;letter-spacing:0.1em;text-transform:uppercase;color:var(--purple-l);margin-bottom:4px;"><i data-lucide="star"></i> DJ de la semana</div>
             <div class="dj-week-avatar" id="djWeekAvatar">?</div>
             <div style="font-weight:800;font-size:1.1rem;" id="djWeekName">Cargando…</div>
             <div class="dj-week-views" id="djWeekViews">—</div>
@@ -346,7 +346,7 @@
             <a id="djWeekLink" href="#" target="_blank" class="btn btn-outline btn-sm" style="margin-top:4px;font-size:0.78rem;">Ver press kit →</a>
           </div>
           <div class="card" style="padding:24px;">
-            <div style="font-size:0.75rem;font-weight:700;letter-spacing:1px;text-transform:uppercase;color:var(--muted);margin-bottom:16px;">🏆 Ranking semanal — Top press kits</div>
+            <div style="font-size:0.75rem;font-weight:700;letter-spacing:1px;text-transform:uppercase;color:var(--muted);margin-bottom:16px;"><i data-lucide="trophy"></i> Ranking semanal — Top press kits</div>
             <div id="djWeekRanking"><div style="color:var(--muted2);font-size:0.85rem;padding:20px 0;text-align:center;">Sin datos de vistas aún.<br><span style="font-size:0.78rem;">Los press kits visitados esta semana aparecerán aquí.</span></div></div>
           </div>
         </div>
@@ -370,7 +370,7 @@
       <!-- TAB: USUARIOS -->
       <div id="tab-users" class="hidden">
         <div class="search-bar">
-          <input type="text" class="form-input" id="searchUsers" placeholder="🔍 Buscar por nombre o email...">
+          <input type="text" class="form-input" id="searchUsers" placeholder="Buscar por nombre o email...">
           <select class="filter-select" id="filterStatus">
             <option value="all">Todos los estados</option>
             <option value="active">Con membresía activa</option>
@@ -402,7 +402,7 @@
       <!-- TAB: MEMBRESÍAS -->
       <div id="tab-memberships" class="hidden">
         <div class="search-bar">
-          <input type="text" class="form-input" id="searchMemberships" placeholder="🔍 Buscar por DJ o payment ID...">
+          <input type="text" class="form-input" id="searchMemberships" placeholder="Buscar por DJ o payment ID...">
           <select class="filter-select" id="filterMembStatus">
             <option value="all">Todos</option>
             <option value="active">Activas</option>
@@ -434,7 +434,7 @@
       <!-- TAB: EVENTOS -->
       <div id="tab-events" class="hidden">
         <div class="search-bar">
-          <input type="text" class="form-input" id="searchEvents" placeholder="🔍 Buscar por evento, venue o ciudad...">
+          <input type="text" class="form-input" id="searchEvents" placeholder="Buscar por evento, venue o ciudad...">
         </div>
         <div class="admin-table-wrap">
           <table class="admin-table">
@@ -583,7 +583,7 @@ let currentUser = null;
     document.body.innerHTML = `
       <div style="min-height:100vh;display:flex;align-items:center;justify-content:center;text-align:center;padding:32px;">
         <div>
-          <div style="font-size:3rem;margin-bottom:16px;">🔒</div>
+          <div style="font-size:3rem;margin-bottom:16px;"><i data-lucide="lock"></i></div>
           <h2 style="margin-bottom:8px;">Acceso restringido</h2>
           <p style="margin-bottom:24px;">No tienes permisos de administrador.</p>
           <a href="dashboard.html" class="btn btn-primary">Volver al Dashboard</a>
@@ -602,6 +602,7 @@ let currentUser = null;
 
   document.getElementById('loadingSpinner').classList.add('hidden');
   document.getElementById('adminContent').classList.remove('hidden');
+  window.renderIcons?.();
 
   document.getElementById('logoutBtn').addEventListener('click', async () => {
     await sb.auth.signOut();
@@ -649,6 +650,7 @@ async function loadAll() {
   renderEvents();
   renderDJofWeek();
   renderPlatform();
+  window.renderIcons?.();
 }
 
 function calcStats() {
@@ -719,14 +721,14 @@ function renderUsers(filter = '', status = 'all') {
       <td>
         ${isActive
           ? `<span class="badge badge-green">● Activa</span><div class="muted" style="margin-top:4px;">${days}d restantes</div>`
-          : `<span class="badge badge-red">✗ Sin membresía</span>`}
+          : `<span class="badge badge-red"><i data-lucide="x"></i> Sin membresía</span>`}
       </td>
       <td><span style="font-weight:600;">${u.profile_views || 0}</span></td>
       <td class="muted">${registered}</td>
       <td>
         <div class="row-actions">
           <button class="btn btn-outline btn-sm" onclick="showUserDetail('${u.id}')">Ver</button>
-          <a href="profile.html?admin_edit=${u.id}" class="btn btn-outline btn-sm" style="font-size:0.78rem;">✏️ Editar</a>
+          <a href="profile.html?admin_edit=${u.id}" class="btn btn-outline btn-sm" style="font-size:0.78rem;"><i data-lucide="pen-line"></i> Editar</a>
           ${isActive
             ? `<button class="btn btn-danger btn-sm" onclick="toggleMembership('${u.id}', 'cancel')">Cancelar</button>`
             : `<button class="btn btn-primary btn-sm" onclick="openActivateModal('${u.id}')">Activar</button>`}
@@ -832,20 +834,21 @@ function showUserDetail(userId) {
     <div class="detail-row"><span class="detail-label">Email booking</span><span class="detail-value">${u.booking_email || '—'}</span></div>
     <div class="detail-row"><span class="detail-label">Géneros</span><span class="detail-value">${u.genres?.join(', ') || '—'}</span></div>
     <div class="detail-row"><span class="detail-label">Vistas del perfil</span><span class="detail-value">${u.profile_views || 0}</span></div>
-    <div class="detail-row"><span class="detail-label">Membresía</span><span class="detail-value">${mem?.status === 'active' ? '✓ Activa' : '✗ Inactiva'}</span></div>
+    <div class="detail-row"><span class="detail-label">Membresía</span><span class="detail-value">${mem?.status === 'active' ? '<i data-lucide="check"></i> Activa' : '<i data-lucide="x"></i> Inactiva'}</span></div>
     ${mem?.expires_at ? `<div class="detail-row"><span class="detail-label">Vence</span><span class="detail-value">${new Date(mem.expires_at).toLocaleDateString('es-CL')}</span></div>` : ''}
     ${mem?.payment_id ? `<div class="detail-row"><span class="detail-label">Payment ID</span><span class="detail-value" style="font-family:monospace;font-size:0.8rem;">${mem.payment_id}</span></div>` : ''}
     <div class="detail-row"><span class="detail-label">Registrado</span><span class="detail-value">${new Date(u.created_at).toLocaleDateString('es-CL')}</span></div>
     <div class="detail-row"><span class="detail-label">Instagram</span><span class="detail-value">${u.social_instagram ? `<a href="${u.social_instagram}" target="_blank">Ver →</a>` : '—'}</span></div>
     <div class="detail-row"><span class="detail-label">SoundCloud</span><span class="detail-value">${u.social_soundcloud ? `<a href="${u.social_soundcloud}" target="_blank">Ver →</a>` : '—'}</span></div>
     <div style="display:flex;gap:8px;margin-top:20px;flex-wrap:wrap;">
-      <a href="presskit.html?id=${u.id}" target="_blank" class="btn btn-outline btn-sm">👁️ Ver Press Kit</a>
+      <a href="presskit.html?id=${u.id}" target="_blank" class="btn btn-outline btn-sm"><i data-lucide="eye"></i> Ver Press Kit</a>
       ${mem?.status === 'active'
         ? `<button class="btn btn-danger btn-sm" onclick="toggleMembership('${u.id}','cancel');document.getElementById('userModal').classList.add('hidden');">Cancelar membresía</button>`
         : `<button class="btn btn-primary btn-sm" onclick="document.getElementById('userModal').classList.add('hidden');openActivateModal('${u.id}');">Activar membresía</button>`}
     </div>
   `;
   document.getElementById('userModal').classList.remove('hidden');
+  window.renderIcons?.();
 }
 
 // ─── TOGGLE MEMBRESÍA ──────────────────────────────────────
@@ -992,7 +995,7 @@ function renderDJofWeek() {
   document.getElementById('djWeekViews').textContent = top.views;
   document.getElementById('djWeekLink').href         = pkUrl;
 
-  const medals = ['🥇','🥈','🥉','4','5'];
+  const medals = ['<i data-lucide="award"></i>','<i data-lucide="medal"></i>','<i data-lucide="medal"></i>','4','5'];
   document.getElementById('djWeekRanking').innerHTML = ranking.map((r, i) => {
     const mem = allMemberships.find(m => m.user_id === r.dj.id && m.status === 'active');
     return `
@@ -1027,7 +1030,7 @@ function renderPlatform() {
   if (!recentBookings.length) {
     bkBody.innerHTML = `<tr><td colspan="5" class="empty-state">Sin bookings aún</td></tr>`;
   } else {
-    const statusBadge = { pendiente: '<span class="badge badge-gold">● Pendiente</span>', aceptado: '<span class="badge badge-green">✓ Aceptado</span>', rechazado: '<span class="badge badge-red">✕ Rechazado</span>', cancelado: '<span class="badge">— Cancelado</span>' };
+    const statusBadge = { pendiente: '<span class="badge badge-gold">● Pendiente</span>', aceptado: '<span class="badge badge-green"><i data-lucide="check"></i> Aceptado</span>', rechazado: '<span class="badge badge-red"><i data-lucide="x"></i> Rechazado</span>', cancelado: '<span class="badge">— Cancelado</span>' };
     bkBody.innerHTML = recentBookings.map(b => {
       const company = allCompanies.find(c => c.id === b.company_id);
       const dj = allUsers.find(u => u.id === b.dj_user_id);
@@ -1047,7 +1050,7 @@ function renderPlatform() {
   if (!allResidencies.length) {
     resBody.innerHTML = `<tr><td colspan="4" class="empty-state">Sin residencias aún</td></tr>`;
   } else {
-    const resBadge = { pending: '<span class="badge badge-gold">● Pendiente</span>', accepted: '<span class="badge badge-green">✓ Activa</span>', rejected: '<span class="badge badge-red">✕ Rechazada</span>' };
+    const resBadge = { pending: '<span class="badge badge-gold">● Pendiente</span>', accepted: '<span class="badge badge-green"><i data-lucide="check"></i> Activa</span>', rejected: '<span class="badge badge-red"><i data-lucide="x"></i> Rechazada</span>' };
     resBody.innerHTML = allResidencies.map(r => {
       const company = allCompanies.find(c => c.id === r.company_id);
       const dj = allUsers.find(u => u.id === r.dj_user_id);

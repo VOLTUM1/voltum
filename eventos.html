@@ -266,8 +266,8 @@
   <div class="container">
     <a href="index.html" class="logo">VOLTUM</a>
     <div class="nav-links">
-      <a href="buscar.html" class="btn btn-ghost btn-sm">🔍 Buscar DJs</a>
-      <a href="eventos.html" class="btn btn-ghost btn-sm" style="color:var(--cyan);">🗓️ Eventos</a>
+      <a href="buscar.html" class="btn btn-ghost btn-sm"><i data-lucide="search"></i> Buscar DJs</a>
+      <a href="eventos.html" class="btn btn-ghost btn-sm" style="color:var(--cyan);"><i data-lucide="calendar"></i> Eventos</a>
       <a href="index.html#pricing" class="btn btn-ghost btn-sm">Precios</a>
       <a href="presskit.html?demo=true" class="btn btn-outline btn-sm">Ver Demo</a>
       <a href="auth.html" class="btn btn-ghost btn-sm" id="navLoginBtn">Iniciar sesión</a>
@@ -280,11 +280,11 @@
   </div>
 </nav>
 <div class="nav-mobile-menu" id="navMobileMenu">
-  <a href="buscar.html">🔍 Buscar DJs</a>
-  <a href="eventos.html" style="color:var(--cyan);">🗓️ Eventos</a>
+  <a href="buscar.html"><i data-lucide="search"></i> Buscar DJs</a>
+  <a href="eventos.html" style="color:var(--cyan);"><i data-lucide="calendar"></i> Eventos</a>
   <a href="index.html#pricing">Precios</a>
   <a href="presskit.html?demo=true" class="btn btn-outline">Ver Demo</a>
-  <a href="auth.html" class="btn btn-primary" id="navRegisterBtnM">⚡ Comenzar gratis</a>
+  <a href="auth.html" class="btn btn-primary" id="navRegisterBtnM"><i data-lucide="zap"></i> Comenzar gratis</a>
 </div>
 
 <!-- HERO -->
@@ -433,14 +433,16 @@ function renderEvents() {
   if (!filtered.length) {
     grid.innerHTML = `
       <div class="ev-empty">
-        <div class="ev-empty-icon">🗓️</div>
+        <div class="ev-empty-icon"><i data-lucide="calendar"></i></div>
         <h3>Sin resultados</h3>
         <p>No hay eventos que coincidan con tu búsqueda.</p>
       </div>`;
+    window.renderIcons?.();
     return;
   }
 
   grid.innerHTML = filtered.map((ev, i) => buildCard(ev, i)).join('');
+  window.renderIcons?.();
 }
 
 function buildCard(ev, index) {
@@ -461,7 +463,7 @@ function buildCard(ev, index) {
 
   const flyerHtml = ev.flyer_url
     ? `<img class="ev-flyer" src="${ev.flyer_url}" alt="Flyer ${ev.name}" loading="lazy">`
-    : `<div class="ev-flyer-placeholder"><div class="ev-flyer-placeholder-icon">🎧</div></div>`;
+    : `<div class="ev-flyer-placeholder"><div class="ev-flyer-placeholder-icon"><i data-lucide="headphones"></i></div></div>`;
 
   const avatarHtml = dj?.photo_url
     ? `<div class="ev-dj-avatar"><img src="${dj.photo_url}" alt="${dj.dj_name}" loading="lazy"></div>`
@@ -505,10 +507,11 @@ function renderEmpty(msg) {
   document.getElementById('evCount').textContent = '';
   document.getElementById('evGrid').innerHTML = `
     <div class="ev-empty">
-      <div class="ev-empty-icon">🗓️</div>
+      <div class="ev-empty-icon"><i data-lucide="calendar"></i></div>
       <h3>${msg}</h3>
       <p>Los DJs publican sus fechas desde su press kit.</p>
     </div>`;
+  window.renderIcons?.();
 }
 
 function escHtml(str) {

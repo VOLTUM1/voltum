@@ -268,8 +268,8 @@
     <div class="nav-links">
       <a href="#features" class="btn btn-ghost btn-sm">Características</a>
       <a href="#bookings" class="btn btn-ghost btn-sm">Bookings</a>
-      <a href="buscar.html" class="btn btn-ghost btn-sm">🔍 DJs</a>
-      <a href="eventos.html" class="btn btn-ghost btn-sm">🗓️ Eventos</a>
+      <a href="buscar.html" class="btn btn-ghost btn-sm"><i data-lucide="search"></i> DJs</a>
+      <a href="eventos.html" class="btn btn-ghost btn-sm"><i data-lucide="calendar"></i> Eventos</a>
       <a href="#pricing" class="btn btn-ghost btn-sm">Precios</a>
       <a href="presskit.html?demo=true" class="btn btn-outline btn-sm">Ver Demo</a>
       <a href="auth.html" class="btn btn-ghost btn-sm" id="navLoginBtn">Iniciar sesión</a>
@@ -287,11 +287,11 @@
 <div class="nav-mobile-menu" id="navMobileMenu">
   <a href="#features">Características</a>
   <a href="#bookings">Sistema de Bookings</a>
-  <a href="eventos.html">🗓️ Eventos</a>
+  <a href="eventos.html"><i data-lucide="calendar"></i> Eventos</a>
   <a href="#pricing">Precios</a>
   <a href="presskit.html?demo=true" class="btn btn-outline">Ver Demo</a>
   <a href="auth.html" class="btn btn-ghost" id="navLoginBtnM">Iniciar sesión</a>
-  <a href="auth.html" class="btn btn-primary" id="navRegisterBtnM">⚡ Comenzar gratis</a>
+  <a href="auth.html" class="btn btn-primary" id="navRegisterBtnM"><i data-lucide="zap"></i> Comenzar gratis</a>
   <a href="dashboard.html" class="btn btn-outline hidden" id="navDashBtnM">Mi Dashboard</a>
 </div>
 
@@ -354,8 +354,8 @@
           Crea tu perfil profesional, comparte tu URL única con promotores y venues, y recibe solicitudes de booking directamente desde tu press kit.
         </p>
         <div class="hero-actions">
-          <a href="auth.html" class="btn btn-primary btn-lg">⚡ Crear mi Press Kit</a>
-          <a href="presskit.html?demo=true" class="btn btn-outline btn-lg">Ver Demo →</a>
+          <a href="auth.html" class="btn btn-primary btn-lg"><i data-lucide="zap"></i> Crear mi Press Kit</a>
+          <a href="presskit.html?demo=true" class="btn btn-outline btn-lg">Ver Demo <i data-lucide="arrow-right"></i></a>
         </div>
         <div class="hero-stats" style="justify-content:flex-start;margin-top:32px;">
           <div class="stat">
@@ -387,13 +387,13 @@
             <div class="pk-avatar-big">N</div>
             <div class="pk-info">
               <div class="pk-name">DJ Nova</div>
-              <div class="pk-loc">📍 Santiago · Chile</div>
+              <div class="pk-loc"><i data-lucide="map-pin" class="icon-sm"></i> Santiago · Chile</div>
               <div class="pk-tags">
                 <span class="badge badge-purple">Techno</span>
                 <span class="badge badge-cyan">House</span>
                 <span class="badge badge-gold">Minimal</span>
               </div>
-              <div class="pk-booking-btn">📅 Solicitar Booking</div>
+              <div class="pk-booking-btn"><i data-lucide="calendar-check" class="icon-sm"></i> Solicitar Booking</div>
             </div>
           </div>
           <!-- Stats mini -->
@@ -432,10 +432,10 @@
 ═══════════════════════════════════════════════ -->
 <div class="container">
   <div class="trust-bar">
-    <div class="trust-item">✅ <span><strong>Sin tarjetas internacionales</strong> — Pago en CLP con Mercado Pago</span></div>
-    <div class="trust-item">⚡ <span><strong>Activo en minutos</strong> — URL pública inmediata</span></div>
-    <div class="trust-item">🔒 <span><strong>Datos seguros</strong> — Supabase + RLS</span></div>
-    <div class="trust-item">📱 <span><strong>100% responsive</strong> — Perfecto en móvil</span></div>
+    <div class="trust-item"><i data-lucide="shield-check"></i> <span><strong>Sin tarjetas internacionales</strong> — Pago en CLP con Mercado Pago</span></div>
+    <div class="trust-item"><i data-lucide="zap"></i> <span><strong>Activo en minutos</strong> — URL pública inmediata</span></div>
+    <div class="trust-item"><i data-lucide="lock"></i> <span><strong>Datos seguros</strong> — Supabase + RLS</span></div>
+    <div class="trust-item"><i data-lucide="smartphone"></i> <span><strong>100% responsive</strong> — Perfecto en móvil</span></div>
   </div>
 </div>
 
@@ -451,39 +451,39 @@
     </div>
 
     <div class="ftabs">
-      <button class="ftab-btn active" onclick="switchTab('dj',this)">🎧 Para DJs</button>
-      <button class="ftab-btn" onclick="switchTab('empresa',this)">🏢 Para Empresas</button>
+      <button class="ftab-btn active" onclick="switchTab('dj',this)"><i data-lucide="headphones"></i> Para DJs</button>
+      <button class="ftab-btn" onclick="switchTab('empresa',this)"><i data-lucide="building-2"></i> Para Empresas</button>
     </div>
 
     <!-- TAB DJs -->
     <div class="ftab-panel active features-grid" id="tab-dj" style="grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:24px;">
       <div class="feature-card">
-        <div class="feature-icon">🎧</div>
+        <div class="feature-icon"><i data-lucide="headphones"></i></div>
         <h3>Press Kit Completo</h3>
         <p>Foto, bio, géneros, mixes de SoundCloud, rider técnico, historial de eventos y links a todas tus redes en una sola URL profesional.</p>
       </div>
       <div class="feature-card">
-        <div class="feature-icon">🔗</div>
+        <div class="feature-icon"><i data-lucide="link-2"></i></div>
         <h3>URL personalizada</h3>
         <p>Tu enlace único <span class="mono" style="color:var(--purple-l)">voltum.app/tu-nombre</span> listo para compartir con promotores, venues y festivales al instante.</p>
       </div>
       <div class="feature-card">
-        <div class="feature-icon">📅</div>
+        <div class="feature-icon"><i data-lucide="calendar-check"></i></div>
         <h3>Recibe solicitudes de booking</h3>
         <p>Empresas y venues te envían solicitudes directamente desde tu press kit. Acepta, rechaza y coordina todo desde tu dashboard.</p>
       </div>
       <div class="feature-card">
-        <div class="feature-icon">🏦</div>
+        <div class="feature-icon"><i data-lucide="landmark"></i></div>
         <h3>Datos bancarios seguros</h3>
         <p>Registra tus datos de transferencia (banco, cuenta, RUT). Solo se revelan a la empresa cuando el booking es aceptado.</p>
       </div>
       <div class="feature-card">
-        <div class="feature-icon">📊</div>
+        <div class="feature-icon"><i data-lucide="bar-chart-3"></i></div>
         <h3>Dashboard de carrera</h3>
         <p>Visualiza visitas a tu perfil, bookings recibidos, sus estados y el historial completo de solicitudes desde un panel centralizado.</p>
       </div>
       <div class="feature-card">
-        <div class="feature-icon">🎛️</div>
+        <div class="feature-icon"><i data-lucide="sliders-horizontal"></i></div>
         <h3>Rider técnico integrado</h3>
         <p>Incluye tus requerimientos técnicos en el press kit para que los venues tengan todo listo antes de tu llegada.</p>
       </div>
@@ -492,32 +492,32 @@
     <!-- TAB EMPRESAS -->
     <div class="ftab-panel features-grid" id="tab-empresa" style="grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:24px;">
       <div class="feature-card">
-        <div class="feature-icon">🏢</div>
+        <div class="feature-icon"><i data-lucide="building-2"></i></div>
         <h3>Perfil de empresa</h3>
         <p>Crea el perfil de tu productora, agencia o club. Tipo de empresa, ciudad, contacto y redes sociales en un solo lugar.</p>
       </div>
       <div class="feature-card">
-        <div class="feature-icon">📤</div>
+        <div class="feature-icon"><i data-lucide="send"></i></div>
         <h3>Solicita bookings directamente</h3>
         <p>Desde cualquier press kit de DJ, envía una solicitud de booking con fecha, horario, lugar, tipo de evento y presupuesto.</p>
       </div>
       <div class="feature-card">
-        <div class="feature-icon">📋</div>
+        <div class="feature-icon"><i data-lucide="clipboard-list"></i></div>
         <h3>Dashboard de bookings</h3>
         <p>Gestiona todos tus bookings activos, revisa su estado en tiempo real, y cancela o hace seguimiento desde un solo panel.</p>
       </div>
       <div class="feature-card">
-        <div class="feature-icon">💸</div>
+        <div class="feature-icon"><i data-lucide="banknote"></i></div>
         <h3>Datos de pago automáticos</h3>
         <p>Cuando el DJ acepta el booking, se liberan automáticamente sus datos bancarios para que puedas procesar el pago sin más idas y vueltas.</p>
       </div>
       <div class="feature-card">
-        <div class="feature-icon">🔍</div>
+        <div class="feature-icon"><i data-lucide="search"></i></div>
         <h3>Directorio de DJs</h3>
         <p>Busca entre todos los DJs activos de la plataforma. Filtra por género, ciudad y estilo. Encuentra al artista perfecto para tu evento.</p>
       </div>
       <div class="feature-card">
-        <div class="feature-icon">🤝</div>
+        <div class="feature-icon"><i data-lucide="handshake"></i></div>
         <h3>Comunicación directa</h3>
         <p>Agrega mensajes personalizados en cada solicitud. El DJ puede responder con una nota al aceptar o rechazar el booking.</p>
       </div>
@@ -549,7 +549,7 @@ function switchTab(id, btn) {
     <div class="booking-flow" style="margin-bottom:80px;">
       <div class="booking-flow-step">
         <div style="position:relative;">
-          <div class="bflow-icon">🔍</div>
+          <div class="bflow-icon"><i data-lucide="search"></i></div>
           <div class="bflow-num">1</div>
         </div>
         <div class="bflow-title">La empresa descubre al DJ</div>
@@ -557,7 +557,7 @@ function switchTab(id, btn) {
       </div>
       <div class="booking-flow-step">
         <div style="position:relative;">
-          <div class="bflow-icon">📤</div>
+          <div class="bflow-icon"><i data-lucide="send"></i></div>
           <div class="bflow-num">2</div>
         </div>
         <div class="bflow-title">Envía la solicitud</div>
@@ -565,7 +565,7 @@ function switchTab(id, btn) {
       </div>
       <div class="booking-flow-step">
         <div style="position:relative;">
-          <div class="bflow-icon">✅</div>
+          <div class="bflow-icon"><i data-lucide="check-circle"></i></div>
           <div class="bflow-num">3</div>
         </div>
         <div class="bflow-title">El DJ acepta o rechaza</div>
@@ -573,7 +573,7 @@ function switchTab(id, btn) {
       </div>
       <div class="booking-flow-step">
         <div style="position:relative;">
-          <div class="bflow-icon">💸</div>
+          <div class="bflow-icon"><i data-lucide="banknote"></i></div>
           <div class="bflow-num">4</div>
         </div>
         <div class="bflow-title">Se liberan los datos de pago</div>
@@ -590,7 +590,7 @@ function switchTab(id, btn) {
           Vista empresa — solicitud de booking
         </div>
         <div class="bk-modal-preview">
-          <div class="bk-modal-title">📅 Solicitar Booking</div>
+          <div class="bk-modal-title"><i data-lucide="calendar-check" class="icon-sm"></i> Solicitar Booking</div>
           <div class="bk-modal-sub">Enviando solicitud a <strong>DJ Nova</strong></div>
           <div class="bk-field">
             <div class="bk-label">Fecha del evento</div>
@@ -629,7 +629,7 @@ function switchTab(id, btn) {
           </div>
           <div style="font-size:0.75rem;color:var(--muted2);margin-bottom:12px;">Sáb 12 Abr · Club Chocolate · 23:00</div>
           <div class="bank-preview">
-            <div class="bank-title">🏦 Datos para transferencia</div>
+            <div class="bank-title"><i data-lucide="landmark" class="icon-sm"></i> Datos para transferencia</div>
             <div class="bank-row">
               <span class="bank-key">Banco</span>
               <span class="bank-val">Banco de Chile</span>
@@ -677,7 +677,7 @@ function switchTab(id, btn) {
       <!-- Flujo DJ -->
       <div>
         <div style="display:flex;align-items:center;gap:10px;margin-bottom:28px;">
-          <div style="width:36px;height:36px;border-radius:10px;background:rgba(139,92,246,0.15);border:1px solid rgba(139,92,246,0.3);display:flex;align-items:center;justify-content:center;font-size:1.1rem;">🎧</div>
+          <div style="width:36px;height:36px;border-radius:10px;background:rgba(139,92,246,0.15);border:1px solid rgba(139,92,246,0.3);display:flex;align-items:center;justify-content:center;font-size:1.1rem;"><i data-lucide="headphones"></i></div>
           <span style="font-weight:800;font-size:1rem;">Soy DJ</span>
         </div>
         <div class="steps" style="display:flex;flex-direction:column;gap:20px;">
@@ -710,7 +710,7 @@ function switchTab(id, btn) {
       <!-- Flujo Empresa -->
       <div>
         <div style="display:flex;align-items:center;gap:10px;margin-bottom:28px;">
-          <div style="width:36px;height:36px;border-radius:10px;background:rgba(34,211,238,0.1);border:1px solid rgba(34,211,238,0.25);display:flex;align-items:center;justify-content:center;font-size:1.1rem;">🏢</div>
+          <div style="width:36px;height:36px;border-radius:10px;background:rgba(34,211,238,0.1);border:1px solid rgba(34,211,238,0.25);display:flex;align-items:center;justify-content:center;font-size:1.1rem;"><i data-lucide="building-2"></i></div>
           <span style="font-weight:800;font-size:1rem;">Soy Empresa / Venue</span>
         </div>
         <div class="steps" style="display:flex;flex-direction:column;gap:20px;">
@@ -767,7 +767,7 @@ function switchTab(id, btn) {
             <span class="badge badge-gold">Minimal</span>
           </div>
           <div style="margin-top:16px;">
-            <span style="display:inline-block;padding:8px 20px;background:var(--gradient);border-radius:100px;font-size:0.8rem;font-weight:700;color:#fff;box-shadow:0 4px 16px rgba(139,92,246,0.4);">📅 Solicitar Booking</span>
+            <span style="display:inline-block;padding:8px 20px;background:var(--gradient);border-radius:100px;font-size:0.8rem;font-weight:700;color:#fff;box-shadow:0 4px 16px rgba(139,92,246,0.4);"><i data-lucide="calendar-check" class="icon-sm"></i> Solicitar Booking</span>
           </div>
         </div>
         <div style="flex:1;min-width:200px;max-width:360px;">
@@ -840,7 +840,7 @@ function switchTab(id, btn) {
       </div>
       <!-- Voltum Pro -->
       <div class="pricing-card featured">
-        <div class="pricing-popular">⚡ Para DJs</div>
+        <div class="pricing-popular"><i data-lucide="zap" class="icon-sm"></i> Para DJs</div>
         <div class="pricing-name">Voltum Pro</div>
         <div class="pricing-price">
           <span class="price-currency">$</span>
@@ -862,7 +862,7 @@ function switchTab(id, btn) {
       </div>
       <!-- Empresa -->
       <div class="pricing-card">
-        <div class="pricing-popular" style="background:rgba(34,211,238,0.12);color:var(--cyan);border-color:rgba(34,211,238,0.3);">🏢 Para Empresas</div>
+        <div class="pricing-popular" style="background:rgba(34,211,238,0.12);color:var(--cyan);border-color:rgba(34,211,238,0.3);"><i data-lucide="building-2" class="icon-sm"></i> Para Empresas</div>
         <div class="pricing-name">Voltum Empresa</div>
         <div class="pricing-price">
           <span class="price-currency">$</span>
@@ -935,7 +935,7 @@ function switchTab(id, btn) {
       <div style="width:80px;height:80px;border-radius:50%;background:var(--gradient);display:flex;align-items:center;justify-content:center;overflow:hidden;border:3px solid rgba(139,92,246,0.3);flex-shrink:0;">${avatarHtml}</div>
       <div>
         <div style="font-size:1.1rem;font-weight:700;margin-bottom:4px;">${dj.dj_name}</div>
-        ${dj.location ? `<div style="font-size:0.82rem;color:var(--muted2);">📍 ${dj.location}</div>` : ''}
+        ${dj.location ? `<div style="font-size:0.82rem;color:var(--muted2);"><i data-lucide="map-pin" class="icon-sm"></i> ${dj.location}</div>` : ''}
       </div>
       ${genresHtml ? `<div style="display:flex;gap:6px;flex-wrap:wrap;justify-content:center;">${genresHtml}</div>` : ''}
       <a href="${pkUrl}" target="_blank" class="btn btn-outline btn-sm" style="margin-top:4px;width:100%;">Ver Press Kit →</a>`;
@@ -949,6 +949,7 @@ function switchTab(id, btn) {
       : allDJs;
     filtered.forEach(dj => grid.appendChild(buildCard(dj)));
     document.getElementById('djsEmpty').style.display = filtered.length ? 'none' : 'block';
+    window.renderIcons?.();
   }
 
   function buildFilterBar(djs) {
@@ -1012,7 +1013,7 @@ function switchTab(id, btn) {
       </div>
     </div>
     <div id="empresasEmpty" style="display:none;text-align:center;padding:40px 0 0;">
-      <div style="font-size:2.5rem;margin-bottom:16px;opacity:0.4;">🏢</div>
+      <div style="font-size:2.5rem;margin-bottom:16px;opacity:0.4;"><i data-lucide="building-2"></i></div>
       <p style="color:var(--muted2);font-size:0.95rem;max-width:400px;margin:0 auto;">¿Representas un venue, productora o agencia? Regístrate y empieza a contratar DJs hoy.</p>
     </div>
     <script>
@@ -1047,11 +1048,12 @@ function switchTab(id, btn) {
             <div>
               <div style="font-size:1rem;font-weight:700;margin-bottom:4px;">${c.dj_name}</div>
               ${c.company_type ? `<span style="font-size:0.75rem;color:var(--cyan);font-weight:600;">${c.company_type}</span>` : ''}
-              ${c.location ? `<div style="font-size:0.8rem;color:var(--muted2);margin-top:2px;">📍 ${c.location}</div>` : ''}
+              ${c.location ? `<div style="font-size:0.8rem;color:var(--muted2);margin-top:2px;"><i data-lucide="map-pin" class="icon-sm"></i> ${c.location}</div>` : ''}
             </div>
             <a href="${pkUrl}" target="_blank" class="btn btn-outline btn-sm" style="width:100%;margin-top:4px;">Ver perfil →</a>`;
           grid.appendChild(card);
         });
+        window.renderIcons?.();
       } catch(e) {
         loading.remove();
         empty.style.display = 'block';
@@ -1077,16 +1079,16 @@ function switchTab(id, btn) {
     <p style="margin-bottom:48px;">Tanto si eres DJ como si buscas contratar artistas, Voltum es tu plataforma.</p>
     <div class="dual-cta">
       <div class="cta-card featured">
-        <div class="cta-card-icon">🎧</div>
+        <div class="cta-card-icon"><i data-lucide="headphones"></i></div>
         <h3>Soy DJ</h3>
         <p>Crea tu press kit digital, comparte tu URL y recibe bookings de venues y festivales de todo Chile.</p>
-        <a href="auth.html" class="btn btn-primary btn-full btn-lg">⚡ Crear mi Press Kit</a>
+        <a href="auth.html" class="btn btn-primary btn-full btn-lg"><i data-lucide="zap"></i> Crear mi Press Kit</a>
         <div style="margin-top:12px;">
           <a href="presskit.html?demo=true" style="font-size:0.8rem;color:var(--muted2);">Ver demo primero →</a>
         </div>
       </div>
       <div class="cta-card">
-        <div class="cta-card-icon">🏢</div>
+        <div class="cta-card-icon"><i data-lucide="building-2"></i></div>
         <h3>Soy Empresa / Venue</h3>
         <p>Accede al directorio de DJs, envía solicitudes de booking y coordina pagos sin intermediarios.</p>
         <a href="auth.html?tab=register&type=empresa" class="btn btn-outline btn-full btn-lg" style="border-color:var(--cyan);color:var(--cyan);">Registrar empresa →</a>
@@ -1096,7 +1098,7 @@ function switchTab(id, btn) {
       </div>
     </div>
     <div style="margin-top:36px;">
-      <a href="https://wa.me/56930394883?text=Hola!%20Vi%20Voltum%20y%20me%20interesa%20saber%20m%C3%A1s.%20%C2%BFC%C3%B3mo%20puedo%20comenzar%3F" target="_blank" rel="noopener" class="btn btn-outline btn-lg" style="border-color:#25D366;color:#25D366;">💬 Consultar por WhatsApp</a>
+      <a href="https://wa.me/56930394883?text=Hola!%20Vi%20Voltum%20y%20me%20interesa%20saber%20m%C3%A1s.%20%C2%BFC%C3%B3mo%20puedo%20comenzar%3F" target="_blank" rel="noopener" class="btn btn-outline btn-lg" style="border-color:#25D366;color:#25D366;"><i data-lucide="message-circle"></i> Consultar por WhatsApp</a>
     </div>
   </div>
 </section>
@@ -1136,10 +1138,10 @@ function switchTab(id, btn) {
         <h4>Contacto</h4>
         <ul>
           <li>
-            <a href="https://wa.me/56930394883?text=Hola!%20Vi%20Voltum%20y%20me%20interesa%20saber%20m%C3%A1s.%20%C2%BFC%C3%B3mo%20puedo%20comenzar%3F" target="_blank" rel="noopener">📱 WhatsApp</a>
+            <a href="https://wa.me/56930394883?text=Hola!%20Vi%20Voltum%20y%20me%20interesa%20saber%20m%C3%A1s.%20%C2%BFC%C3%B3mo%20puedo%20comenzar%3F" target="_blank" rel="noopener"><i data-lucide="smartphone"></i> WhatsApp</a>
           </li>
           <li>
-            <a href="https://instagram.com/voltum.cl" target="_blank" rel="noopener">📸 @voltum.cl</a>
+            <a href="https://instagram.com/voltum.cl" target="_blank" rel="noopener"><i data-lucide="instagram"></i> @voltum.cl</a>
           </li>
         </ul>
       </div>
@@ -1147,9 +1149,9 @@ function switchTab(id, btn) {
     <div class="footer-bottom">
       <p style="color:var(--muted2);">© 2025 Voltum. Hecho para DJs, por DJs.</p>
       <div style="display:flex;gap:12px;align-items:center;">
-        <a href="https://wa.me/56930394883?text=Hola!%20Vi%20Voltum%20y%20me%20interesa%20saber%20m%C3%A1s.%20%C2%BFC%C3%B3mo%20puedo%20comenzar%3F" target="_blank" rel="noopener" style="color:var(--muted2);font-size:0.85rem;display:flex;align-items:center;gap:6px;">📱 +56 9 3039 4883</a>
-        <a href="https://instagram.com/voltum.cl" target="_blank" rel="noopener" style="color:var(--muted2);font-size:0.85rem;display:flex;align-items:center;gap:6px;">📸 @voltum.cl</a>
-        <span class="badge badge-purple">⚡ VOLTUM</span>
+        <a href="https://wa.me/56930394883?text=Hola!%20Vi%20Voltum%20y%20me%20interesa%20saber%20m%C3%A1s.%20%C2%BFC%C3%B3mo%20puedo%20comenzar%3F" target="_blank" rel="noopener" style="color:var(--muted2);font-size:0.85rem;display:flex;align-items:center;gap:6px;"><i data-lucide="smartphone" class="icon-sm"></i> +56 9 3039 4883</a>
+        <a href="https://instagram.com/voltum.cl" target="_blank" rel="noopener" style="color:var(--muted2);font-size:0.85rem;display:flex;align-items:center;gap:6px;"><i data-lucide="instagram" class="icon-sm"></i> @voltum.cl</a>
+        <span class="badge badge-purple"><i data-lucide="zap" class="icon-sm"></i> VOLTUM</span>
       </div>
     </div>
   </div>
@@ -1161,7 +1163,7 @@ function switchTab(id, btn) {
    style="position:fixed;bottom:28px;right:28px;z-index:999;width:56px;height:56px;border-radius:50%;background:#25D366;display:flex;align-items:center;justify-content:center;font-size:1.6rem;box-shadow:0 4px 20px rgba(37,211,102,0.45);transition:transform 0.2s,box-shadow 0.2s;text-decoration:none;"
    onmouseover="this.style.transform='scale(1.1)';this.style.boxShadow='0 6px 28px rgba(37,211,102,0.6)'"
    onmouseout="this.style.transform='scale(1)';this.style.boxShadow='0 4px 20px rgba(37,211,102,0.45)'"
-   title="Consultar por WhatsApp">💬</a>
+   title="Consultar por WhatsApp"><i data-lucide="message-circle"></i></a>
 
 <script>
   window.addEventListener('scroll', () => {

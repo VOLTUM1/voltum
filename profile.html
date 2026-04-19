@@ -318,7 +318,7 @@
               <span id="genresPlaceholder" style="color:var(--muted2);font-size:0.9rem;padding:2px 4px;">Selecciona tus géneros...</span>
             </div>
             <div id="genreDropdown" class="hidden" style="position:absolute;top:calc(100% + 6px);left:0;right:0;z-index:50;background:var(--bg3);border:1px solid var(--border);border-radius:var(--radius-lg);padding:12px;max-height:320px;overflow-y:auto;box-shadow:0 8px 32px rgba(0,0,0,0.4);">
-              <input type="text" id="genreSearch" class="form-input" placeholder="🔍 Buscar género..." style="margin-bottom:10px;font-size:0.85rem;" onclick="event.stopPropagation()">
+              <input type="text" id="genreSearch" class="form-input" placeholder="Buscar género..." style="margin-bottom:10px;font-size:0.85rem;" onclick="event.stopPropagation()">
               <div id="genreList" style="display:flex;flex-wrap:wrap;gap:6px;"></div>
             </div>
           </div>
@@ -330,17 +330,17 @@
       <div class="tab-content card hidden" id="tab-media">
         <div style="display:grid;grid-template-columns:1fr 1fr;gap:28px;">
           <div>
-            <label class="form-label" style="margin-bottom:12px;display:block;">🎭 Foto de perfil</label>
+            <label class="form-label" style="margin-bottom:12px;display:block;"><i data-lucide="user"></i> Foto de perfil</label>
             <div class="img-preview-wrap">
               <div class="image-upload avatar-upload" id="photoUploadArea" style="width:180px;height:180px;border-radius:50%;">
                 <input type="file" id="photoInput" accept="image/*">
                 <div id="photoPlaceholder">
-                  <div class="upload-icon">📷</div>
+                  <div class="upload-icon"><i data-lucide="camera"></i></div>
                   <p style="font-size:0.75rem;">Subir foto</p>
                 </div>
                 <img id="photoPreview" style="display:none;width:180px;height:180px;border-radius:50%;object-fit:cover;">
               </div>
-              <button class="remove-img" id="removePhoto">✕ Quitar</button>
+              <button class="remove-img" id="removePhoto"><i data-lucide="x"></i> Quitar</button>
             </div>
             <div class="form-hint" style="margin-top:12px;">JPG, PNG o WEBP · Máx 5MB<br>Recomendado: 400×400px</div>
 
@@ -362,18 +362,18 @@
             </div>
           </div>
           <div style="flex:1;">
-            <label class="form-label" style="margin-bottom:12px;display:block;">🖼️ Banner / portada</label>
+            <label class="form-label" style="margin-bottom:12px;display:block;"><i data-lucide="image"></i> Banner / portada</label>
             <div class="img-preview-wrap">
               <div class="image-upload" id="bannerUploadArea">
                 <input type="file" id="bannerInput" accept="image/*">
                 <div id="bannerPlaceholder">
-                  <div class="upload-icon">🖼️</div>
+                  <div class="upload-icon"><i data-lucide="image"></i></div>
                   <p>Subir banner</p>
                   <p style="font-size:0.8rem;color:var(--muted2);">Recomendado: 1500×500px</p>
                 </div>
                 <img id="bannerPreview" style="display:none;width:100%;height:200px;object-fit:cover;border-radius:calc(var(--radius-lg) - 2px);">
               </div>
-              <button class="remove-img" id="removeBanner">✕ Quitar</button>
+              <button class="remove-img" id="removeBanner"><i data-lucide="x"></i> Quitar</button>
             </div>
           </div>
         </div>
@@ -393,7 +393,7 @@
         </div>
         <div id="galleryGrid" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(160px,1fr));gap:12px;"></div>
         <div id="galleryEmpty" style="text-align:center;padding:40px;color:var(--muted2);border:2px dashed var(--border2);border-radius:var(--radius-lg);">
-          <div style="font-size:2rem;margin-bottom:8px;">🖼️</div>
+          <div style="font-size:2rem;margin-bottom:8px;"><i data-lucide="image"></i></div>
           <p style="font-size:0.875rem;">Aún no hay fotos en la galería</p>
         </div>
         <div class="form-hint" style="margin-top:12px;" id="galleryCount">0 / 8 fotos</div>
@@ -427,11 +427,11 @@
           <input type="text" id="socialFacebook" class="form-input" placeholder="facebook.com/tu-pagina">
         </div>
         <div class="social-field">
-          <div class="social-icon" style="font-size:1.1rem;">🔗</div>
+          <div class="social-icon" style="font-size:1.1rem;"><i data-lucide="link-2"></i></div>
           <input type="text" id="customLink1" class="form-input" placeholder="Tu sitio web, Linktree, Bandcamp, etc.">
         </div>
         <div class="social-field">
-          <div class="social-icon" style="font-size:1.1rem;">🔗</div>
+          <div class="social-icon" style="font-size:1.1rem;"><i data-lucide="link-2"></i></div>
           <input type="text" id="customLink2" class="form-input" placeholder="Otro enlace personalizado">
         </div>
       </div>
@@ -493,22 +493,22 @@
             </div>
           </div>
           <div class="form-group" style="margin-top:14px;margin-bottom:0;">
-            <label class="form-label">🎟️ Link de entradas <span style="color:var(--muted2);font-weight:400;">(opcional)</span></label>
+            <label class="form-label"><i data-lucide="ticket"></i> Link de entradas <span style="color:var(--muted2);font-weight:400;">(opcional)</span></label>
             <div style="display:flex;align-items:center;gap:10px;">
-              <span style="font-size:1.2rem;">🎟️</span>
+              <span style="font-size:1.2rem;"><i data-lucide="ticket"></i></span>
               <input type="url" id="eventTicketUrl" class="form-input" placeholder="ej: https://passline.com/eventos/...">
             </div>
             <div class="form-hint">Si hay entradas a la venta, agrega el link. Aparecerá como botón en tu press kit.</div>
           </div>
           <div class="form-group" style="margin-top:14px;margin-bottom:0;">
-            <label class="form-label">🖼️ Flyer del evento <span style="color:var(--muted2);font-weight:400;">(opcional)</span></label>
+            <label class="form-label"><i data-lucide="image"></i> Flyer del evento <span style="color:var(--muted2);font-weight:400;">(opcional)</span></label>
             <div style="display:flex;align-items:center;gap:12px;">
               <label style="cursor:pointer;display:inline-flex;align-items:center;gap:8px;padding:8px 14px;border-radius:var(--radius);background:var(--bg3);border:1px solid var(--border2);font-size:0.85rem;color:var(--muted);transition:var(--transition);" onmouseover="this.style.borderColor='var(--border)'" onmouseout="this.style.borderColor='var(--border2)'">
-                📂 Subir flyer
+                <i data-lucide="folder-open"></i> Subir flyer
                 <input type="file" id="eventFlyerInput" accept="image/*" style="display:none;">
               </label>
               <img id="eventFlyerPreview" style="display:none;height:48px;width:auto;border-radius:6px;border:1px solid var(--border2);object-fit:cover;" alt="Flyer preview">
-              <button type="button" id="removeFlyerBtn" style="display:none;background:none;border:none;color:var(--muted2);cursor:pointer;font-size:0.8rem;" onclick="clearFlyerPreview()">✕ Quitar</button>
+              <button type="button" id="removeFlyerBtn" style="display:none;background:none;border:none;color:var(--muted2);cursor:pointer;font-size:0.8rem;" onclick="clearFlyerPreview()"><i data-lucide="x"></i> Quitar</button>
             </div>
             <div class="form-hint">Imagen de la cartelera. Se mostrará en el press kit junto al evento.</div>
           </div>
@@ -542,25 +542,25 @@
 
         <!-- CDJs / REPRODUCTORES -->
         <div style="margin-bottom:24px;">
-          <div style="font-size:0.75rem;font-weight:700;letter-spacing:1px;text-transform:uppercase;color:var(--purple-l);margin-bottom:12px;padding-bottom:8px;border-bottom:1px solid var(--border2);">🎵 Reproductores (CDJ / XDJ)</div>
+          <div style="font-size:0.75rem;font-weight:700;letter-spacing:1px;text-transform:uppercase;color:var(--purple-l);margin-bottom:12px;padding-bottom:8px;border-bottom:1px solid var(--border2);"><i data-lucide="music-2"></i> Reproductores (CDJ / XDJ)</div>
           <div class="rider-grid" id="riderCDJs"></div>
         </div>
 
         <!-- MIXERS -->
         <div style="margin-bottom:24px;">
-          <div style="font-size:0.75rem;font-weight:700;letter-spacing:1px;text-transform:uppercase;color:var(--cyan);margin-bottom:12px;padding-bottom:8px;border-bottom:1px solid var(--border2);">🎚️ Mixers / Consolas</div>
+          <div style="font-size:0.75rem;font-weight:700;letter-spacing:1px;text-transform:uppercase;color:var(--cyan);margin-bottom:12px;padding-bottom:8px;border-bottom:1px solid var(--border2);"><i data-lucide="sliders-horizontal"></i> Mixers / Consolas</div>
           <div class="rider-grid" id="riderMixers"></div>
         </div>
 
         <!-- CONTROLADORES -->
         <div style="margin-bottom:24px;">
-          <div style="font-size:0.75rem;font-weight:700;letter-spacing:1px;text-transform:uppercase;color:var(--gold);margin-bottom:12px;padding-bottom:8px;border-bottom:1px solid var(--border2);">🎹 Controladores All-in-One</div>
+          <div style="font-size:0.75rem;font-weight:700;letter-spacing:1px;text-transform:uppercase;color:var(--gold);margin-bottom:12px;padding-bottom:8px;border-bottom:1px solid var(--border2);"><i data-lucide="piano"></i> Controladores All-in-One</div>
           <div class="rider-grid" id="riderControllers"></div>
         </div>
 
         <!-- ACCESORIOS -->
         <div style="margin-bottom:24px;">
-          <div style="font-size:0.75rem;font-weight:700;letter-spacing:1px;text-transform:uppercase;color:var(--green);margin-bottom:12px;padding-bottom:8px;border-bottom:1px solid var(--border2);">⚙️ Accesorios & Requerimientos</div>
+          <div style="font-size:0.75rem;font-weight:700;letter-spacing:1px;text-transform:uppercase;color:var(--green);margin-bottom:12px;padding-bottom:8px;border-bottom:1px solid var(--border2);"><i data-lucide="settings"></i> Accesorios & Requerimientos</div>
           <div class="rider-grid" id="riderAccessories"></div>
         </div>
 
@@ -697,10 +697,11 @@ let eventFlyerFile = null;
     // Banner de modo admin
     const banner = document.createElement('div');
     banner.style.cssText = 'position:fixed;top:0;left:0;right:0;z-index:9999;padding:8px 24px;background:rgba(245,158,11,0.15);border-bottom:1px solid rgba(245,158,11,0.4);display:flex;align-items:center;justify-content:space-between;font-size:0.82rem;backdrop-filter:blur(8px);';
-    banner.innerHTML = `<span style="color:var(--gold);font-weight:600;">🛡️ Modo Admin — Editando press kit de un cliente</span><a href="admin.html" class="btn btn-outline btn-sm" style="font-size:0.78rem;">← Volver al panel</a>`;
+    banner.innerHTML = `<span style="color:var(--gold);font-weight:600;"><i data-lucide="shield"></i> Modo Admin — Editando press kit de un cliente</span><a href="admin.html" class="btn btn-outline btn-sm" style="font-size:0.78rem;"><i data-lucide="arrow-left"></i> Volver al panel</a>`;
     document.body.prepend(banner);
     // Compensar el banner en el layout
     document.querySelector('.layout')?.style.setProperty('padding-top', '44px');
+    window.renderIcons?.();
   } else {
     targetUserId = currentUser.id;
   }
@@ -737,6 +738,7 @@ let eventFlyerFile = null;
 
   document.getElementById('loadingSpinner').classList.add('hidden');
   document.getElementById('profileContent').classList.remove('hidden');
+  window.renderIcons?.();
 
   // Tabs
   const activeTab = urlParams.get('tab') || 'basic';
@@ -845,7 +847,7 @@ function fillForm() {
     document.getElementById('djRiderSection').style.display = 'none';
     document.getElementById('companyServices').value = profile.technical_rider || '';
     // Cambiar label del tab rider
-    document.querySelector('[data-tab="rider"] .tab-label').textContent = '🏢 Servicios';
+    document.querySelector('[data-tab="rider"] .tab-label').textContent = 'Servicios';
     // Cambiar labels de nombre y bio
     document.querySelector('label[for="djName"], label:has(+ #djName)').textContent = 'Nombre de la empresa *';
     document.getElementById('regNameHint') && (document.getElementById('regNameHint').textContent = '');
@@ -941,9 +943,10 @@ function renderGenreList(filter) {
   const filtered = ALL_GENRES.filter(g => g.toLowerCase().includes(filter.toLowerCase()));
   list.innerHTML = filtered.map(g => `
     <div class="genre-option ${genres.includes(g) ? 'selected' : ''}" onclick="toggleGenre('${g}')">
-      ${genres.includes(g) ? '✓ ' : ''}${g}
+      ${genres.includes(g) ? '<i data-lucide="check"></i> ' : ''}${g}
     </div>
   `).join('');
+  window.renderIcons?.();
 }
 
 function toggleGenre(g) {
@@ -1033,10 +1036,11 @@ function renderRiderSection(containerId, items) {
   const container = document.getElementById(containerId);
   container.innerHTML = items.map(item => `
     <div class="rider-item ${riderSelected.has(item.id) ? 'selected' : ''}" onclick="toggleRiderItem('${item.id}')">
-      <div class="check">${riderSelected.has(item.id) ? '✓' : ''}</div>
+      <div class="check">${riderSelected.has(item.id) ? '<i data-lucide="check"></i>' : ''}</div>
       <span>${item.label}${item.desc ? ` <span style="color:var(--muted2);font-size:0.75rem;">· ${item.desc}</span>` : ''}</span>
     </div>
   `).join('');
+  window.renderIcons?.();
 }
 
 function toggleRiderItem(id) {
@@ -1168,7 +1172,7 @@ async function uploadImage(file, path) {
 async function saveProfile() {
   const btn = document.getElementById('saveProfileBtn');
   const status = document.getElementById('saveStatus');
-  btn.disabled = true; btn.textContent = '💾 Guardando...';
+  btn.disabled = true; btn.innerHTML = '<i data-lucide="save"></i> Guardando...';
   status.textContent = '';
 
   try {
@@ -1238,15 +1242,15 @@ async function saveProfile() {
     profile = { ...profile, ...updates };
     photoFile = null; bannerFile = null;
     showToast('¡Press kit guardado exitosamente!', 'success');
-    status.textContent = '✓ Guardado';
+    status.innerHTML = '<i data-lucide="check"></i> Guardado';
     status.style.color = 'var(--green)';
   } catch (err) {
     showToast('Error al guardar: ' + err.message, 'error');
-    status.textContent = '✗ Error al guardar';
+    status.innerHTML = '<i data-lucide="x"></i> Error al guardar';
     status.style.color = 'var(--red)';
   }
 
-  btn.disabled = false; btn.textContent = '💾 Guardar cambios';
+  btn.disabled = false; btn.innerHTML = '<i data-lucide="save"></i> Guardar cambios';
 }
 
 async function loadEvents() {
@@ -1298,16 +1302,16 @@ function renderEvents() {
         <strong>${ev.name}</strong>
         <span>${[ev.venue, ev.city].filter(Boolean).join(' · ')}</span>
         ${ev.genre ? `<span style="display:inline-block;margin-top:4px;font-size:0.72rem;font-weight:600;padding:2px 10px;border-radius:100px;background:rgba(139,92,246,0.12);border:1px solid rgba(139,92,246,0.3);color:var(--purple-l);">${ev.genre}</span>` : ''}
-        ${ev.ticket_url ? `<span style="margin-top:4px;display:block;"><a href="${ev.ticket_url}" target="_blank" style="font-size:0.78rem;color:var(--purple-l);">🎟️ Ver entradas →</a></span>` : ''}
+        ${ev.ticket_url ? `<span style="margin-top:4px;display:block;"><a href="${ev.ticket_url}" target="_blank" style="font-size:0.78rem;color:var(--purple-l);"><i data-lucide="ticket"></i> Ver entradas <i data-lucide="arrow-right"></i></a></span>` : ''}
       </div>
       ${ev.flyer_url ? `<img src="${ev.flyer_url}" alt="Flyer" style="height:44px;width:auto;border-radius:6px;border:1px solid var(--border2);object-fit:cover;cursor:pointer;" onclick="window.open('${ev.flyer_url}','_blank')">` : ''}
       <button class="btn btn-ghost btn-sm btn-icon featured-btn${ev.featured ? ' active' : ''}"
         onclick="toggleFeatured('${ev.id}')"
         title="${ev.featured ? 'Quitar de destacados' : 'Destacar en press kit'}">
-        ${ev.featured ? '⭐' : '☆'}
+        ${ev.featured ? '<i data-lucide="star"></i>' : '<i data-lucide="star-off"></i>'}
       </button>
-      <button class="btn btn-ghost btn-sm btn-icon" onclick="editEvent('${ev.id}')" title="Editar evento" style="color:var(--muted);">✏️</button>
-      <button class="btn btn-danger btn-sm btn-icon" onclick="deleteEvent('${ev.id}')">✕</button>
+      <button class="btn btn-ghost btn-sm btn-icon" onclick="editEvent('${ev.id}')" title="Editar evento" style="color:var(--muted);"><i data-lucide="pen-line"></i></button>
+      <button class="btn btn-danger btn-sm btn-icon" onclick="deleteEvent('${ev.id}')"><i data-lucide="x"></i></button>
     </div>`;
   }
 
@@ -1331,7 +1335,7 @@ function renderEvents() {
 
   let html = `<div style="background:var(--bg3);border:1px solid var(--border2);border-radius:var(--radius);margin-bottom:16px;overflow:hidden;">
     <div style="display:flex;justify-content:space-between;align-items:center;padding:10px 14px;">
-      <span style="font-size:0.82rem;color:var(--muted);">⭐ Destacados en press kit</span>
+      <span style="font-size:0.82rem;color:var(--muted);"><i data-lucide="star"></i> Destacados en press kit</span>
       <span style="font-size:0.88rem;font-weight:700;color:var(--purple-l);">${featuredCount}</span>
     </div>
     ${featuredCount > 1 ? `
@@ -1376,6 +1380,7 @@ function renderEvents() {
 
   list.innerHTML = html;
   initFeaturedSort();
+  window.renderIcons?.();
 }
 
 function setEvPageUpcoming(p) { evPageUpcoming = p; renderEvents(); }
@@ -1601,7 +1606,7 @@ function renderGallery() {
   const savedHtml = galleryUrls.map((url, i) => `
     <div class="gallery-item">
       <img src="${url}" alt="Foto ${i+1}">
-      <button class="gallery-remove" onclick="removeGalleryUrl(${i})">✕ Quitar</button>
+      <button class="gallery-remove" onclick="removeGalleryUrl(${i})"><i data-lucide="x"></i> Quitar</button>
       <div class="gallery-num">${i+1}</div>
     </div>`).join('');
 
@@ -1612,12 +1617,13 @@ function renderGallery() {
     return `
     <div class="gallery-item" id="newGallery${i}">
       <img src="${url}" alt="Nueva foto ${num}">
-      <button class="gallery-remove" onclick="removeNewGalleryFile(${i})">✕ Quitar</button>
+      <button class="gallery-remove" onclick="removeNewGalleryFile(${i})"><i data-lucide="x"></i> Quitar</button>
       <div class="gallery-num">${num} <span style="color:var(--gold);">●</span></div>
     </div>`;
   }).join('');
 
   grid.innerHTML = savedHtml + newHtml;
+  window.renderIcons?.();
 }
 
 function removeGalleryUrl(index) {

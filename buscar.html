@@ -281,8 +281,8 @@
       VOLTUM
     </a>
     <div class="nav-links">
-      <a href="buscar.html" class="btn btn-ghost btn-sm" style="color:var(--purple-l);">🔍 Buscar DJs</a>
-      <a href="eventos.html" class="btn btn-ghost btn-sm">🗓️ Eventos</a>
+      <a href="buscar.html" class="btn btn-ghost btn-sm" style="color:var(--purple-l);"><i data-lucide="search"></i> Buscar DJs</a>
+      <a href="eventos.html" class="btn btn-ghost btn-sm"><i data-lucide="calendar"></i> Eventos</a>
       <a href="index.html#pricing" class="btn btn-ghost btn-sm">Precios</a>
       <a href="presskit.html?demo=true" class="btn btn-outline btn-sm">Ver Demo</a>
       <a href="auth.html" class="btn btn-ghost btn-sm" id="navLoginBtn">Iniciar sesión</a>
@@ -295,11 +295,11 @@
   </div>
 </nav>
 <div class="nav-mobile-menu" id="navMobileMenu">
-  <a href="buscar.html" style="color:var(--purple-l);">🔍 Buscar DJs</a>
-  <a href="eventos.html">🗓️ Eventos</a>
+  <a href="buscar.html" style="color:var(--purple-l);"><i data-lucide="search"></i> Buscar DJs</a>
+  <a href="eventos.html"><i data-lucide="calendar"></i> Eventos</a>
   <a href="index.html#pricing">Precios</a>
   <a href="presskit.html?demo=true" class="btn btn-outline">Ver Demo</a>
-  <a href="auth.html" class="btn btn-primary" id="navRegisterBtnM">⚡ Comenzar gratis</a>
+  <a href="auth.html" class="btn btn-primary" id="navRegisterBtnM"><i data-lucide="zap"></i> Comenzar gratis</a>
 </div>
 
 <!-- HERO -->
@@ -318,9 +318,9 @@
 
     <!-- BUSCADOR -->
     <div class="search-box">
-      <span class="search-icon">🔍</span>
+      <span class="search-icon"><i data-lucide="search"></i></span>
       <input type="text" id="searchInput" placeholder="Buscar por nombre de DJ..." autocomplete="off" spellcheck="false">
-      <button class="search-clear" id="clearSearch" title="Limpiar">✕</button>
+      <button class="search-clear" id="clearSearch" title="Limpiar"><i data-lucide="x"></i></button>
     </div>
 
     <!-- GÉNEROS -->
@@ -332,19 +332,19 @@
     <!-- FILTROS SECUNDARIOS -->
     <div class="secondary-filters">
       <div class="filter-pill">
-        🗺️
+        <i data-lucide="map"></i>
         <select id="regionFilter">
           <option value="">Todas las regiones</option>
         </select>
       </div>
       <div class="filter-pill" id="comunaFilterPill" style="display:none;">
-        📍
+        <i data-lucide="map-pin"></i>
         <select id="comunaFilter">
           <option value="">Todas las comunas</option>
         </select>
       </div>
       <div class="filter-pill">
-        🎚️
+        <i data-lucide="sliders-horizontal"></i>
         <select id="sortFilter">
           <option value="views">Más vistos</option>
           <option value="name">Nombre A–Z</option>
@@ -352,7 +352,7 @@
         </select>
       </div>
       <button class="filter-pill" id="clearFilters" style="border:none;color:var(--muted2);cursor:pointer;font-family:inherit;display:none;">
-        ✕ Limpiar filtros
+        <i data-lucide="x"></i> Limpiar filtros
       </button>
     </div>
   </div>
@@ -465,7 +465,7 @@ function renderGenreChips() {
     </button>
   `).join('') + `
     <button class="show-more-btn" onclick="toggleShowMore()">
-      ${showAllGenres ? '▲ Ver menos' : `+ ${ALL_GENRES_SEARCH.length - FEATURED_GENRES.length} más`}
+      ${showAllGenres ? '<i data-lucide="chevron-up"></i> Ver menos' : `+ ${ALL_GENRES_SEARCH.length - FEATURED_GENRES.length} más`}
     </button>`;
 }
 
@@ -541,7 +541,7 @@ function renderCards(djs) {
   if (!djs.length) {
     grid.innerHTML = `
       <div class="empty-search">
-        <div class="empty-search-icon">🎧</div>
+        <div class="empty-search-icon"><i data-lucide="headphones"></i></div>
         <h3>Sin resultados para tu búsqueda</h3>
         <p>Intenta con otro género o quita algunos filtros para ver más DJs.</p>
         <button class="btn btn-outline" onclick="clearAll()">Limpiar filtros</button>
@@ -575,8 +575,8 @@ function renderCards(djs) {
       <div class="card-body">
         <div class="card-name">${dj.dj_name || '—'}</div>
         <div class="card-meta">
-          ${(dj.comuna || dj.region) ? `<span>📍 ${[dj.comuna, dj.region].filter(Boolean).join(', ')}</span>` : (dj.location ? `<span>📍 ${dj.location}</span>` : '')}
-          ${dj.profile_views ? `<span style="color:var(--muted2);">· 👁 ${dj.profile_views}</span>` : ''}
+          ${(dj.comuna || dj.region) ? `<span><i data-lucide="map-pin"></i> ${[dj.comuna, dj.region].filter(Boolean).join(', ')}</span>` : (dj.location ? `<span><i data-lucide="map-pin"></i> ${dj.location}</span>` : '')}
+          ${dj.profile_views ? `<span style="color:var(--muted2);">· <i data-lucide="eye"></i> ${dj.profile_views}</span>` : ''}
         </div>
         <div class="card-genres">${genreTags || '<span style="color:var(--muted2);font-size:0.78rem;">Sin géneros definidos</span>'}</div>
         <div class="card-footer" style="flex-wrap:wrap;gap:8px;">
@@ -586,7 +586,7 @@ function renderCards(djs) {
           </a>
           ${_myCompany ? (() => {
             const rs = _myResidencies.get(dj.id);
-            if (rs === 'accepted') return `<button class="btn btn-sm" style="background:rgba(34,197,94,0.12);color:#4ade80;border:1px solid rgba(34,197,94,0.3);cursor:default;white-space:nowrap;" disabled onclick="event.stopPropagation()">✓ Residente</button>`;
+            if (rs === 'accepted') return `<button class="btn btn-sm" style="background:rgba(34,197,94,0.12);color:#4ade80;border:1px solid rgba(34,197,94,0.3);cursor:default;white-space:nowrap;" disabled onclick="event.stopPropagation()"><i data-lucide="check"></i> Residente</button>`;
             if (rs === 'pending')  return `<button class="btn btn-sm" style="background:rgba(251,191,36,0.1);color:#fbbf24;border:1px solid rgba(251,191,36,0.25);cursor:default;white-space:nowrap;" disabled onclick="event.stopPropagation()">Enviada</button>`;
             return `<button class="btn btn-outline btn-sm" onclick="event.stopPropagation();inviteResident('${dj.id}','${(dj.dj_name||'').replace(/'/g,"\\'")}')" style="white-space:nowrap;">+ Residente</button>`;
           })() : ''}
@@ -661,7 +661,7 @@ function clearAll() {
     console.error(err);
     document.getElementById('djGrid').innerHTML = `
       <div class="empty-search">
-        <div class="empty-search-icon">⚠️</div>
+        <div class="empty-search-icon"><i data-lucide="alert-triangle"></i></div>
         <h3>Error cargando DJs</h3>
         <p>Recarga la página e intenta de nuevo.</p>
       </div>`;

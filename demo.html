@@ -203,9 +203,9 @@
 
 <!-- NAV -->
 <nav class="pk-nav">
-  <a href="index.html" class="logo" style="font-size:1.1rem;">⚡ VOLTUM</a>
+  <a href="index.html" class="logo" style="font-size:1.1rem;"><i data-lucide="zap"></i> VOLTUM</a>
   <div style="display:flex;gap:8px;">
-    <button onclick="shareKit()" class="btn btn-outline btn-sm">📤 Compartir</button>
+    <button onclick="shareKit()" class="btn btn-outline btn-sm"><i data-lucide="send"></i> Compartir</button>
   </div>
 </nav>
 
@@ -221,9 +221,9 @@
     <div style="padding-bottom:12px;flex:1;">
       <div style="display:flex;align-items:center;gap:12px;flex-wrap:wrap;margin-bottom:6px;">
         <h1 class="presskit-name">AXEL NOIR</h1>
-        <span class="badge badge-purple">⚡ Voltum Pro</span>
+        <span class="badge badge-purple"><i data-lucide="zap" class="icon-sm"></i> Voltum Pro</span>
       </div>
-      <p style="color:var(--muted);font-size:1rem;">📍 Metropolitana, Santiago</p>
+      <p style="color:var(--muted);font-size:1rem;"><i data-lucide="map-pin" class="icon-sm"></i> Metropolitana, Santiago</p>
       <div style="margin-top:12px;" class="genres-display">
         <span class="genre-tag">Techno</span>
         <span class="genre-tag">Dark Techno</span>
@@ -412,13 +412,13 @@ Disponible para bookings nacionales e internacionales. Rider técnico completo y
   <div class="presskit-section" style="text-align:center;padding:48px 24px;border-radius:var(--radius-xl);background:linear-gradient(135deg,rgba(139,92,246,0.08),rgba(34,211,238,0.04));border:1px solid var(--border);">
     <h2 style="margin-bottom:12px;">¿Te interesa hacer un booking?</h2>
     <p style="margin-bottom:28px;font-size:1rem;">Escríbenos directamente para coordinar fechas y condiciones.</p>
-    <a href="mailto:axelnoir.bookings@gmail.com" class="btn btn-primary btn-lg">📬 Contactar para booking</a>
+    <a href="mailto:axelnoir.bookings@gmail.com" class="btn btn-primary btn-lg"><i data-lucide="mail"></i> Contactar para booking</a>
   </div>
 
   <!-- FOOTER VOLTUM -->
   <div style="text-align:center;margin-top:48px;padding-top:32px;border-top:1px solid var(--border2);padding-bottom:100px;">
     <a href="index.html" style="display:inline-flex;align-items:center;gap:8px;color:var(--muted2);font-size:0.8rem;text-decoration:none;">
-      Press kit creado con <span style="font-weight:700;color:var(--purple-l);">⚡ VOLTUM</span>
+      Press kit creado con <span style="font-weight:700;color:var(--purple-l);"><i data-lucide="zap" class="icon-sm"></i> VOLTUM</span>
     </a>
   </div>
 
@@ -432,12 +432,12 @@ Disponible para bookings nacionales e internacionales. Rider técnico completo y
 
 <!-- LIGHTBOX -->
 <div class="lightbox" id="lightbox" onclick="closeLightbox()">
-  <button class="lightbox-close" onclick="closeLightbox()">✕</button>
+  <button class="lightbox-close" onclick="closeLightbox()"><i data-lucide="x"></i></button>
   <img id="lightboxImg" src="" alt="">
 </div>
 
 <!-- TOAST -->
-<div class="toast" id="shareToast">✅ Enlace copiado al portapapeles</div>
+<div class="toast" id="shareToast"><i data-lucide="check-circle" class="icon-sm"></i> Enlace copiado al portapapeles</div>
 
 <script>
   // ── SoundCloud Widget API Player ─────────────────────────────────────────────
@@ -522,7 +522,7 @@ Disponible para bookings nacionales e internacionales. Rider técnico completo y
       const plays = track.playback_count ? _scFormatCount(track.playback_count) : null;
       return `<div class="sc-card" data-idx="${i}" onclick="_scTogglePlay(${i})">
         <div class="sc-art">
-          ${art ? `<img src="${art}" alt="${_scEsc(track.title)}" loading="lazy">` : `<div class="sc-art-default">🎵</div>`}
+          ${art ? `<img src="${art}" alt="${_scEsc(track.title)}" loading="lazy">` : `<div class="sc-art-default"><i data-lucide="music-2"></i></div>`}
           <div class="sc-overlay">
             <div class="sc-play-btn">
               <svg class="icon-play" width="20" height="20" viewBox="0 0 24 24" fill="white"><path d="M8 5v14l11-7z"/></svg>
@@ -550,6 +550,7 @@ Disponible para bookings nacionales e internacionales. Rider técnico completo y
           <img src="https://cdn.simpleicons.org/soundcloud/a78bfa" width="14" height="14" style="flex-shrink:0;"> Ver en SoundCloud
         </a>` : ''}
       </div>`;
+    window.renderIcons?.();
   }
 
   function _scTogglePlay(idx) {
@@ -635,7 +636,7 @@ Disponible para bookings nacionales e internacionales. Rider técnico completo y
   };
 
   const pillDefs = [
-    { key:'featured', label:'⭐ Destacados', color:'#f59e0b' },
+    { key:'featured', label:'<i data-lucide="star" class="icon-sm"></i> Destacados', color:'#f59e0b' },
     { key:'upcoming', label:'Próximos',      color:'#34d399' },
     { key:'past',     label:'Realizados',    color:'var(--muted2)' },
   ];
@@ -647,6 +648,7 @@ Disponible para bookings nacionales e internacionales. Rider técnico completo y
       onmouseout="if(!this.classList.contains('active'))this.style.background='transparent'">
       ${p.label} <span style="opacity:0.7;font-weight:400;">(${_buckets[p.key].length})</span>
     </button>`).join('');
+  window.renderIcons?.();
 
   function demoEvFilter(key) { _demoFilter = key; _demoExpanded = false; demoEvRender(); }
   function demoEvToggleMore() { _demoExpanded = !_demoExpanded; demoEvRender(); }
@@ -680,7 +682,7 @@ Disponible para bookings nacionales e internacionales. Rider técnico completo y
           <div class="pk-ev-actions">
             ${isPast ? '<span class="badge badge-purple" style="font-size:0.68rem;">Pasado</span>' : '<span class="badge badge-green" style="font-size:0.68rem;">Próximo</span>'}
             ${ev.genre ? `<span style="font-size:0.68rem;font-weight:600;padding:2px 9px;border-radius:100px;background:rgba(139,92,246,0.12);border:1px solid rgba(139,92,246,0.3);color:var(--purple-l);">${ev.genre}</span>` : ''}
-            ${!isPast && ev.ticket_url && ev.ticket_url!=='#' ? `<a href="${ev.ticket_url}" target="_blank" class="btn btn-primary btn-sm" style="font-size:0.75rem;padding:4px 12px;">🎟️ Entradas</a>` : (!isPast && ev.ticket_url==='#' ? `<span class="btn btn-primary btn-sm" style="font-size:0.75rem;padding:4px 12px;opacity:0.7;cursor:default;">🎟️ Entradas</span>` : '')}
+            ${!isPast && ev.ticket_url && ev.ticket_url!=='#' ? `<a href="${ev.ticket_url}" target="_blank" class="btn btn-primary btn-sm" style="font-size:0.75rem;padding:4px 12px;"><i data-lucide="ticket" class="icon-sm"></i> Entradas</a>` : (!isPast && ev.ticket_url==='#' ? `<span class="btn btn-primary btn-sm" style="font-size:0.75rem;padding:4px 12px;opacity:0.7;cursor:default;"><i data-lucide="ticket" class="icon-sm"></i> Entradas</span>` : '')}
           </div>
         </div>
       </div>`;
@@ -691,6 +693,7 @@ Disponible para bookings nacionales e internacionales. Rider técnico completo y
       btn.style.display = '';
       btn.textContent = _demoExpanded ? 'Ver menos ↑' : `Ver ${list.length - EV_LIMIT} más ↓`;
     } else { btn.style.display = 'none'; }
+    window.renderIcons?.();
   }
 
   demoEvRender();

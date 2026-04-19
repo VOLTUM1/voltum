@@ -268,7 +268,7 @@
         <div>
           <div class="section-title" style="margin-bottom:6px;">Panel de control</div>
           <h1 style="font-size:1.75rem;font-weight:800;margin-bottom:4px;">
-            Hola, <span id="welcomeName" class="gradient-text"></span> 👋
+            Hola, <span id="welcomeName" class="gradient-text"></span> <i data-lucide="hand"></i>
           </h1>
           <p id="welcomeSubtitle" style="font-size:0.9rem;">Aquí tienes el resumen de tu carrera</p>
         </div>
@@ -461,7 +461,7 @@
             </div>
           </div>
           <div style="margin-top:16px;padding-top:14px;border-top:1px solid var(--border2);font-size:0.8rem;color:var(--muted2);">
-            💡 Comparte tu código — cada persona que lo use obtiene <strong id="referralDiscountText" style="color:var(--purple-l);"></strong> en sus primeros meses.
+            <i data-lucide="lightbulb"></i> Comparte tu código — cada persona que lo use obtiene <strong id="referralDiscountText" style="color:var(--purple-l);"></strong> en sus primeros meses.
           </div>
         </div>
       </div>
@@ -473,7 +473,7 @@
 <!-- MODAL BOOKING DETAIL (DJ) -->
 <div id="djBookingModal" style="display:none;position:fixed;inset:0;z-index:200;background:rgba(0,0,0,0.75);align-items:center;justify-content:center;padding:20px;">
   <div style="background:var(--bg2);border:1px solid var(--border);border-radius:var(--radius-xl);width:100%;max-width:540px;padding:28px;position:relative;max-height:90vh;overflow-y:auto;">
-    <button onclick="closeDjBookingModal()" style="position:absolute;top:16px;right:16px;background:none;border:none;color:var(--muted);font-size:1.4rem;cursor:pointer;line-height:1;">✕</button>
+    <button onclick="closeDjBookingModal()" style="position:absolute;top:16px;right:16px;background:none;border:none;color:var(--muted);font-size:1.4rem;cursor:pointer;line-height:1;"><i data-lucide="x"></i></button>
     <div id="djBookingModalContent"></div>
   </div>
 </div>
@@ -700,7 +700,7 @@
 
     if (!list.length) {
       el.innerHTML = `<div style="background:var(--card);border:1px solid var(--border2);border-radius:var(--radius-xl);padding:36px 24px;text-align:center;">
-        <div style="font-size:2rem;margin-bottom:12px;opacity:0.4;">📋</div>
+        <div style="font-size:2rem;margin-bottom:12px;opacity:0.4;"><i data-lucide="clipboard-list"></i></div>
         <div style="font-weight:600;margin-bottom:6px;">${filter === 'pendiente' ? 'Sin solicitudes pendientes' : 'Sin solicitudes aún'}</div>
         <div style="font-size:0.82rem;color:var(--muted);">Cuando una empresa te solicite un booking aparecerá aquí</div>
       </div>`;
@@ -788,7 +788,7 @@
         <div style="font-size:0.7rem;color:#22d3ee;text-transform:uppercase;letter-spacing:0.06em;margin-bottom:8px;">Contacto empresa</div>
         <div style="font-size:0.83rem;display:flex;flex-direction:column;gap:4px;">
           ${co.contact_name ? `<span>${co.contact_name}</span>` : ''}
-          ${co.contact_phone ? `<a href="tel:${co.contact_phone}" style="color:var(--purple-l);">📞 ${co.contact_phone}</a>` : ''}
+          ${co.contact_phone ? `<a href="tel:${co.contact_phone}" style="color:var(--purple-l);"><i data-lucide="phone"></i> ${co.contact_phone}</a>` : ''}
           ${co.instagram ? `<a href="https://instagram.com/${co.instagram}" target="_blank" style="color:var(--purple-l);">@${co.instagram}</a>` : ''}
         </div>
       </div>` : ''}
@@ -800,8 +800,8 @@
       </div>
       <div style="display:flex;gap:10px;justify-content:flex-end;">
         <button onclick="closeDjBookingModal()" class="btn btn-outline btn-sm">Cerrar</button>
-        <button onclick="respondBooking('${b.id}', 'rechazado')" class="btn btn-sm" style="background:rgba(239,68,68,0.1);border:1px solid rgba(239,68,68,0.3);color:#f87171;">✕ Rechazar</button>
-        <button onclick="respondBooking('${b.id}', 'aceptado')" class="btn btn-primary btn-sm">✓ Aceptar booking</button>
+        <button onclick="respondBooking('${b.id}', 'rechazado')" class="btn btn-sm" style="background:rgba(239,68,68,0.1);border:1px solid rgba(239,68,68,0.3);color:#f87171;"><i data-lucide="x"></i> Rechazar</button>
+        <button onclick="respondBooking('${b.id}', 'aceptado')" class="btn btn-primary btn-sm"><i data-lucide="check"></i> Aceptar booking</button>
       </div>` : `
       <div style="display:flex;justify-content:flex-end;">
         <button onclick="closeDjBookingModal()" class="btn btn-outline btn-sm">Cerrar</button>

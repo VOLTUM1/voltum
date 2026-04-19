@@ -154,6 +154,45 @@ const VOLTUM = {
 const { createClient } = supabase;
 const sb = createClient(VOLTUM.supabase.url, VOLTUM.supabase.anonKey);
 
+// ============================================================
+// Lucide Icons — carga automática en todas las páginas
+// Uso: <i data-lucide="music"></i>  (ver https://lucide.dev)
+// ============================================================
+(function loadLucide() {
+  if (typeof window === 'undefined') return;
+  if (window.__voltumLucideLoaded) return;
+  window.__voltumLucideLoaded = true;
+
+  const refresh = () => { try { window.lucide && window.lucide.createIcons(); } catch(_) {} };
+
+  const mountObserver = () => {
+    let t;
+    const obs = new MutationObserver(() => {
+      clearTimeout(t);
+      t = setTimeout(refresh, 60);
+    });
+    obs.observe(document.body, { childList: true, subtree: true });
+  };
+
+  const boot = () => {
+    if (window.lucide) { refresh(); mountObserver(); return; }
+    const s = document.createElement('script');
+    s.src = 'https://unpkg.com/lucide@latest/dist/umd/lucide.min.js';
+    s.defer = true;
+    s.onload = () => { refresh(); mountObserver(); };
+    document.head.appendChild(s);
+  };
+
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', boot);
+  } else {
+    boot();
+  }
+
+  // Helper global para re-render manual tras insertar markup con data-lucide
+  window.renderIcons = refresh;
+})();
+
 // Helpers de autenticación
 const Auth = {
   async getUser() {
