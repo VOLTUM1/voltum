@@ -3,7 +3,34 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Voltum — Editar Press Kit</title>
+
+  <!-- Favicon -->
+  <link rel="icon" href="/favicon.svg" type="image/svg+xml">
+  <link rel="apple-touch-icon" href="/apple-touch-icon.svg">
+  <meta name="theme-color" content="#000000">
+  <meta name="color-scheme" content="dark">
+
+  <!-- Resource hints -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="preconnect" href="https://vsadzmuzzeovwqnpcgrr.supabase.co">
+  <link rel="dns-prefetch" href="https://cdn.jsdelivr.net">
+  <link rel="dns-prefetch" href="https://api.mercadopago.com">
+
+  <title>Editar Press Kit — Voltum</title>
+  <meta name="description" content="Edita tu press kit digital.">
+
+  <!-- Open Graph / Twitter -->
+  <meta property="og:type" content="website">
+  <meta property="og:title" content="Editar Press Kit — Voltum">
+  <meta property="og:description" content="Edita tu press kit digital.">
+  <meta property="og:image" content="https://voltum.cl/apple-touch-icon.svg">
+  <meta property="og:url" content="https://voltum.cl/profile.html">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="Editar Press Kit — Voltum">
+  <meta name="twitter:description" content="Edita tu press kit digital.">
+  <meta name="twitter:image" content="https://voltum.cl/apple-touch-icon.svg">
+
   <link rel="stylesheet" href="css/styles.css">
   <style>
     .save-bar {
@@ -338,7 +365,7 @@
                   <div class="upload-icon"><i data-lucide="camera"></i></div>
                   <p style="font-size:0.75rem;">Subir foto</p>
                 </div>
-                <img id="photoPreview" style="display:none;width:180px;height:180px;border-radius:50%;object-fit:cover;">
+                <img id="photoPreview" loading="lazy" decoding="async" style="display:none;width:180px;height:180px;border-radius:50%;object-fit:cover;">
               </div>
               <button class="remove-img" id="removePhoto"><i data-lucide="x"></i> Quitar</button>
             </div>
@@ -354,7 +381,7 @@
                 </div>
                 <div style="display:flex;flex-direction:column;align-items:center;gap:6px;">
                   <div class="pos-preview-ring">
-                    <img id="posPreviewImg" src="" alt="Preview" style="object-position:center center;">
+                    <img id="posPreviewImg" loading="lazy" decoding="async" src="" alt="Preview" style="object-position:center center;">
                   </div>
                   <div style="font-size:0.68rem;color:var(--muted2);">Vista previa</div>
                 </div>
@@ -371,7 +398,7 @@
                   <p>Subir banner</p>
                   <p style="font-size:0.8rem;color:var(--muted2);">Recomendado: 1500×500px</p>
                 </div>
-                <img id="bannerPreview" style="display:none;width:100%;height:200px;object-fit:cover;border-radius:calc(var(--radius-lg) - 2px);">
+                <img id="bannerPreview" loading="lazy" decoding="async" style="display:none;width:100%;height:200px;object-fit:cover;border-radius:calc(var(--radius-lg) - 2px);">
               </div>
               <button class="remove-img" id="removeBanner"><i data-lucide="x"></i> Quitar</button>
             </div>
@@ -403,27 +430,27 @@
       <div class="tab-content card hidden" id="tab-social">
         <p style="margin-bottom:24px;font-size:0.9rem;">Agrega tus redes sociales y plataformas musicales. Solo incluye lo que tengas activo.</p>
         <div class="social-field">
-          <div class="social-icon"><img src="https://cdn.simpleicons.org/instagram/ffffff" width="20" height="20" alt="Instagram"></div>
+          <div class="social-icon"><img src="https://cdn.simpleicons.org/instagram/ffffff" width="20" height="20" alt="Instagram" loading="lazy" decoding="async"></div>
           <input type="text" id="socialInstagram" class="form-input" placeholder="instagram.com/tu-usuario">
         </div>
         <div class="social-field">
-          <div class="social-icon"><img src="https://cdn.simpleicons.org/tiktok/ffffff" width="20" height="20" alt="TikTok"></div>
+          <div class="social-icon"><img src="https://cdn.simpleicons.org/tiktok/ffffff" width="20" height="20" alt="TikTok" loading="lazy" decoding="async"></div>
           <input type="text" id="socialTiktok" class="form-input" placeholder="tiktok.com/@tu-usuario">
         </div>
         <div class="social-field">
-          <div class="social-icon"><img src="https://cdn.simpleicons.org/soundcloud/ffffff" width="20" height="20" alt="SoundCloud"></div>
+          <div class="social-icon"><img src="https://cdn.simpleicons.org/soundcloud/ffffff" width="20" height="20" alt="SoundCloud" loading="lazy" decoding="async"></div>
           <input type="text" id="socialSoundcloud" class="form-input" placeholder="soundcloud.com/tu-usuario">
         </div>
         <div class="social-field">
-          <div class="social-icon"><img src="https://cdn.simpleicons.org/spotify/ffffff" width="20" height="20" alt="Spotify"></div>
+          <div class="social-icon"><img src="https://cdn.simpleicons.org/spotify/ffffff" width="20" height="20" alt="Spotify" loading="lazy" decoding="async"></div>
           <input type="text" id="socialSpotify" class="form-input" placeholder="open.spotify.com/artist/...">
         </div>
         <div class="social-field">
-          <div class="social-icon"><img src="https://cdn.simpleicons.org/youtube/ffffff" width="20" height="20" alt="YouTube"></div>
+          <div class="social-icon"><img src="https://cdn.simpleicons.org/youtube/ffffff" width="20" height="20" alt="YouTube" loading="lazy" decoding="async"></div>
           <input type="text" id="socialYoutube" class="form-input" placeholder="youtube.com/@tu-canal">
         </div>
         <div class="social-field">
-          <div class="social-icon"><img src="https://cdn.simpleicons.org/facebook/ffffff" width="20" height="20" alt="Facebook"></div>
+          <div class="social-icon"><img src="https://cdn.simpleicons.org/facebook/ffffff" width="20" height="20" alt="Facebook" loading="lazy" decoding="async"></div>
           <input type="text" id="socialFacebook" class="form-input" placeholder="facebook.com/tu-pagina">
         </div>
         <div class="social-field">
@@ -507,7 +534,7 @@
                 <i data-lucide="folder-open"></i> Subir flyer
                 <input type="file" id="eventFlyerInput" accept="image/*" style="display:none;">
               </label>
-              <img id="eventFlyerPreview" style="display:none;height:48px;width:auto;border-radius:6px;border:1px solid var(--border2);object-fit:cover;" alt="Flyer preview">
+              <img id="eventFlyerPreview" loading="lazy" decoding="async" style="display:none;height:48px;width:auto;border-radius:6px;border:1px solid var(--border2);object-fit:cover;" alt="Flyer preview">
               <button type="button" id="removeFlyerBtn" style="display:none;background:none;border:none;color:var(--muted2);cursor:pointer;font-size:0.8rem;" onclick="clearFlyerPreview()"><i data-lucide="x"></i> Quitar</button>
             </div>
             <div class="form-hint">Imagen de la cartelera. Se mostrará en el press kit junto al evento.</div>

@@ -3,8 +3,34 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+  <!-- Favicon -->
+  <link rel="icon" href="/favicon.svg" type="image/svg+xml">
+  <link rel="apple-touch-icon" href="/apple-touch-icon.svg">
+  <meta name="theme-color" content="#000000">
+  <meta name="color-scheme" content="dark">
+
+  <!-- Resource hints -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="preconnect" href="https://vsadzmuzzeovwqnpcgrr.supabase.co">
+  <link rel="dns-prefetch" href="https://cdn.jsdelivr.net">
+  <link rel="dns-prefetch" href="https://api.mercadopago.com">
+
   <title>Voltum — Press Kit Digital para DJs</title>
-  <meta name="description" content="La plataforma de press kit digital para DJs. Crea tu perfil profesional, recibe bookings de venues y festivales, y gestiona tu carrera desde un solo lugar.">
+  <meta name="description" content="Crea tu press kit profesional, recibe bookings y gestiona tu carrera como DJ en Chile.">
+
+  <!-- Open Graph / Twitter -->
+  <meta property="og:type" content="website">
+  <meta property="og:title" content="Voltum — Press Kit Digital para DJs">
+  <meta property="og:description" content="Crea tu press kit profesional, recibe bookings y gestiona tu carrera como DJ en Chile.">
+  <meta property="og:image" content="https://voltum.cl/apple-touch-icon.svg">
+  <meta property="og:url" content="https://voltum.cl/">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="Voltum — Press Kit Digital para DJs">
+  <meta name="twitter:description" content="Crea tu press kit profesional, recibe bookings y gestiona tu carrera como DJ en Chile.">
+  <meta name="twitter:image" content="https://voltum.cl/apple-touch-icon.svg">
+
   <link rel="stylesheet" href="css/styles.css">
   <style>
     .bg-section { background: var(--bg2); }
@@ -341,41 +367,55 @@
   <div class="container">
     <div class="hero-split">
       <!-- Texto -->
-      <div class="hero-content" style="text-align:left;align-items:flex-start;">
+      <div class="hero-content" style="text-align:left;align-items:flex-start;" data-reveal="left">
+        <span class="kicker" style="margin-bottom:18px;">VOLTUM · PARA DJS PROFESIONALES</span>
         <div class="hero-badge">
           <span class="equalizer"><span></span><span></span><span></span><span></span><span></span><span></span></span>
           La plataforma #1 para DJs profesionales en Chile
         </div>
         <h1 class="hero-title" style="font-size:clamp(2.2rem,5vw,3.4rem);">
           Tu Press Kit Digital<br>
-          <span class="gradient-text">que cierra bookings</span>
+          <span class="accent">que cierra bookings</span>
         </h1>
         <p class="hero-subtitle" style="text-align:left;max-width:520px;">
           Crea tu perfil profesional, comparte tu URL única con promotores y venues, y recibe solicitudes de booking directamente desde tu press kit.
         </p>
         <div class="hero-actions">
-          <a href="auth.html" class="btn btn-primary btn-lg"><i data-lucide="zap"></i> Crear mi Press Kit</a>
+          <a href="auth.html" class="btn btn-primary btn-lg shine"><i data-lucide="zap"></i> Crear mi Press Kit</a>
           <a href="presskit.html?demo=true" class="btn btn-outline btn-lg">Ver Demo <i data-lucide="arrow-right"></i></a>
         </div>
+
+        <!-- Promo card · 7 días gratis (estilo mockup) -->
+        <div class="promo-card" style="margin-top:28px;max-width:520px;width:100%;">
+          <div>
+            <div class="promo-card-label">Código de acceso</div>
+            <div class="promo-card-code">VOLTUM-TRIAL7</div>
+          </div>
+          <div class="promo-card-note">
+            <strong style="color:var(--text);">7 días gratis</strong><br>
+            Úsalo al registrarte. Sin tarjeta.
+          </div>
+        </div>
+
         <div class="hero-stats" style="justify-content:flex-start;margin-top:32px;">
           <div class="stat">
-            <span class="stat-number">100+</span>
+            <span class="stat-number counter" data-count="100" data-suffix="+">0</span>
             <span class="stat-label">DJs activos</span>
           </div>
           <div class="stat-divider"></div>
           <div class="stat">
-            <span class="stat-number">350+</span>
+            <span class="stat-number counter" data-count="350" data-suffix="+">0</span>
             <span class="stat-label">Bookings gestionados</span>
           </div>
           <div class="stat-divider"></div>
           <div class="stat">
-            <span class="stat-number">40+</span>
+            <span class="stat-number counter" data-count="40" data-suffix="+">0</span>
             <span class="stat-label">Venues conectados</span>
           </div>
         </div>
       </div>
       <!-- Mockup press kit animado -->
-      <div style="perspective:1000px;">
+      <div style="perspective:1000px;" data-reveal="right" data-reveal-delay="2">
         <div class="pk-mockup" style="transform:rotateY(-8deg) rotateX(3deg);">
           <div class="pk-mockup-bar">
             <div class="pk-dot" style="background:#EF4444;"></div>
@@ -442,7 +482,7 @@
 <!-- ═══════════════════════════════════════════════
      FEATURES CON TABS DJ / EMPRESA
 ═══════════════════════════════════════════════ -->
-<section id="features" class="bg-section" style="padding:100px 0;">
+<section id="features" class="bg-section" style="padding:100px 0;" data-reveal>
   <div class="container">
     <div class="section-header">
       <span class="section-badge">Características</span>
@@ -537,7 +577,7 @@ function switchTab(id, btn) {
 <!-- ═══════════════════════════════════════════════
      SISTEMA DE BOOKINGS — SECCIÓN PRINCIPAL
 ═══════════════════════════════════════════════ -->
-<section id="bookings" style="padding:100px 0;">
+<section id="bookings" style="padding:100px 0;" data-reveal data-reveal-delay="1">
   <div class="container">
     <div class="section-header">
       <span class="section-badge">Sistema de Bookings</span>
@@ -666,7 +706,7 @@ function switchTab(id, btn) {
 <!-- ═══════════════════════════════════════════════
      CÓMO FUNCIONA — 2 FLUJOS
 ═══════════════════════════════════════════════ -->
-<section id="how" class="bg-section" style="padding:100px 0;">
+<section id="how" class="bg-section" style="padding:100px 0;" data-reveal data-reveal-delay="2">
   <div class="container">
     <div class="section-header">
       <span class="section-badge">Proceso</span>
@@ -806,7 +846,7 @@ function switchTab(id, btn) {
 <!-- ═══════════════════════════════════════════════
      PRICING
 ═══════════════════════════════════════════════ -->
-<section id="pricing" class="bg-section" style="padding:100px 0;">
+<section id="pricing" class="bg-section" style="padding:100px 0;" data-reveal data-reveal-delay="3">
   <div class="container">
     <div class="section-header">
       <span class="section-badge">Precios</span>
@@ -1070,7 +1110,7 @@ function switchTab(id, btn) {
 <!-- ═══════════════════════════════════════════════
      DUAL CTA FINAL
 ═══════════════════════════════════════════════ -->
-<section class="cta-section">
+<section class="cta-section" data-reveal data-reveal-delay="4">
   <div class="container-sm">
     <span class="equalizer" style="justify-content:center;margin-bottom:24px;display:flex;transform:scale(1.4);">
       <span></span><span></span><span></span><span></span><span></span><span></span>
@@ -1106,7 +1146,7 @@ function switchTab(id, btn) {
 <!-- ═══════════════════════════════════════════════
      FOOTER
 ═══════════════════════════════════════════════ -->
-<footer>
+<footer data-reveal data-reveal-delay="5">
   <div class="container">
     <div class="footer-grid">
       <div class="footer-brand">

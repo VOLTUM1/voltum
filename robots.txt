@@ -1,0 +1,11 @@
+User-agent: *
+Allow: /
+Disallow: /admin
+Disallow: /dashboard
+Disallow: /profile
+Disallow: /company-dashboard
+Disallow: /company-profile
+Disallow: /payment
+Disallow: /success
+
+Sitemap: https://voltum.cl/sitemap.xml

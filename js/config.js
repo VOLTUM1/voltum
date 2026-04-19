@@ -177,7 +177,7 @@ const sb = createClient(VOLTUM.supabase.url, VOLTUM.supabase.anonKey);
   const boot = () => {
     if (window.lucide) { refresh(); mountObserver(); return; }
     const s = document.createElement('script');
-    s.src = 'https://unpkg.com/lucide@latest/dist/umd/lucide.min.js';
+    s.src = 'https://cdn.jsdelivr.net/npm/lucide@0.454.0/dist/umd/lucide.min.js';
     s.defer = true;
     s.onload = () => { refresh(); mountObserver(); };
     document.head.appendChild(s);
@@ -224,3 +224,122 @@ function showToast(msg, type = 'success') {
 function formatPrice(n) {
   return new Intl.NumberFormat('es-CL', { style: 'currency', currency: 'CLP', minimumFractionDigits: 0 }).format(n);
 }
+
+// ============================================================
+// Polish & perf bootstrap
+// ============================================================
+(function voltumBoot() {
+  if (typeof window === 'undefined') return;
+  if (window.__voltumBootLoaded) return;
+  window.__voltumBootLoaded = true;
+
+  const onReady = (fn) => {
+    if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', fn);
+    else fn();
+  };
+
+  // ── Scroll-reveal: elementos con [data-reveal] se muestran al entrar al viewport
+  const mountReveal = () => {
+    const els = document.querySelectorAll('[data-reveal]:not(.is-visible)');
+    if (!els.length || !('IntersectionObserver' in window)) {
+      els.forEach(e => e.classList.add('is-visible'));
+      return;
+    }
+    const io = new IntersectionObserver((entries) => {
+      entries.forEach(e => {
+        if (e.isIntersecting) {
+          e.target.classList.add('is-visible');
+          io.unobserve(e.target);
+        }
+      });
+    }, { rootMargin: '0px 0px -60px 0px', threshold: 0.08 });
+    els.forEach(el => io.observe(el));
+  };
+
+  // ── Counter: elementos con .counter y data-count="N" animan al entrar al viewport
+  const mountCounters = () => {
+    const els = document.querySelectorAll('.counter[data-count]:not(.is-counted)');
+    if (!els.length || !('IntersectionObserver' in window)) {
+      els.forEach(e => { e.textContent = e.dataset.count; e.classList.add('is-counted'); });
+      return;
+    }
+    const io = new IntersectionObserver((entries) => {
+      entries.forEach(e => {
+        if (!e.isIntersecting) return;
+        const el = e.target;
+        const target = parseFloat(el.dataset.count) || 0;
+        const suffix = el.dataset.suffix || '';
+        const prefix = el.dataset.prefix || '';
+        const duration = parseInt(el.dataset.duration || '1400', 10);
+        const start = performance.now();
+        const ease = (t) => 1 - Math.pow(1 - t, 3);
+        const tick = (now) => {
+          const p = Math.min(1, (now - start) / duration);
+          const val = Math.floor(target * ease(p));
+          el.textContent = prefix + val.toLocaleString('es-CL') + suffix;
+          if (p < 1) requestAnimationFrame(tick);
+          else el.classList.add('is-counted');
+        };
+        requestAnimationFrame(tick);
+        io.unobserve(el);
+      });
+    }, { threshold: 0.3 });
+    els.forEach(el => io.observe(el));
+  };
+
+  // ── Ripple: coordenadas del click sobre .btn para el radial glow
+  const mountRipple = () => {
+    document.addEventListener('pointerdown', (e) => {
+      const btn = e.target.closest && e.target.closest('.btn');
+      if (!btn) return;
+      const r = btn.getBoundingClientRect();
+      btn.style.setProperty('--rx', ((e.clientX - r.left) / r.width * 100) + '%');
+      btn.style.setProperty('--ry', ((e.clientY - r.top) / r.height * 100) + '%');
+    }, { passive: true });
+  };
+
+  // ── Image fade-in al cargar (evita flash de layout vacío)
+  const mountImageFade = () => {
+    document.querySelectorAll('img[loading="lazy"]').forEach(img => {
+      if (img.complete && img.naturalHeight !== 0) {
+        img.classList.add('loaded');
+      } else {
+        img.addEventListener('load',  () => img.classList.add('loaded'), { once: true });
+        img.addEventListener('error', () => img.classList.add('loaded'), { once: true });
+      }
+    });
+  };
+
+  // ── Smooth anchor scroll respetando prefers-reduced-motion
+  const mountSmoothAnchors = () => {
+    const prefersReduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    if (prefersReduced) return;
+    document.addEventListener('click', (e) => {
+      const a = e.target.closest && e.target.closest('a[href^="#"]');
+      if (!a) return;
+      const id = a.getAttribute('href').slice(1);
+      if (!id || id === '!') return;
+      const t = document.getElementById(id);
+      if (!t) return;
+      e.preventDefault();
+      t.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      history.replaceState(null, '', '#' + id);
+    });
+  };
+
+  onReady(() => {
+    mountReveal();
+    mountCounters();
+    mountRipple();
+    mountImageFade();
+    mountSmoothAnchors();
+
+    // Reveal/counters dinámicos (contenido insertado más tarde)
+    let rT;
+    const rObs = new MutationObserver(() => {
+      clearTimeout(rT);
+      rT = setTimeout(() => { mountReveal(); mountCounters(); mountImageFade(); }, 120);
+    });
+    rObs.observe(document.body, { childList: true, subtree: true });
+  });
+})();
