@@ -1357,15 +1357,19 @@ function updateBookingsBadge() {
 }
 
 async function loadBookingsAdmin() {
-  // Re-fetch para datos frescos con joins
+  // Re-fetch bookings sin joins (evitamos ambiguedad de FKs);
+  // mergeamos con allUsers y allCompanies ya cargados en loadAll().
   const { data, error } = await sb.from('bookings')
-    .select(`*,
-      dj:profiles!bookings_dj_user_id_fkey(id, dj_name, slug, photo_url, bank_name, bank_rut, bank_holder_name),
-      company:companies!bookings_company_id_fkey(name, type, contact_name, contact_phone, instagram, user_id)
-    `)
+    .select('*')
     .order('created_at', { ascending: false });
   if (error) { showToast('Error cargando bookings: ' + error.message, 'error'); return; }
-  allBookings = data || [];
+
+  allBookings = (data || []).map(b => ({
+    ...b,
+    dj:      allUsers.find(u => u.id === b.dj_user_id) || null,
+    company: allCompanies.find(c => c.id === b.company_id) || null,
+  }));
+
   updateBookingsBadge();
   renderBookingsAdmin();
 

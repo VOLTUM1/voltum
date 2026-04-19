@@ -316,14 +316,24 @@
   }
 
   // Obtener bookings — sin datos bancarios del DJ (ahora Voltum gestiona el pago)
-  let bookingsQuery = company
-    ? await sb.from('bookings').select(`
-        *,
-        dj:profiles!bookings_dj_user_id_fkey(dj_name, photo_url, slug)
-      `).eq('company_id', company.id).order('created_at', { ascending: false })
-    : { data: [] };
-
-  const bookings = bookingsQuery.data || [];
+  // Merge manual con profiles para evitar depender del FK name en el schema cache.
+  let bookings = [];
+  if (company) {
+    const { data: bkRaw } = await sb.from('bookings')
+      .select('*')
+      .eq('company_id', company.id)
+      .order('created_at', { ascending: false });
+    const list = bkRaw || [];
+    const djIds = [...new Set(list.map(b => b.dj_user_id).filter(Boolean))];
+    let djMap = {};
+    if (djIds.length) {
+      const { data: djs } = await sb.from('profiles')
+        .select('id, dj_name, photo_url, slug')
+        .in('id', djIds);
+      (djs || []).forEach(d => { djMap[d.id] = d; });
+    }
+    bookings = list.map(b => ({ ...b, dj: djMap[b.dj_user_id] || null }));
+  }
 
   // Stats: voltum_status workflow
   document.getElementById('statTotal').textContent = bookings.length;
