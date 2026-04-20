@@ -54,16 +54,20 @@
     /* ─── PÁGINA (A4) ─────────────────────────────── */
     .page {
       width: 210mm;
-      min-height: 297mm;
+      height: 297mm;
       margin: 24px auto;
-      padding: 24mm 20mm;
+      padding: 18mm 18mm 24mm;
       background: #000;
       position: relative;
       overflow: hidden;
       page-break-after: always;
+      break-after: page;
       box-shadow: 0 20px 60px rgba(0,0,0,0.6);
+      display: flex;
+      flex-direction: column;
     }
-    .page:last-child { page-break-after: auto; }
+    .page:last-child { page-break-after: auto; break-after: auto; }
+    .page-body { flex: 1; min-height: 0; }
 
     /* Grid decorativo de fondo */
     .page::before {
@@ -86,27 +90,27 @@
       border: 2px solid var(--lime);
       z-index: 2;
     }
-    .page .bracket.tl { top: 14mm; left: 12mm; border-right: none; border-bottom: none; }
-    .page .bracket.tr { top: 14mm; right: 12mm; border-left: none; border-bottom: none; }
-    .page .bracket.bl { bottom: 14mm; left: 12mm; border-right: none; border-top: none; }
-    .page .bracket.br { bottom: 14mm; right: 12mm; border-left: none; border-top: none; }
+    .page .bracket.tl { top: 10mm; left: 10mm; border-right: none; border-bottom: none; }
+    .page .bracket.tr { top: 10mm; right: 10mm; border-left: none; border-bottom: none; }
+    .page .bracket.bl { bottom: 10mm; left: 10mm; border-right: none; border-top: none; }
+    .page .bracket.br { bottom: 10mm; right: 10mm; border-left: none; border-top: none; }
 
     /* Header / footer de página */
     .page-header {
       display: flex; justify-content: space-between; align-items: center;
-      padding-bottom: 14px;
-      margin-bottom: 32px;
+      padding-bottom: 10px;
+      margin-bottom: 20px;
       border-bottom: 1px solid var(--border2);
       font-family: var(--font-mono);
-      font-size: 10px;
+      font-size: 9.5px;
       letter-spacing: 0.24em;
       text-transform: uppercase;
       color: var(--muted);
+      flex-shrink: 0;
     }
     .page-header .brand { color: var(--lime); font-weight: 700; }
     .page-footer {
-      position: absolute;
-      bottom: 14mm; left: 20mm; right: 20mm;
+      margin-top: auto;
       display: flex; justify-content: space-between;
       font-family: var(--font-mono);
       font-size: 9px;
@@ -115,6 +119,7 @@
       color: var(--muted2);
       padding-top: 10px;
       border-top: 1px solid rgba(255,255,255,0.06);
+      flex-shrink: 0;
     }
 
     /* ─── TIPOGRAFÍA ─────────────────────────────── */
@@ -123,18 +128,18 @@
       line-height: 1.05;
       letter-spacing: -0.02em;
     }
-    h1 { font-size: 74px; font-weight: 900; }
-    h2 { font-size: 42px; font-weight: 800; margin-bottom: 20px; }
-    h3 { font-size: 22px; font-weight: 700; margin-bottom: 10px; }
-    p { font-size: 14px; color: var(--text-dim); }
+    h1 { font-size: 68px; font-weight: 900; }
+    h2 { font-size: 34px; font-weight: 800; margin-bottom: 14px; }
+    h3 { font-size: 18px; font-weight: 700; margin-bottom: 8px; }
+    p { font-size: 13px; color: var(--text-dim); }
     .kicker {
       display: inline-flex; align-items: center; gap: 10px;
       font-family: var(--font-mono);
-      font-size: 11px; letter-spacing: 0.24em;
+      font-size: 10.5px; letter-spacing: 0.22em;
       color: var(--lime);
       text-transform: uppercase;
       font-weight: 600;
-      margin-bottom: 18px;
+      margin-bottom: 14px;
     }
     .kicker::before {
       content: ''; width: 28px; height: 2px; background: var(--lime);
@@ -143,22 +148,22 @@
     .accent { color: var(--lime); }
 
     /* ─── COVER (página 1) ────────────────────────── */
-    .cover { display: flex; flex-direction: column; justify-content: space-between; min-height: calc(297mm - 48mm); }
+    .cover { justify-content: space-between; }
     .cover-top .logo {
       font-family: var(--font-display);
-      font-weight: 900; font-size: 26px;
+      font-weight: 900; font-size: 24px;
       letter-spacing: 0.24em;
       color: var(--lime);
     }
     .cover-hero h1 {
-      font-size: 104px;
+      font-size: 88px;
       line-height: 0.9;
-      margin-bottom: 24px;
+      margin-bottom: 20px;
     }
     .cover-hero .tagline {
-      font-size: 20px; color: var(--text-dim);
+      font-size: 17px; color: var(--text-dim);
       max-width: 420px;
-      margin-bottom: 40px;
+      margin-bottom: 28px;
       line-height: 1.55;
     }
     .cover-badge {
@@ -218,63 +223,69 @@
 
     /* ─── COMPONENTES REUSABLES ───────────────────── */
     .card {
-      padding: 22px;
+      padding: 16px 18px;
       border: 1px solid var(--border2);
       background: var(--bg2);
       border-radius: 6px;
+      page-break-inside: avoid;
+      break-inside: avoid;
     }
     .card-lime {
-      padding: 22px;
+      padding: 16px 18px;
       border: 1px solid var(--border);
       background: linear-gradient(145deg, rgba(212,255,58,0.06), rgba(212,255,58,0.01));
       border-radius: 6px;
+      page-break-inside: avoid;
+      break-inside: avoid;
     }
-    .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
-    .grid-3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 14px; }
+    .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+    .grid-3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 12px; }
 
     /* Icon tile */
     .icon-tile {
-      width: 46px; height: 46px;
+      width: 40px; height: 40px;
       border-radius: 6px;
       background: var(--lime-dim);
       border: 1px solid var(--border);
       color: var(--lime);
       display: flex; align-items: center; justify-content: center;
-      margin-bottom: 14px;
+      margin-bottom: 10px;
     }
-    .icon-tile svg { width: 24px; height: 24px; stroke-width: 1.8; }
+    .icon-tile svg { width: 20px; height: 20px; stroke-width: 1.8; }
 
     /* Steps */
     .step-row {
       display: grid;
-      grid-template-columns: 50px 1fr;
-      gap: 18px;
-      padding: 18px 0;
+      grid-template-columns: 42px 1fr;
+      gap: 14px;
+      padding: 11px 0;
       border-bottom: 1px dashed rgba(255,255,255,0.08);
+      page-break-inside: avoid;
+      break-inside: avoid;
     }
     .step-row:last-child { border-bottom: none; }
     .step-num {
       font-family: var(--font-display);
-      font-size: 36px; font-weight: 900;
+      font-size: 30px; font-weight: 900;
       color: var(--lime);
       line-height: 1;
       letter-spacing: -0.04em;
     }
-    .step-title { font-weight: 700; font-size: 16px; margin-bottom: 4px; }
-    .step-desc  { font-size: 13px; color: var(--muted); line-height: 1.6; }
+    .step-title { font-weight: 700; font-size: 14px; margin-bottom: 3px; }
+    .step-desc  { font-size: 12px; color: var(--muted); line-height: 1.55; }
 
     /* Feature list with check */
     .feat-list { list-style: none; }
     .feat-list li {
-      display: flex; align-items: flex-start; gap: 12px;
-      padding: 10px 0;
+      display: flex; align-items: flex-start; gap: 10px;
+      padding: 7px 0;
       border-bottom: 1px solid rgba(255,255,255,0.06);
-      font-size: 13.5px;
+      font-size: 12.5px;
     }
     .feat-list li:last-child { border-bottom: none; }
     .feat-list li::before {
       content: ''; flex-shrink: 0;
-      width: 18px; height: 18px;
+      width: 16px; height: 16px;
       margin-top: 2px;
       background: var(--lime);
       mask-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='3.5'><polyline points='20 6 9 17 4 12'/></svg>");
@@ -287,11 +298,11 @@
     .stats-row {
       display: grid;
       grid-template-columns: repeat(3, 1fr);
-      gap: 14px;
-      margin-top: 18px;
+      gap: 12px;
+      margin-top: 14px;
     }
     .stat {
-      padding: 18px;
+      padding: 14px;
       border: 1px solid var(--border2);
       background: var(--bg2);
       text-align: center;
@@ -299,76 +310,128 @@
     }
     .stat-num {
       font-family: var(--font-display);
-      font-weight: 900; font-size: 38px;
+      font-weight: 900; font-size: 34px;
       color: var(--lime);
       letter-spacing: -0.02em;
       line-height: 1;
     }
     .stat-lbl {
       font-family: var(--font-mono);
-      font-size: 10px; letter-spacing: 0.18em;
+      font-size: 9.5px; letter-spacing: 0.18em;
       color: var(--muted);
-      margin-top: 8px;
+      margin-top: 6px;
       text-transform: uppercase;
     }
 
     /* CTA box */
     .cta-box {
-      margin-top: 24px;
-      padding: 32px;
+      margin-top: 16px;
+      padding: 24px;
       background: var(--lime);
       color: #000;
       text-align: center;
       border-radius: 6px;
       position: relative;
+      page-break-inside: avoid;
+      break-inside: avoid;
     }
     .cta-box h2 {
       color: #000;
-      font-size: 34px;
-      margin-bottom: 10px;
+      font-size: 28px;
+      margin-bottom: 8px;
     }
     .cta-box p {
       color: rgba(0,0,0,0.75);
-      font-size: 15px;
-      margin-bottom: 16px;
+      font-size: 13px;
+      margin-bottom: 12px;
       font-weight: 500;
     }
     .cta-url {
       display: inline-block;
       font-family: var(--font-mono);
-      font-size: 24px;
+      font-size: 19px;
       font-weight: 700;
       color: #000;
       background: rgba(0,0,0,0.08);
-      padding: 10px 20px;
+      padding: 8px 16px;
       border-radius: 4px;
       letter-spacing: 0.04em;
     }
 
     /* Quote block */
     .quote {
-      padding: 22px 26px;
+      padding: 16px 20px;
       border-left: 3px solid var(--lime);
       background: var(--bg2);
-      font-size: 15px;
-      line-height: 1.65;
+      font-size: 13px;
+      line-height: 1.55;
       color: var(--text-dim);
-      margin: 18px 0;
+      margin: 14px 0 0;
       font-style: italic;
+      page-break-inside: avoid;
+      break-inside: avoid;
     }
     .quote-author {
-      display: block; margin-top: 10px;
+      display: block; margin-top: 8px;
       font-style: normal;
       font-family: var(--font-mono);
-      font-size: 11px; letter-spacing: 0.15em;
+      font-size: 10.5px; letter-spacing: 0.15em;
       color: var(--lime);
       text-transform: uppercase;
+    }
+
+    /* FAQ */
+    .faq-list { display: flex; flex-direction: column; gap: 10px; }
+    .faq-item {
+      padding: 12px 16px;
+      background: var(--bg2);
+      border: 1px solid var(--border2);
+      border-left: 3px solid var(--lime);
+      border-radius: 4px;
+      page-break-inside: avoid;
+      break-inside: avoid;
+    }
+    .faq-q {
+      font-weight: 700;
+      font-size: 13px;
+      color: var(--text);
+      margin-bottom: 4px;
+      display: flex; align-items: flex-start; gap: 8px;
+    }
+    .faq-idx {
+      font-family: var(--font-mono);
+      font-size: 10px;
+      color: var(--lime);
+      font-weight: 700;
+      letter-spacing: 0.1em;
+      flex-shrink: 0;
+      margin-top: 1px;
+    }
+    .faq-a {
+      font-size: 12px;
+      color: var(--text-dim);
+      line-height: 1.55;
+      padding-left: 26px;
+    }
+
+    /* Big WhatsApp button en CTA */
+    .wsp-cta {
+      display: inline-flex; align-items: center; gap: 10px;
+      padding: 14px 22px;
+      background: #25D366;
+      color: #000;
+      border-radius: 6px;
+      font-family: var(--font-body);
+      font-weight: 700;
+      font-size: 16px;
+      text-decoration: none;
+      margin-top: 14px;
     }
 
     /* Hr labeled */
     .hr-labeled {
       display: flex; align-items: center; gap: 14px;
-      margin: 28px 0;
+      margin: 18px 0;
       color: var(--muted);
       font-family: var(--font-mono);
       font-size: 10px; letter-spacing: 0.22em;
@@ -415,17 +478,28 @@
 
     @media print {
       html, body { background: #000 !important; }
+      body { margin: 0; }
       .page {
-        margin: 0;
-        box-shadow: none;
+        margin: 0 !important;
+        box-shadow: none !important;
         page-break-after: always;
+        break-after: page;
         width: 210mm;
-        min-height: 297mm;
+        height: 297mm;
+        overflow: hidden;
       }
-      .page:last-child { page-break-after: auto; }
+      .page:last-child { page-break-after: auto; break-after: auto; }
       .print-bar { display: none !important; }
-      .cta-box { background: var(--lime) !important; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
-      * { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+      * {
+        -webkit-print-color-adjust: exact !important;
+        print-color-adjust: exact !important;
+        color-adjust: exact !important;
+      }
+      /* Evitar que los brackets queden cortados */
+      .page .bracket { border-color: var(--lime) !important; }
+      .cta-box { background: var(--lime) !important; }
+      /* Fuerza colores en cards lime */
+      .card-lime { background: linear-gradient(145deg, rgba(212,255,58,0.10), rgba(212,255,58,0.02)) !important; }
     }
 
     /* ─── RESPONSIVE ─────────────────────────────── */
@@ -506,7 +580,7 @@
 
   <div class="page-header">
     <span class="brand">VOLTUM</span>
-    <span>· EL PROBLEMA · 02 / 06</span>
+    <span>· EL PROBLEMA · 02 / 07</span>
   </div>
 
   <span class="kicker">El problema que resolvemos</span>
@@ -583,7 +657,7 @@
 
   <div class="page-header">
     <span class="brand">VOLTUM</span>
-    <span>· CÓMO FUNCIONA · 03 / 06</span>
+    <span>· CÓMO FUNCIONA · 03 / 07</span>
   </div>
 
   <span class="kicker">El flujo de booking</span>
@@ -613,7 +687,7 @@
     <div class="step-num">03</div>
     <div>
       <div class="step-title">Voltum revisa y gestiona</div>
-      <p class="step-desc">Tu solicitud llega directo al administrador de Voltum. Validamos disponibilidad del DJ, acordamos los términos contigo, y coordinamos equipamiento si corresponde. Te contactamos por email o WhatsApp dentro de 24h.</p>
+      <p class="step-desc">Tu solicitud llega directo al administrador de Voltum. Validamos disponibilidad del DJ, acordamos los términos contigo, y coordinamos equipamiento si corresponde. Te contactamos por WhatsApp dentro de 24h.</p>
     </div>
   </div>
 
@@ -629,7 +703,7 @@
     <div class="step-num">05</div>
     <div>
       <div class="step-title">Pago gestionado · evento listo</div>
-      <p class="step-desc">Tú pagas a Voltum de forma centralizada. Nosotros transferimos al DJ. Recibes los datos finales por email junto con la confirmación. El evento se ejecuta con todo coordinado.</p>
+      <p class="step-desc">Tú pagas a Voltum de forma centralizada. Nosotros transferimos al DJ. Recibes los datos finales por WhatsApp junto con la confirmación. El evento se ejecuta con todo coordinado.</p>
     </div>
   </div>
 
@@ -651,7 +725,7 @@
 
   <div class="page-header">
     <span class="brand">VOLTUM</span>
-    <span>· QUÉ OBTIENES · 04 / 06</span>
+    <span>· QUÉ OBTIENES · 04 / 07</span>
   </div>
 
   <span class="kicker">Tu cuenta empresa incluye</span>
@@ -689,7 +763,7 @@
         <li>Voltum coordina cada booking contigo</li>
         <li>Opción de equipamiento provisto por Voltum</li>
         <li>Pago centralizado y seguro</li>
-        <li>Soporte por email / WhatsApp</li>
+        <li>Soporte directo por WhatsApp</li>
       </ul>
     </div>
   </div>
@@ -717,7 +791,7 @@
 
   <div class="page-header">
     <span class="brand">VOLTUM</span>
-    <span>· POR QUÉ AHORA · 05 / 06</span>
+    <span>· POR QUÉ AHORA · 05 / 07</span>
   </div>
 
   <span class="kicker">Sin membresías · sin tarjetas</span>
@@ -761,7 +835,7 @@
     </div>
     <div class="card">
       <h3 style="font-size:16px;margin-bottom:8px;">Soporte real</h3>
-      <p style="font-size:13px;">Hablas con una persona, no con un bot. Voltum responde por email o WhatsApp durante la gestión.</p>
+      <p style="font-size:13px;">Hablas con una persona, no con un bot. Voltum responde por WhatsApp durante toda la gestión del booking.</p>
     </div>
   </div>
 
@@ -773,7 +847,7 @@
 
 
 <!-- ╔══════════════════════════════════════════════════
-     PÁGINA 6 · CTA · CÓMO EMPEZAR
+     PÁGINA 6 · FAQ
      ══════════════════════════════════════════════════ -->
 <section class="page">
   <span class="bracket tl"></span>
@@ -783,7 +857,73 @@
 
   <div class="page-header">
     <span class="brand">VOLTUM</span>
-    <span>· EMPIEZA HOY · 06 / 06</span>
+    <span>· PREGUNTAS FRECUENTES · 06 / 07</span>
+  </div>
+
+  <span class="kicker">Resolvemos tus dudas</span>
+  <h2>Preguntas <span class="accent">frecuentes</span></h2>
+
+  <div class="faq-list" style="margin-top:18px;">
+    <div class="faq-item">
+      <div class="faq-q"><span class="faq-idx">01</span> ¿Cuánto cuesta registrarme como empresa?</div>
+      <div class="faq-a">El registro es <strong style="color:var(--lime);">100% gratuito</strong>, sin tarjeta de crédito ni membresía mensual. Creas tu cuenta empresa y accedes al directorio de DJs sin costos recurrentes.</div>
+    </div>
+
+    <div class="faq-item">
+      <div class="faq-q"><span class="faq-idx">02</span> ¿Cuánto cobra Voltum por cada booking?</div>
+      <div class="faq-a">Los términos se acuerdan <strong style="color:var(--lime);">caso a caso contigo</strong>, dependiendo del tipo de evento, presupuesto, disponibilidad del DJ y si se requiere equipamiento. Sin cuotas ocultas, sin sorpresas.</div>
+    </div>
+
+    <div class="faq-item">
+      <div class="faq-q"><span class="faq-idx">03</span> ¿Qué pasa si el DJ solicitado no está disponible?</div>
+      <div class="faq-a">Voltum te ofrece <strong style="color:var(--lime);">alternativas de DJs con perfil similar</strong> — género musical, estilo, ciudad — para la misma fecha. Siempre buscamos un match que funcione.</div>
+    </div>
+
+    <div class="faq-item">
+      <div class="faq-q"><span class="faq-idx">04</span> ¿Voltum ofrece el equipamiento si el lugar no tiene?</div>
+      <div class="faq-a">Sí. En el formulario de booking marcas "No, Voltum provee" y coordinamos <strong style="color:var(--lime);">equipo profesional de sonido e iluminación</strong> con un costo adicional acordado aparte.</div>
+    </div>
+
+    <div class="faq-item">
+      <div class="faq-q"><span class="faq-idx">05</span> ¿Qué tipos de empresa pueden registrarse?</div>
+      <div class="faq-a">Productoras, agencias, clubes, venues, festivales, sellos discográficos, marcas, universidades, colectivos y cualquier organización que contrate DJs para eventos públicos o privados.</div>
+    </div>
+
+    <div class="faq-item">
+      <div class="faq-q"><span class="faq-idx">06</span> ¿Puedo cancelar una solicitud?</div>
+      <div class="faq-a">Sí, puedes cancelar desde tu dashboard <strong style="color:var(--lime);">antes de que el DJ confirme</strong>. Después de la confirmación, cualquier cambio se coordina directamente con Voltum por WhatsApp.</div>
+    </div>
+
+    <div class="faq-item">
+      <div class="faq-q"><span class="faq-idx">07</span> ¿Cuánto tiempo tarda la respuesta?</div>
+      <div class="faq-a">Voltum responde cada solicitud dentro de <strong style="color:var(--lime);">24 horas hábiles</strong>, con los términos acordados y la disponibilidad confirmada del DJ. Habitualmente mucho antes.</div>
+    </div>
+
+    <div class="faq-item">
+      <div class="faq-q"><span class="faq-idx">08</span> ¿Cómo se realiza el pago?</div>
+      <div class="faq-a">Pagas a Voltum por transferencia o Webpay. Nosotros transferimos al DJ una vez confirmado el evento. <strong style="color:var(--lime);">Un solo comprobante, un solo intermediario.</strong></div>
+    </div>
+  </div>
+
+  <div class="page-footer">
+    <span>Voltum · 2026</span>
+    <span>voltum.cl</span>
+  </div>
+</section>
+
+
+<!-- ╔══════════════════════════════════════════════════
+     PÁGINA 7 · CTA · CÓMO EMPEZAR
+     ══════════════════════════════════════════════════ -->
+<section class="page">
+  <span class="bracket tl"></span>
+  <span class="bracket tr"></span>
+  <span class="bracket bl"></span>
+  <span class="bracket br"></span>
+
+  <div class="page-header">
+    <span class="brand">VOLTUM</span>
+    <span>· EMPIEZA HOY · 07 / 07</span>
   </div>
 
   <span class="kicker">Registro · 3 minutos</span>
@@ -817,9 +957,12 @@
     <h2>Regístrate gratis</h2>
     <p>Acceso inmediato al directorio de DJs de Chile</p>
     <div class="cta-url">voltum.cl/auth</div>
+    <div style="margin-top:14px;font-family:var(--font-mono);font-size:11px;color:#000;opacity:0.7;letter-spacing:0.14em;text-transform:uppercase;font-weight:600;">
+      ¿Prefieres WhatsApp?  +56 9 3039 4883
+    </div>
   </div>
 
-  <div style="margin-top:28px;padding:18px 22px;border:1px solid var(--border2);background:var(--bg2);border-radius:6px;">
+  <div style="margin-top:22px;padding:16px 20px;border:1px solid var(--border2);background:var(--bg2);border-radius:6px;">
     <div style="font-family:var(--font-mono);font-size:10px;letter-spacing:0.2em;color:var(--muted);text-transform:uppercase;margin-bottom:10px;">— Contacto directo</div>
     <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:14px;font-size:13px;">
       <div>
@@ -827,8 +970,8 @@
         <div style="color:var(--lime);font-family:var(--font-mono);font-weight:600;">voltum.cl</div>
       </div>
       <div>
-        <div style="color:var(--muted);font-size:11px;margin-bottom:3px;">Email</div>
-        <div style="color:var(--lime);font-family:var(--font-mono);font-weight:600;">hola@voltum.cl</div>
+        <div style="color:var(--muted);font-size:11px;margin-bottom:3px;">WhatsApp</div>
+        <div style="color:var(--lime);font-family:var(--font-mono);font-weight:600;">+56 9 3039 4883</div>
       </div>
       <div>
         <div style="color:var(--muted);font-size:11px;margin-bottom:3px;">Instagram</div>
