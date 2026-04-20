@@ -1053,10 +1053,9 @@ footer {
 }
 .presskit-avatar {
   width: 140px; height: 140px;
-  border-radius: 50%;
+  border-radius: 50% !important;
   flex-shrink: 0;
-  border: 3px solid var(--bg);
-  object-fit: cover;
+  border: 3px solid #000;
   background: var(--lime);
   color: #000;
   display: flex; align-items: center; justify-content: center;
@@ -1065,12 +1064,26 @@ footer {
   overflow: hidden;
   box-shadow:
     0 0 0 1px rgba(212, 255, 58, 0.25),
-    0 0 40px rgba(212, 255, 58, 0.32),
-    0 20px 50px rgba(0, 0, 0, 0.5);
+    0 0 40px rgba(212, 255, 58, 0.28);
   position: relative;
   z-index: 3;
 }
-.presskit-avatar img { border-radius: 50%; }
+.presskit-avatar img,
+.presskit-avatar > * {
+  width: 100% !important;
+  height: 100% !important;
+  object-fit: cover !important;
+  border-radius: 50% !important;
+  display: block !important;
+}
+/* Variante empresa: rounded-square */
+.presskit-avatar.is-company {
+  border-radius: 12px !important;
+}
+.presskit-avatar.is-company img,
+.presskit-avatar.is-company > * {
+  border-radius: 12px !important;
+}
 .presskit-name {
   font-family: var(--font-display);
   font-size: clamp(2rem, 5vw, 3rem);

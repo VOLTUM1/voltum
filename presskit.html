@@ -882,10 +882,11 @@ async function renderPressKit(p, events) {
     banner.innerHTML += `<div class="pk-banner-placeholder"><span class="pk-banner-initials">${initials}</span></div>`;
   }
 
-  // Avatar
+  // Avatar (DJ: circular; forma controlada 100% por CSS)
   const avatar = document.getElementById('pkAvatar');
+  avatar.classList.remove('is-company');
   if (p.photo_url) {
-    avatar.innerHTML = `<img src="${p.photo_url}" alt="${p.dj_name}" style="width:100%;height:100%;object-fit:cover;object-position:${p.photo_position||'center center'};border-radius:50%;display:block;">`;
+    avatar.innerHTML = `<img src="${p.photo_url}" alt="${p.dj_name}" style="object-position:${p.photo_position||'center center'};" loading="eager" fetchpriority="high">`;
     avatar.style.background = 'none';
   } else {
     avatar.textContent = (p.dj_name || 'D')[0].toUpperCase();
@@ -1069,11 +1070,11 @@ async function renderCompany(p, events) {
     banner.innerHTML += `<div class="pk-banner-placeholder"><span class="pk-banner-initials">${initials}</span></div>`;
   }
 
-  // Logo / avatar
+  // Logo / avatar (empresa: rounded-square; forma controlada por CSS vía .is-company)
   const avatar = document.getElementById('pkAvatar');
+  avatar.classList.add('is-company');
   if (p.photo_url) {
-    avatar.innerHTML = `<img src="${p.photo_url}" alt="${p.dj_name}" style="width:100%;height:100%;object-fit:cover;border-radius:12px;display:block;">`;
-    avatar.style.borderRadius = '12px';
+    avatar.innerHTML = `<img src="${p.photo_url}" alt="${p.dj_name}" loading="eager" fetchpriority="high">`;
     avatar.style.background = 'none';
   } else {
     avatar.textContent = (p.dj_name || 'E')[0].toUpperCase();
