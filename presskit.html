@@ -33,6 +33,27 @@
   <link rel="preload" href="/css/styles.css" as="style" fetchpriority="high">
   <link rel="stylesheet" href="/css/styles.css">
   <style>
+    /* Avatar override inline — garantiza forma circular aunque
+       el CSS externo esté cacheado stale. Se baja con el HTML
+       y gana por orden de cascada + !important. */
+    .presskit-avatar {
+      border-radius: 50% !important;
+      overflow: hidden !important;
+      border: 0 !important;
+      box-shadow: 0 0 0 3px #000, 0 0 28px rgba(212, 255, 58, 0.28) !important;
+      background: transparent !important;
+    }
+    .presskit-avatar.is-company {
+      border-radius: 14px !important;
+    }
+    .presskit-avatar img {
+      width: 100% !important;
+      height: 100% !important;
+      object-fit: cover !important;
+      border-radius: 0 !important;
+      display: block !important;
+    }
+
     .pk-nav {
       position: fixed; top: 0; left: 0; right: 0; z-index: 100;
       padding: 14px 24px; display: flex; justify-content: space-between; align-items: center;

@@ -1051,38 +1051,35 @@ footer {
   display: flex; align-items: flex-end; gap: 28px;
   transform: translateY(-60px); margin-bottom: -40px;
 }
+/* Avatar: la forma se controla SOLO desde el container.
+   El <img> no tiene border-radius — lo clippea el overflow:hidden
+   del container. Así es cache-proof: no importa qué versión del
+   CSS esté cacheada, el img siempre se adapta. */
 .presskit-avatar {
   width: 140px; height: 140px;
   border-radius: 50% !important;
   flex-shrink: 0;
-  border: 3px solid #000;
+  border: 0 !important;
   background: var(--lime);
   color: #000;
   display: flex; align-items: center; justify-content: center;
   font-family: var(--font-display);
   font-size: 3rem; font-weight: 900;
-  overflow: hidden;
-  box-shadow:
-    0 0 0 1px rgba(212, 255, 58, 0.25),
-    0 0 40px rgba(212, 255, 58, 0.28);
+  overflow: hidden !important;
+  box-shadow: 0 0 0 3px #000, 0 0 28px rgba(212, 255, 58, 0.28);
   position: relative;
   z-index: 3;
 }
-.presskit-avatar img,
-.presskit-avatar > * {
+.presskit-avatar img {
   width: 100% !important;
   height: 100% !important;
   object-fit: cover !important;
-  border-radius: 50% !important;
   display: block !important;
+  border-radius: 0 !important;
 }
-/* Variante empresa: rounded-square */
+/* Variante empresa: rounded-square en lugar de círculo */
 .presskit-avatar.is-company {
-  border-radius: 12px !important;
-}
-.presskit-avatar.is-company img,
-.presskit-avatar.is-company > * {
-  border-radius: 12px !important;
+  border-radius: 14px !important;
 }
 .presskit-name {
   font-family: var(--font-display);
