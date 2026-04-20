@@ -2,7 +2,7 @@
   "cleanUrls": true,
   "trailingSlash": false,
   "rewrites": [
-    { "source": "/:slug((?!.*\\.).+)", "destination": "/presskit.html?slug=:slug" }
+    { "source": "/:slug([a-z0-9][a-z0-9-]*)", "destination": "/presskit.html?slug=:slug" }
   ],
   "headers": [
     {

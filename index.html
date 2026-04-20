@@ -605,41 +605,53 @@ function switchTab(id, btn) {
       <p>Venues, productoras y festivales pueden contratar DJs directamente desde Voltum</p>
     </div>
 
-    <!-- Flujo de 4 pasos -->
-    <div class="booking-flow" style="margin-bottom:80px;">
+    <!-- Flujo de 5 pasos — Voltum gestiona todo el proceso -->
+    <div class="booking-flow" style="margin-bottom:80px;grid-template-columns:repeat(5,1fr);">
       <div class="booking-flow-step">
         <div style="position:relative;">
           <div class="bflow-icon"><i data-lucide="search"></i></div>
           <div class="bflow-num">1</div>
         </div>
-        <div class="bflow-title">La empresa descubre al DJ</div>
-        <div class="bflow-desc">Busca en el directorio de Voltum o recibe el press kit directamente del artista.</div>
+        <div class="bflow-title">Busca el DJ ideal</div>
+        <div class="bflow-desc">Productoras, empresas y colectivos exploran el directorio de Voltum y abren el press kit del DJ que les interese.</div>
       </div>
       <div class="booking-flow-step">
         <div style="position:relative;">
-          <div class="bflow-icon"><i data-lucide="send"></i></div>
+          <div class="bflow-icon"><i data-lucide="clipboard-list"></i></div>
           <div class="bflow-num">2</div>
         </div>
-        <div class="bflow-title">Envía la solicitud</div>
-        <div class="bflow-desc">Fecha, horario, venue, tipo de evento y presupuesto en un formulario simple.</div>
+        <div class="bflow-title">Completa el formulario</div>
+        <div class="bflow-desc">Lugar del evento · equipamiento sí/no · presupuesto disponible · horas del servicio · fecha y horario.</div>
       </div>
       <div class="booking-flow-step">
         <div style="position:relative;">
-          <div class="bflow-icon"><i data-lucide="check-circle"></i></div>
+          <div class="bflow-icon"><i data-lucide="shield-check"></i></div>
           <div class="bflow-num">3</div>
         </div>
-        <div class="bflow-title">El DJ acepta o rechaza</div>
-        <div class="bflow-desc">Recibe la solicitud en su dashboard, revisa los detalles y responde con un mensaje.</div>
+        <div class="bflow-title">Voltum gestiona</div>
+        <div class="bflow-desc">La solicitud llega directo al panel del administrador. Validamos disponibilidad del DJ, revisamos presupuesto y coordinamos equipo si hace falta.</div>
+      </div>
+      <div class="booking-flow-step">
+        <div style="position:relative;">
+          <div class="bflow-icon"><i data-lucide="headphones"></i></div>
+          <div class="bflow-num">4</div>
+        </div>
+        <div class="bflow-title">El DJ confirma</div>
+        <div class="bflow-desc">Una vez validado, Voltum le envía el booking al DJ para que confirme. Tú recibes la confirmación desde tu dashboard.</div>
       </div>
       <div class="booking-flow-step">
         <div style="position:relative;">
           <div class="bflow-icon"><i data-lucide="banknote"></i></div>
-          <div class="bflow-num">4</div>
+          <div class="bflow-num">5</div>
         </div>
-        <div class="bflow-title">Voltum gestiona el pago</div>
-        <div class="bflow-desc">La empresa paga a través de Voltum. Nosotros retenemos una comisión del 12% y transferimos el resto al DJ.</div>
+        <div class="bflow-title">Pago gestionado</div>
+        <div class="bflow-desc">La empresa paga a Voltum. Retenemos comisión del 12% y transferimos al DJ. Si se pactó equipo, lo proveemos nosotros.</div>
       </div>
     </div>
+    <style>
+      @media(max-width:1024px) { section .booking-flow { grid-template-columns:repeat(2,1fr) !important; gap:24px; } }
+      @media(max-width:560px)  { section .booking-flow { grid-template-columns:1fr !important; } }
+    </style>
 
     <!-- MOCKUPS lado a lado -->
     <div style="display:grid;grid-template-columns:1fr 1fr;gap:40px;align-items:start;max-width:900px;margin:0 auto;">
@@ -650,25 +662,34 @@ function switchTab(id, btn) {
           Vista empresa — solicitud de booking
         </div>
         <div class="bk-modal-preview">
-          <div class="bk-modal-title"><i data-lucide="calendar-check" class="icon-sm"></i> Solicitar Booking</div>
-          <div class="bk-modal-sub">Enviando solicitud a <strong>DJ Nova</strong></div>
-          <div class="bk-field">
-            <div class="bk-label">Fecha del evento</div>
-            <div class="bk-input-mock">Sábado 12 de Abril, 2025</div>
+          <div class="bk-modal-title"><i data-lucide="shield-check" class="icon-sm"></i> Reservar con Voltum</div>
+          <div class="bk-modal-sub">Solicitando booking de <strong>DJ Nova</strong> · gestión profesional</div>
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;">
+            <div class="bk-field">
+              <div class="bk-label">Fecha del evento</div>
+              <div class="bk-input-mock">Sáb 12 Abr 2026</div>
+            </div>
+            <div class="bk-field">
+              <div class="bk-label">Horas del servicio</div>
+              <div class="bk-input-mock">4 hrs</div>
+            </div>
           </div>
           <div class="bk-field">
-            <div class="bk-label">Venue / Lugar</div>
-            <div class="bk-input-mock">Club Chocolate, Santiago</div>
+            <div class="bk-label">Lugar del evento</div>
+            <div class="bk-input-mock">Club Chocolate · Santiago</div>
           </div>
           <div class="bk-field">
-            <div class="bk-label">Presupuesto estimado</div>
+            <div class="bk-label">¿Equipamiento en el lugar?</div>
+            <div style="display:flex;gap:6px;">
+              <div class="bk-input-mock" style="flex:1;text-align:center;border-color:var(--border);background:var(--lime-dim);color:var(--lime);font-weight:600;">No, Voltum provee</div>
+              <div class="bk-input-mock" style="flex:1;text-align:center;opacity:0.5;">Sí, tiene</div>
+            </div>
+          </div>
+          <div class="bk-field">
+            <div class="bk-label">Presupuesto disponible</div>
             <div class="bk-input-mock">$350.000 CLP</div>
           </div>
-          <div class="bk-field">
-            <div class="bk-label">Mensaje</div>
-            <div class="bk-input-mock" style="min-height:60px;">Buscamos DJ para cierre de temporada...</div>
-          </div>
-          <div class="bk-send-btn">Enviar solicitud →</div>
+          <div class="bk-send-btn"><i data-lucide="send" class="icon-sm"></i> Enviar a Voltum</div>
         </div>
       </div>
 

@@ -604,8 +604,11 @@
     mAction.innerHTML  = `<a href="payment.html" class="btn btn-primary btn-sm" style="white-space:nowrap;">Activar →</a>`;
   }
 
-  const pkParam   = profile?.slug ? `slug=${profile.slug}` : `id=${user.id}`;
-  const publicUrl = `${window.location.origin}${window.location.pathname.replace('dashboard.html', '')}presskit.html?${pkParam}`;
+  // URL pública: si el DJ tiene slug usamos la ruta amigable (voltum.cl/<slug>);
+  // si no, fallback a presskit.html?id=<uuid>. El rewrite en vercel.json se encarga.
+  const publicUrl = profile?.slug
+    ? `${window.location.origin}/${profile.slug}`
+    : `${window.location.origin}/presskit.html?id=${user.id}`;
   document.getElementById('publicLinkInput').value    = publicUrl;
   document.getElementById('openPressKitLink').href    = publicUrl;
   document.getElementById('viewPressKit').href        = publicUrl;
