@@ -1642,7 +1642,7 @@ async function submitBooking(e) {
   const equipmentRadio = document.querySelector('input[name="bkEquipment"]:checked');
   const equipmentProvided = equipmentRadio ? equipmentRadio.value === 'yes' : null;
 
-  const { error } = await sb.from('bookings').insert({
+  const { data: inserted, error } = await sb.from('bookings').insert({
     dj_user_id:         _bkDjUserId,
     company_id:         _bkCompany.id,
     event_date:         document.getElementById('bkDate').value,
@@ -1657,7 +1657,7 @@ async function submitBooking(e) {
     equipment_details:  document.getElementById('bkEquipmentDetails').value.trim() || null,
     voltum_status:      'review_voltum',
     status:             'pendiente',
-  });
+  }).select('id').single();
 
   btn.disabled = false;
   btn.innerHTML = '<i data-lucide="send"></i> Enviar solicitud a Voltum';
@@ -1665,8 +1665,21 @@ async function submitBooking(e) {
 
   if (error) {
     showToast('Error al enviar: ' + error.message, 'error');
-  } else {
-    _bkShowState('success');
+    return;
+  }
+
+  _bkShowState('success');
+
+  // Notificación al admin — fire-and-forget, no bloquea la UX si falla.
+  if (inserted?.id) {
+    fetch(`${VOLTUM.supabase.url}/functions/v1/notify-admin-booking`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${VOLTUM.supabase.anonKey}`,
+      },
+      body: JSON.stringify({ bookingId: inserted.id }),
+    }).catch(() => {});
   }
 }
 

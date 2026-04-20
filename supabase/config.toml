@@ -15,3 +15,6 @@ verify_jwt = false
 
 [functions.redeem-promo]
 verify_jwt = false
+
+[functions.notify-admin-booking]
+verify_jwt = false
