@@ -433,15 +433,14 @@
     </div>
 
     <!-- CONTACT -->
-    <div class="presskit-section" id="contactSection" style="text-align:center;padding:48px 24px;border-radius:var(--radius-xl);background:linear-gradient(135deg,rgba(139,92,246,0.08),rgba(34,211,238,0.04));border:1px solid var(--border);">
+    <div class="presskit-section" id="contactSection" style="text-align:center;padding:48px 24px;border-radius:var(--radius-xl);background:linear-gradient(135deg,rgba(212,255,58,0.08),rgba(212,255,58,0.02));border:1px solid var(--border);">
       <h2 style="margin-bottom:12px;">¿Te interesa hacer un booking?</h2>
-      <p style="margin-bottom:28px;font-size:1rem;">Solicita directamente a través de Voltum o escríbenos por email.</p>
+      <p style="margin-bottom:28px;font-size:1rem;">Completa el formulario y Voltum gestionará tu solicitud directamente.</p>
       <div style="display:flex;gap:12px;justify-content:center;flex-wrap:wrap;">
         <button onclick="handleBookingClick()" class="btn btn-primary btn-lg">
-          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+          <i data-lucide="calendar-check"></i>
           Solicitar booking
         </button>
-        <a href="#" id="pkContactBtn" class="btn btn-outline btn-lg"><i data-lucide="mail"></i> Enviar email</a>
       </div>
     </div>
 
@@ -903,12 +902,12 @@ async function renderPressKit(p, events) {
     banner.innerHTML += `<div class="pk-banner-placeholder"><span class="pk-banner-initials">${initials}</span></div>`;
   }
 
-  // Avatar (DJ: circular; forma controlada 100% por CSS)
+  // Avatar DJ — forma circular forzada por JS inline (cache-proof)
   const avatar = document.getElementById('pkAvatar');
   avatar.classList.remove('is-company');
+  avatar.style.cssText = 'border-radius:50% !important;overflow:hidden !important;border:0 !important;background:transparent !important;box-shadow:0 0 0 3px #000,0 0 28px rgba(212,255,58,0.28) !important;width:140px;height:140px;flex-shrink:0;position:relative;z-index:3;';
   if (p.photo_url) {
-    avatar.innerHTML = `<img src="${p.photo_url}" alt="${p.dj_name}" style="object-position:${p.photo_position||'center center'};" loading="eager" fetchpriority="high">`;
-    avatar.style.background = 'none';
+    avatar.innerHTML = `<img src="${p.photo_url}" alt="${p.dj_name}" style="width:100%;height:100%;object-fit:cover;object-position:${p.photo_position||'center center'};border-radius:0;display:block;" loading="eager" fetchpriority="high">`;
   } else {
     avatar.textContent = (p.dj_name || 'D')[0].toUpperCase();
   }
@@ -1011,10 +1010,8 @@ async function renderPressKit(p, events) {
     renderRiderCards(p.technical_rider, document.getElementById('pkRider'));
   } else document.getElementById('riderSection').style.display = 'none';
 
-  // Contact button
-  if (p.booking_email) {
-    document.getElementById('pkContactBtn').href = `mailto:${p.booking_email}?subject=Booking Request - ${p.dj_name}`;
-  } else document.getElementById('contactSection').style.display = 'none';
+  // Contact section siempre visible — solo botón "Solicitar booking"
+  // (se quitó el mailto directo: todo pasa por Voltum ahora).
 
   // Share button
   document.getElementById('shareBtn').addEventListener('click', () => {
@@ -1091,12 +1088,12 @@ async function renderCompany(p, events) {
     banner.innerHTML += `<div class="pk-banner-placeholder"><span class="pk-banner-initials">${initials}</span></div>`;
   }
 
-  // Logo / avatar (empresa: rounded-square; forma controlada por CSS vía .is-company)
+  // Logo / avatar empresa — rounded-square forzado por JS inline
   const avatar = document.getElementById('pkAvatar');
   avatar.classList.add('is-company');
+  avatar.style.cssText = 'border-radius:14px !important;overflow:hidden !important;border:0 !important;background:transparent !important;box-shadow:0 0 0 3px #000,0 0 28px rgba(212,255,58,0.28) !important;width:140px;height:140px;flex-shrink:0;position:relative;z-index:3;';
   if (p.photo_url) {
-    avatar.innerHTML = `<img src="${p.photo_url}" alt="${p.dj_name}" loading="eager" fetchpriority="high">`;
-    avatar.style.background = 'none';
+    avatar.innerHTML = `<img src="${p.photo_url}" alt="${p.dj_name}" style="width:100%;height:100%;object-fit:cover;border-radius:0;display:block;" loading="eager" fetchpriority="high">`;
   } else {
     avatar.textContent = (p.dj_name || 'E')[0].toUpperCase();
   }
@@ -1186,10 +1183,7 @@ async function renderCompany(p, events) {
   document.getElementById('soundcloudSection').style.display = 'none';
   document.getElementById('spotifySection').style.display = 'none';
 
-  // Contacto
-  if (p.booking_email) {
-    document.getElementById('pkContactBtn').href = `mailto:${p.booking_email}?subject=Contacto - ${p.dj_name}`;
-  } else document.getElementById('contactSection').style.display = 'none';
+  // Contacto: todo pasa por Voltum — sin mailto directo.
 
   document.getElementById('shareBtn').addEventListener('click', () => {
     if (navigator.share) {

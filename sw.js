@@ -6,7 +6,7 @@
  * Version bump invalida cache obsoleto automáticamente.
  */
 
-const VERSION = 'voltum-v4';
+const VERSION = 'voltum-v5';
 const STATIC_CACHE = `${VERSION}-static`;
 const HTML_CACHE   = `${VERSION}-html`;
 const CDN_CACHE    = `${VERSION}-cdn`;
