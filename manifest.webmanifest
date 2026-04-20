@@ -1,0 +1,17 @@
+{
+  "name": "Voltum — Press Kit Digital para DJs",
+  "short_name": "Voltum",
+  "description": "Plataforma de press kit digital para DJs. Recibe bookings profesionales gestionados por Voltum.",
+  "start_url": "/",
+  "scope": "/",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#000000",
+  "theme_color": "#000000",
+  "lang": "es-CL",
+  "categories": ["music", "business", "productivity"],
+  "icons": [
+    { "src": "/favicon.svg", "sizes": "any", "type": "image/svg+xml" },
+    { "src": "/apple-touch-icon.svg", "sizes": "180x180", "type": "image/svg+xml", "purpose": "any maskable" }
+  ]
+}

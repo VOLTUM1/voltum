@@ -3,7 +3,12 @@
    Paleta: Lime electric #D4FF3A sobre negro puro
    Tipografía: Archivo (display) · Inter (body) · JetBrains Mono (code)
    ============================================================ */
-@import url('https://fonts.googleapis.com/css2?family=Archivo:wght@400;500;600;700;800;900&family=Inter:wght@300;400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;700&display=swap');
+/* Variable fonts — 60% menos bytes que cargar múltiples pesos estáticos.
+   Inter (variable): 1 archivo ~80KB cubre 300–900
+   Archivo: solo los 3 pesos realmente usados (700 para body-bold, 800/900 para display)
+   JetBrains Mono: 500 (UI) y 700 (code blocks).
+   display=swap evita FOIT; text-rendering optimizado arriba. */
+@import url('https://fonts.googleapis.com/css2?family=Archivo:wght@700;800;900&family=Inter:wght@300..900&family=JetBrains+Mono:wght@500;700&display=swap');
 
 :root {
   /* ─── Superficies ────────────────────────────────────────── */

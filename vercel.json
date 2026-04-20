@@ -17,6 +17,18 @@
       ]
     },
     {
+      "source": "/(|index.html|index)",
+      "headers": [
+        { "key": "Link", "value": "</css/styles.css>; rel=preload; as=style, <https://fonts.googleapis.com>; rel=preconnect, <https://fonts.gstatic.com>; rel=preconnect; crossorigin, <https://vsadzmuzzeovwqnpcgrr.supabase.co>; rel=preconnect" }
+      ]
+    },
+    {
+      "source": "/(auth|dashboard|profile|presskit|admin|buscar|eventos|demo|payment|company-dashboard|company-profile)",
+      "headers": [
+        { "key": "Link", "value": "</css/styles.css>; rel=preload; as=style, </js/config.js>; rel=preload; as=script, <https://fonts.gstatic.com>; rel=preconnect; crossorigin, <https://vsadzmuzzeovwqnpcgrr.supabase.co>; rel=preconnect" }
+      ]
+    },
+    {
       "source": "/css/(.*)",
       "headers": [
         { "key": "Cache-Control", "value": "public, max-age=31536000, stale-while-revalidate=86400, immutable" }
@@ -32,6 +44,13 @@
       "source": "/(.*)\\.(png|jpg|jpeg|webp|avif|svg|ico|gif|woff|woff2|ttf|otf)",
       "headers": [
         { "key": "Cache-Control", "value": "public, max-age=31536000, immutable" }
+      ]
+    },
+    {
+      "source": "/(sw|service-worker|manifest)\\.(js|json|webmanifest)",
+      "headers": [
+        { "key": "Cache-Control", "value": "public, max-age=0, must-revalidate" },
+        { "key": "Service-Worker-Allowed", "value": "/" }
       ]
     },
     {

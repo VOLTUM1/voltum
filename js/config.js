@@ -155,8 +155,9 @@ const { createClient } = supabase;
 const sb = createClient(VOLTUM.supabase.url, VOLTUM.supabase.anonKey);
 
 // ============================================================
-// Lucide Icons — carga automática en todas las páginas
+// Lucide Icons — carga diferida a idle para no bloquear paint
 // Uso: <i data-lucide="music"></i>  (ver https://lucide.dev)
+// Se carga durante el tiempo muerto del CPU post-paint.
 // ============================================================
 (function loadLucide() {
   if (typeof window === 'undefined') return;
@@ -165,26 +166,41 @@ const sb = createClient(VOLTUM.supabase.url, VOLTUM.supabase.anonKey);
 
   const refresh = () => { try { window.lucide && window.lucide.createIcons(); } catch(_) {} };
 
+  // Observer con debounce para re-render tras inserts dinámicos
+  let obsT;
+  let obsMounted = false;
   const mountObserver = () => {
-    let t;
+    if (obsMounted) return;
+    obsMounted = true;
     const obs = new MutationObserver(() => {
-      clearTimeout(t);
-      t = setTimeout(refresh, 60);
+      clearTimeout(obsT);
+      obsT = setTimeout(refresh, 80);
     });
     obs.observe(document.body, { childList: true, subtree: true });
   };
 
-  const boot = () => {
+  const loadLib = () => {
     if (window.lucide) { refresh(); mountObserver(); return; }
     const s = document.createElement('script');
     s.src = 'https://cdn.jsdelivr.net/npm/lucide@0.454.0/dist/umd/lucide.min.js';
     s.defer = true;
+    s.fetchPriority = 'low';
     s.onload = () => { refresh(); mountObserver(); };
     document.head.appendChild(s);
   };
 
+  // Carga la lib cuando el navegador esté idle (o máximo 1.5s después).
+  // Así no compite con el CSS/HTML crítico en el initial paint.
+  const boot = () => {
+    if ('requestIdleCallback' in window) {
+      requestIdleCallback(loadLib, { timeout: 1500 });
+    } else {
+      setTimeout(loadLib, 200);
+    }
+  };
+
   if (document.readyState === 'loading') {
-    document.addEventListener('DOMContentLoaded', boot);
+    document.addEventListener('DOMContentLoaded', boot, { once: true });
   } else {
     boot();
   }
@@ -192,6 +208,15 @@ const sb = createClient(VOLTUM.supabase.url, VOLTUM.supabase.anonKey);
   // Helper global para re-render manual tras insertar markup con data-lucide
   window.renderIcons = refresh;
 })();
+
+// ============================================================
+// Service Worker — registrarlo solo en producción y tras load
+// ============================================================
+if ('serviceWorker' in navigator && location.protocol === 'https:') {
+  window.addEventListener('load', () => {
+    navigator.serviceWorker.register('/sw.js', { scope: '/' }).catch(() => {});
+  });
+}
 
 // Helpers de autenticación
 const Auth = {

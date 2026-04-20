@@ -7,6 +7,7 @@
   <!-- Favicon -->
   <link rel="icon" href="/favicon.svg" type="image/svg+xml">
   <link rel="apple-touch-icon" href="/apple-touch-icon.svg">
+  <link rel="manifest" href="/manifest.webmanifest">
   <meta name="theme-color" content="#000000">
   <meta name="color-scheme" content="dark">
 
@@ -28,7 +29,8 @@
   <meta name="twitter:title" content="Perfil Empresa — Voltum">
   <meta name="twitter:description" content="Edita tu perfil de empresa.">
   <meta name="twitter:image" content="https://voltum.cl/apple-touch-icon.svg">
-  <link rel="stylesheet" href="css/styles.css">
+  <link rel="preload" href="/css/styles.css" as="style" fetchpriority="high">
+  <link rel="stylesheet" href="/css/styles.css">
   <style>
     .sidebar { width: 240px; min-height: 100vh; background: var(--bg2); border-right: 1px solid var(--border2); display: flex; flex-direction: column; position: fixed; top: 0; left: 0; z-index: 50; }
     .sidebar-logo { padding: 24px 20px 20px; font-weight: 800; font-size: 1.1rem; letter-spacing: 0.05em; border-bottom: 1px solid var(--border2); }
