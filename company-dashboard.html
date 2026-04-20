@@ -479,11 +479,7 @@
         <div style="font-family:var(--font-mono);font-size:0.7rem;color:var(--lime);text-transform:uppercase;letter-spacing:0.14em;font-weight:600;margin-bottom:10px;display:flex;align-items:center;gap:6px;">
           <i data-lucide="shield-check"></i> Pago gestionado por Voltum
         </div>
-        <div style="font-size:0.86rem;line-height:1.65;color:var(--text-dim);">Voltum coordinará el pago del DJ por ti. Recibirás las instrucciones de pago por email junto con la confirmación final del evento.</div>
-        ${b.commission_amount ? `<div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:14px;padding-top:14px;border-top:1px solid var(--border2);font-size:0.82rem;">
-          <div><span style="color:var(--muted);font-size:0.72rem;text-transform:uppercase;letter-spacing:0.08em;">Presupuesto</span><br><strong>${budget}</strong></div>
-          <div><span style="color:var(--muted);font-size:0.72rem;text-transform:uppercase;letter-spacing:0.08em;">Comisión Voltum (${b.commission_percent||12}%)</span><br><strong>${formatPrice(b.commission_amount)}</strong></div>
-        </div>` : ''}
+        <div style="font-size:0.86rem;line-height:1.65;color:var(--text-dim);">Voltum coordinará el pago del DJ por ti. Recibirás las instrucciones de pago y los términos finales por email junto con la confirmación del evento.</div>
       </div>` : ''}
       ${b.voltum_status === 'confirmed' ? `
       <div style="border-top:1px solid var(--border2);padding-top:16px;margin-bottom:16px;">

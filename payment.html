@@ -254,7 +254,7 @@
   if (!user) return;
 
   // Guard: perfiles de EMPRESA no requieren membresía. Voltum gestiona
-  // los bookings y cobra comisión al confirmarse la contratación.
+  // los bookings directamente con cada empresa caso a caso.
   const { data: companyCheck } = await sb
     .from('profiles')
     .select('is_company')
@@ -331,8 +331,8 @@ function renderCompanyFreeState() {
         </div>
         <div style="font-size:0.92rem;line-height:1.55;">
           <strong style="color:var(--text);">Voltum gestiona los bookings.</strong>
-          Cuando confirmes una contratación con un DJ, cobramos una comisión del
-          <strong style="color:var(--cyan);">12%</strong> sobre el monto del booking.
+          Cuando solicites una contratación, coordinamos contigo directamente
+          los términos del booking caso a caso.
           Sin cobros mensuales, sin sorpresas.
         </div>
       </div>
@@ -343,7 +343,7 @@ function renderCompanyFreeState() {
       <li>Acceso al directorio de DJs</li>
       <li>Solicitudes de booking ilimitadas</li>
       <li>Dashboard de gestión de bookings</li>
-      <li>Voltum gestiona el pago al DJ (comisión 12%)</li>
+      <li>Voltum gestiona el pago al DJ</li>
     </ul>
 
     <a href="company-dashboard.html" class="btn btn-primary btn-full btn-lg" style="font-size:1.02rem;">

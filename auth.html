@@ -73,7 +73,7 @@
           <div class="auth-feature-icon"><i data-lucide="building-2"></i></div>
           <div class="auth-feature-text">
             <h4>Empresas · Perfil gratuito</h4>
-            <p>Voltum gestiona los bookings y cobra comisión al confirmar. Sin membresía, sin tarjeta.</p>
+            <p>Voltum gestiona los bookings contigo caso a caso. Sin membresía, sin tarjeta.</p>
           </div>
         </div>
       </div>
@@ -289,8 +289,8 @@
     const hintEl = document.getElementById('acctTypeHint');
     const disclaimerEl = document.getElementById('regDisclaimer');
     if (type === 'empresa') {
-      if (hintEl) hintEl.innerHTML = '<strong style="color:var(--cyan,#22D3EE);">Empresas: perfil 100% gratuito</strong> · sin tarjeta · sin membresía. Voltum gestiona los bookings y cobra una comisión al confirmarse cada contratación.';
-      if (disclaimerEl) disclaimerEl.innerHTML = 'Perfil de empresa gratis · sin tarjeta · sin membresía.<br>Voltum gestiona el booking y cobra comisión solo al confirmar.';
+      if (hintEl) hintEl.innerHTML = '<strong style="color:var(--cyan,#22D3EE);">Empresas: perfil 100% gratuito</strong> · sin tarjeta · sin membresía. Voltum gestiona cada booking contigo caso a caso.';
+      if (disclaimerEl) disclaimerEl.innerHTML = 'Perfil de empresa gratis · sin tarjeta · sin membresía.<br>Voltum coordina cada booking directamente contigo.';
     } else {
       if (hintEl) hintEl.innerHTML = '<strong style="color:var(--text);">DJs:</strong> membresía mensual $9.990 CLP (7 días gratis para probar).';
       if (disclaimerEl) disclaimerEl.innerHTML = 'Al crear tu cuenta, activas una prueba de 7 días.<br>Después necesitas activar tu membresía Voltum Pro.';
