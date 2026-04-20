@@ -951,14 +951,24 @@ async function renderPressKit(p, events) {
   // Eventos: filtro por categoría + límite visual
   initPkEvents(events);
 
-  // SoundCloud custom player
+  // SoundCloud & Spotify: lazy-load via IntersectionObserver.
+  // Ahorra ~2 scripts externos + ~6 fetches hasta que el usuario scrollee.
+  const _lazyMount = (el, fn, arg) => {
+    if (!('IntersectionObserver' in window)) { fn(arg); return; }
+    const io = new IntersectionObserver((entries) => {
+      for (const e of entries) {
+        if (e.isIntersecting) { io.disconnect(); fn(arg); break; }
+      }
+    }, { rootMargin: '200px 0px' });
+    io.observe(el);
+  };
+
   if (p.social_soundcloud) {
-    initSoundCloudPlayer(p.social_soundcloud);
+    _lazyMount(document.getElementById('soundcloudSection'), initSoundCloudPlayer, p.social_soundcloud);
   } else document.getElementById('soundcloudSection').style.display = 'none';
 
-  // Spotify player
   if (p.social_spotify) {
-    initSpotifyPlayer(p.social_spotify);
+    _lazyMount(document.getElementById('spotifySection'), initSpotifyPlayer, p.social_spotify);
   } else document.getElementById('spotifySection').style.display = 'none';
 
   // Galería

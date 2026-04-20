@@ -326,21 +326,8 @@
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script src="js/config.js"></script>
 <script>
-(async () => {
-  const user = await Auth.getUser();
-  if (user) {
-    document.getElementById('navLoginBtn').classList.add('hidden');
-    document.getElementById('navRegisterBtn').classList.add('hidden');
-    document.getElementById('navDashBtn').classList.remove('hidden');
-    document.getElementById('navLogoutBtn').classList.remove('hidden');
-    document.getElementById('navLoginBtnM').classList.add('hidden');
-    document.getElementById('navRegisterBtnM').classList.add('hidden');
-    document.getElementById('navDashBtnM').classList.remove('hidden');
-  }
-  document.getElementById('navLogoutBtn').addEventListener('click', async () => {
-    await sb.auth.signOut();
-    window.location.reload();
-  });
+(() => {
+  // UI interactiva: no requiere Supabase, se bindea inmediatamente
   const ham = document.getElementById('navHamburger');
   const menu = document.getElementById('navMobileMenu');
   ham.addEventListener('click', () => {
@@ -353,6 +340,26 @@
       menu.classList.remove('open');
     });
   });
+
+  // Auth check — deferida a idle para no bloquear el paint inicial
+  const runAuthCheck = async () => {
+    const user = await Auth.getUser();
+    if (user) {
+      document.getElementById('navLoginBtn').classList.add('hidden');
+      document.getElementById('navRegisterBtn').classList.add('hidden');
+      document.getElementById('navDashBtn').classList.remove('hidden');
+      document.getElementById('navLogoutBtn').classList.remove('hidden');
+      document.getElementById('navLoginBtnM').classList.add('hidden');
+      document.getElementById('navRegisterBtnM').classList.add('hidden');
+      document.getElementById('navDashBtnM').classList.remove('hidden');
+    }
+    document.getElementById('navLogoutBtn').addEventListener('click', async () => {
+      await sb.auth.signOut();
+      window.location.reload();
+    });
+  };
+  if ('requestIdleCallback' in window) requestIdleCallback(runAuthCheck, { timeout: 2000 });
+  else setTimeout(runAuthCheck, 200);
 })();
 </script>
 

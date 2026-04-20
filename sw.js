@@ -6,7 +6,7 @@
  * Version bump invalida cache obsoleto automáticamente.
  */
 
-const VERSION = 'voltum-v2';
+const VERSION = 'voltum-v3';
 const STATIC_CACHE = `${VERSION}-static`;
 const HTML_CACHE   = `${VERSION}-html`;
 const CDN_CACHE    = `${VERSION}-cdn`;
@@ -17,6 +17,9 @@ const PRECACHE_URLS = [
   '/js/config.js',
   '/favicon.svg',
   '/apple-touch-icon.svg',
+  '/manifest.webmanifest',
+  // Google Fonts CSS (variable fonts + pesos reducidos)
+  'https://fonts.googleapis.com/css2?family=Archivo:wght@700;800;900&family=Inter:wght@300..900&family=JetBrains+Mono:wght@500;700&display=swap',
 ];
 
 self.addEventListener('install', (event) => {
