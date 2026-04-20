@@ -341,6 +341,44 @@
     });
   });
 
+  // Stats públicas en vivo — RPC SECURITY DEFINER (ver migration 002).
+  // Cache en localStorage (TTL 10min) para que visitas repetidas muestren
+  // el valor real instantáneo sin esperar la red.
+  const applyStat = (stat, val) => {
+    const n = Number(val) || 0;
+    document.querySelectorAll(`[data-stat="${stat}"]`).forEach(el => {
+      el.setAttribute('data-count', n);
+      if (el.classList.contains('is-counted')) {
+        el.textContent = n.toLocaleString('es-CL');
+      }
+    });
+  };
+
+  // 1. Cache warm (si hay valores recientes, aplícalos antes de que
+  //    arranque el counter observer).
+  try {
+    const cached = JSON.parse(localStorage.getItem('voltum_stats') || 'null');
+    if (cached && (Date.now() - cached.t) < 600000) {
+      applyStat('djs', cached.djs);
+      applyStat('companies', cached.companies);
+      applyStat('bookings', cached.bookings);
+    }
+  } catch (_) {}
+
+  // 2. Fetch fresco — siempre corre, actualiza cache y UI.
+  (async () => {
+    try {
+      const { data, error } = await sb.rpc('get_voltum_stats');
+      if (error || !data) return;
+      applyStat('djs', data.djs);
+      applyStat('companies', data.companies);
+      applyStat('bookings', data.bookings);
+      try {
+        localStorage.setItem('voltum_stats', JSON.stringify({ ...data, t: Date.now() }));
+      } catch (_) {}
+    } catch (_) { /* fallback silencioso: los contadores quedan en 0 */ }
+  })();
+
   // Auth check — deferida a idle para no bloquear el paint inicial
   const runAuthCheck = async () => {
     const user = await Auth.getUser();
@@ -408,18 +446,18 @@
 
         <div class="hero-stats" style="justify-content:flex-start;margin-top:32px;">
           <div class="stat">
-            <span class="stat-number counter" data-count="100" data-suffix="+">0</span>
-            <span class="stat-label">DJs activos</span>
+            <span class="stat-number counter" data-stat="djs" data-count="0">0</span>
+            <span class="stat-label">DJs registrados</span>
           </div>
           <div class="stat-divider"></div>
           <div class="stat">
-            <span class="stat-number counter" data-count="350" data-suffix="+">0</span>
+            <span class="stat-number counter" data-stat="bookings" data-count="0">0</span>
             <span class="stat-label">Bookings gestionados</span>
           </div>
           <div class="stat-divider"></div>
           <div class="stat">
-            <span class="stat-number counter" data-count="40" data-suffix="+">0</span>
-            <span class="stat-label">Venues conectados</span>
+            <span class="stat-number counter" data-stat="companies" data-count="0">0</span>
+            <span class="stat-label">Empresas registradas</span>
           </div>
         </div>
       </div>
