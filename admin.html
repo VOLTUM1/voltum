@@ -124,10 +124,77 @@
       display: flex; flex-direction: column; gap: 6px;
       position: relative; overflow: hidden; transition: var(--transition);
     }
-    .mini-stat:hover { border-color: var(--border); }
+    .mini-stat:hover { border-color: var(--border); transform: translateY(-1px); }
+    .mini-stat[data-jump] { cursor: pointer; }
+    .mini-stat[data-jump]:hover { border-color: var(--lime); background: rgba(212,255,58,0.04); }
     .mini-stat-icon { font-size: 1.1rem; margin-bottom: 2px; }
     .mini-stat-value { font-size: 1.6rem; font-weight: 800; line-height: 1; }
     .mini-stat-label { font-size: 0.72rem; color: var(--muted2); text-transform: uppercase; letter-spacing: 0.07em; }
+
+    /* ── ATTENTION CARD ──────────────────────────────── */
+    .attention-card {
+      margin-bottom: 24px;
+      padding: 18px 20px;
+      background: linear-gradient(145deg, rgba(212,255,58,0.08), rgba(212,255,58,0.02));
+      border: 1px solid var(--border);
+      border-radius: var(--radius-lg);
+      position: relative;
+      animation: attention-pulse 2.4s ease-in-out infinite;
+    }
+    @keyframes attention-pulse {
+      0%, 100% { box-shadow: 0 0 0 0 rgba(212,255,58,0); }
+      50% { box-shadow: 0 0 24px rgba(212,255,58,0.14); }
+    }
+    .attention-header {
+      display: flex; justify-content: space-between; align-items: center;
+      margin-bottom: 14px; padding-bottom: 12px;
+      border-bottom: 1px solid var(--border2);
+    }
+    .attention-list { display: flex; flex-direction: column; gap: 8px; }
+    .attention-item {
+      display: flex; align-items: center; gap: 12px;
+      padding: 10px 12px;
+      background: var(--bg3);
+      border: 1px solid var(--border2);
+      border-radius: var(--radius);
+      cursor: pointer;
+      transition: var(--transition);
+      text-align: left;
+      color: var(--text);
+      font-size: 0.88rem;
+    }
+    .attention-item:hover { border-color: var(--lime); background: rgba(212,255,58,0.04); }
+    .attention-item .att-icon {
+      width: 32px; height: 32px; border-radius: var(--radius);
+      display: flex; align-items: center; justify-content: center;
+      flex-shrink: 0;
+    }
+    .attention-item .att-icon.critical { background: rgba(255,90,95,0.15); color: var(--red); }
+    .attention-item .att-icon.warn { background: rgba(255,176,32,0.12); color: var(--warn); }
+    .attention-item .att-icon.info { background: var(--lime-dim); color: var(--lime); }
+    .attention-item .att-body { flex: 1; min-width: 0; }
+    .attention-item .att-title { font-weight: 600; font-size: 0.9rem; }
+    .attention-item .att-sub { font-size: 0.78rem; color: var(--muted); margin-top: 2px; }
+    .attention-item .att-cta {
+      font-family: var(--font-mono); font-size: 0.72rem;
+      color: var(--lime); letter-spacing: 0.1em; text-transform: uppercase;
+      white-space: nowrap;
+    }
+
+    /* ── TOOLBAR en Bookings ─────────────────────────── */
+    .bk-toolbar {
+      display: flex; gap: 10px; align-items: center;
+      margin-bottom: 14px; flex-wrap: wrap;
+    }
+    .bk-toolbar input[type="search"] {
+      flex: 1; min-width: 220px;
+      background: var(--bg3); border: 1px solid var(--border2);
+      border-radius: var(--radius); padding: 9px 14px;
+      color: var(--text); font-family: inherit; font-size: 0.88rem;
+      outline: none; transition: var(--transition);
+    }
+    .bk-toolbar input[type="search"]:focus { border-color: var(--lime); }
+    .bk-toolbar .btn-sm { white-space: nowrap; }
 
     /* ── DJ DE LA SEMANA ─────────────────────────────── */
     .dj-week-wrap {
@@ -315,34 +382,46 @@
         </div>
       </div>
 
+      <!-- REQUIRES ATTENTION — alertas accionables -->
+      <div id="attentionCard" class="attention-card" style="display:none;">
+        <div class="attention-header">
+          <div style="display:flex;align-items:center;gap:10px;">
+            <i data-lucide="alert-circle" style="color:var(--lime);width:22px;height:22px;"></i>
+            <span class="uppercase-label" style="color:var(--lime);font-size:0.78rem;letter-spacing:0.18em;">Requiere tu atención</span>
+          </div>
+          <span id="attentionTotal" class="badge badge-lime" style="font-family:var(--font-mono);"></span>
+        </div>
+        <div id="attentionList" class="attention-list"></div>
+      </div>
+
       <!-- MINI STATS GRID -->
       <div class="mini-stats-grid">
-        <div class="mini-stat">
+        <div class="mini-stat" data-jump="platform">
           <div class="mini-stat-icon"><i data-lucide="building-2"></i></div>
           <div class="mini-stat-value" id="statCompanies">—</div>
           <div class="mini-stat-label">Empresas</div>
         </div>
-        <div class="mini-stat">
+        <div class="mini-stat" data-jump="bookings">
           <div class="mini-stat-icon"><i data-lucide="clipboard-list"></i></div>
           <div class="mini-stat-value" id="statBookingsPending" style="color:var(--gold);">—</div>
           <div class="mini-stat-label">Bookings pendientes</div>
         </div>
-        <div class="mini-stat">
+        <div class="mini-stat" data-jump="platform">
           <div class="mini-stat-icon"><i data-lucide="handshake"></i></div>
           <div class="mini-stat-value" id="statResidencies" style="color:var(--purple-l);">—</div>
           <div class="mini-stat-label">Residencias activas</div>
         </div>
-        <div class="mini-stat">
+        <div class="mini-stat" data-jump="memberships">
           <div class="mini-stat-icon"><i data-lucide="gift"></i></div>
           <div class="mini-stat-value" id="statFreeActive" style="color:var(--cyan);">—</div>
           <div class="mini-stat-label">Accesos gratuitos</div>
         </div>
-        <div class="mini-stat">
+        <div class="mini-stat" data-jump="users">
           <div class="mini-stat-icon"><i data-lucide="eye"></i></div>
           <div class="mini-stat-value" id="statWeekViews">—</div>
           <div class="mini-stat-label">Vistas esta semana</div>
         </div>
-        <div class="mini-stat">
+        <div class="mini-stat" data-jump="memberships">
           <div class="mini-stat-icon"><i data-lucide="wallet"></i></div>
           <div class="mini-stat-value" id="statTotalRevenue" style="color:var(--green);font-size:1.1rem;margin-top:4px;">—</div>
           <div class="mini-stat-label">Ingresos totales</div>
@@ -388,9 +467,20 @@
             <canvas id="usersChart" height="200"></canvas>
           </div>
         </div>
-        <div class="card" style="padding:24px;">
+        <div class="card" style="padding:24px;margin-bottom:20px;">
           <div style="font-size:0.75rem;font-weight:700;letter-spacing:1px;text-transform:uppercase;color:var(--muted);margin-bottom:16px;">Membresías activas acumuladas</div>
           <canvas id="activeChart" height="100"></canvas>
+        </div>
+
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:20px;">
+          <div class="card" style="padding:24px;">
+            <div style="font-size:0.75rem;font-weight:700;letter-spacing:1px;text-transform:uppercase;color:var(--muted);margin-bottom:16px;"><i data-lucide="pie-chart"></i> Bookings por estado</div>
+            <canvas id="bookingsStatusChart" height="220"></canvas>
+          </div>
+          <div class="card" style="padding:24px;">
+            <div style="font-size:0.75rem;font-weight:700;letter-spacing:1px;text-transform:uppercase;color:var(--muted);margin-bottom:16px;"><i data-lucide="bar-chart-2"></i> Top empresas por solicitudes</div>
+            <canvas id="topCompaniesChart" height="220"></canvas>
+          </div>
         </div>
       </div>
 
@@ -535,6 +625,10 @@
            TAB · BOOKINGS (gestión Voltum)
       ═══════════════════════════════════════════════ -->
       <div id="tab-bookings" class="hidden">
+        <div class="bk-toolbar">
+          <input type="search" id="bkSearch" placeholder="Buscar por empresa, DJ, venue, ciudad…">
+          <button class="btn btn-outline btn-sm" id="bkExportBtn" title="Exportar CSV"><i data-lucide="download"></i> CSV</button>
+        </div>
         <div style="display:flex;gap:10px;margin-bottom:18px;flex-wrap:wrap;">
           <button class="btn btn-outline btn-sm bk-admin-filter active" data-bkf="review_voltum"><i data-lucide="eye"></i> Por revisar</button>
           <button class="btn btn-outline btn-sm bk-admin-filter" data-bkf="approved_voltum"><i data-lucide="check"></i> Aprobados</button>
@@ -554,9 +648,10 @@
               <th>Presupuesto</th>
               <th>Equipo</th>
               <th>Estado</th>
+              <th>Recibido</th>
               <th></th>
             </tr></thead>
-            <tbody id="bookingsAdminBody"><tr><td colspan="8" class="empty-state">Cargando…</td></tr></tbody>
+            <tbody id="bookingsAdminBody"><tr><td colspan="9" class="empty-state">Cargando…</td></tr></tbody>
           </table>
         </div>
       </div><!-- /tab-bookings -->
@@ -719,6 +814,7 @@ async function loadAll() {
   renderDJofWeek();
   renderPlatform();
   updateBookingsBadge?.();
+  renderAttentionCard?.();
   window.renderIcons?.();
 }
 
@@ -1170,6 +1266,7 @@ function setupTabs() {
 
 // ─── GRÁFICOS ──────────────────────────────────────────────
 let revenueChartInst = null, usersChartInst = null, activeChartInst = null;
+let bookingsStatusChartInst = null, topCompaniesChartInst = null;
 
 function getLast6Months() {
   const months = [];
@@ -1309,6 +1406,86 @@ function renderCharts() {
       scales: { ...chartDefaults.scales, y: { ...chartDefaults.scales.y, ticks: { ...chartDefaults.scales.y.ticks, stepSize: 1 } } }
     }
   });
+
+  // ─── BOOKINGS POR ESTADO (donut) ───────────────────────────
+  const statusMap = {
+    review_voltum:   { label: 'Por revisar',     color: '#D4FF3A' },
+    approved_voltum: { label: 'Aprobados',       color: '#9FC228' },
+    dj_review:       { label: 'Enviados al DJ',  color: '#67E8F9' },
+    confirmed:       { label: 'Confirmados',     color: '#5EE46B' },
+    rejected_voltum: { label: 'Rechazados',      color: '#FF5A5F' },
+    dj_declined:     { label: 'DJ no disponible',color: '#FFB020' },
+    cancelled:       { label: 'Cancelados',      color: '#4A4A4A' },
+  };
+  const statusCounts = {};
+  (allBookings || []).forEach(b => {
+    const k = b.voltum_status || 'unknown';
+    statusCounts[k] = (statusCounts[k] || 0) + 1;
+  });
+  const keys = Object.keys(statusMap).filter(k => statusCounts[k] > 0);
+  const bsCanvas = document.getElementById('bookingsStatusChart');
+  if (bsCanvas) {
+    if (bookingsStatusChartInst) bookingsStatusChartInst.destroy();
+    bookingsStatusChartInst = new Chart(bsCanvas.getContext('2d'), {
+      type: 'doughnut',
+      data: {
+        labels: keys.map(k => statusMap[k].label),
+        datasets: [{
+          data: keys.map(k => statusCounts[k]),
+          backgroundColor: keys.map(k => statusMap[k].color),
+          borderColor: '#000',
+          borderWidth: 2,
+        }],
+      },
+      options: {
+        responsive: true, maintainAspectRatio: false,
+        cutout: '62%',
+        plugins: {
+          legend: { position: 'bottom', labels: { color: '#CCC', font: { size: 11 }, usePointStyle: true, padding: 12 } },
+          tooltip: { backgroundColor: '#0a0a0a', borderColor: 'rgba(212,255,58,0.25)', borderWidth: 1, titleColor: '#D4FF3A', bodyColor: '#fff' },
+        }
+      }
+    });
+  }
+
+  // ─── TOP EMPRESAS POR SOLICITUDES (bar horizontal) ─────────
+  const byCo = {};
+  (allBookings || []).forEach(b => {
+    const name = b.company?.name;
+    if (!name) return;
+    byCo[name] = (byCo[name] || 0) + 1;
+  });
+  const top = Object.entries(byCo).sort((a,b) => b[1] - a[1]).slice(0, 6);
+  const tcCanvas = document.getElementById('topCompaniesChart');
+  if (tcCanvas) {
+    if (topCompaniesChartInst) topCompaniesChartInst.destroy();
+    topCompaniesChartInst = new Chart(tcCanvas.getContext('2d'), {
+      type: 'bar',
+      data: {
+        labels: top.map(x => x[0]),
+        datasets: [{
+          label: 'Solicitudes',
+          data: top.map(x => x[1]),
+          backgroundColor: 'rgba(212,255,58,0.6)',
+          borderColor: '#D4FF3A',
+          borderWidth: 1.5,
+          borderRadius: 4,
+        }]
+      },
+      options: {
+        responsive: true, maintainAspectRatio: false,
+        indexAxis: 'y',
+        plugins: {
+          legend: { display: false },
+          tooltip: { backgroundColor: '#0a0a0a', borderColor: 'rgba(212,255,58,0.25)', borderWidth: 1, titleColor: '#D4FF3A', bodyColor: '#fff' },
+        },
+        scales: {
+          x: { grid: { color: 'rgba(255,255,255,0.06)' }, ticks: { color: '#888', stepSize: 1 } },
+          y: { grid: { display: false }, ticks: { color: '#CCC', font: { size: 11 } } }
+        }
+      }
+    });
+  }
 }
 
 // ─── SEARCH & FILTER ───────────────────────────────────────
@@ -1345,6 +1522,8 @@ function setupRefresh() {
 // GESTIÓN BOOKINGS — Voltum como intermediario
 // ═══════════════════════════════════════════════════════════
 let _bkAdminFilter = 'review_voltum';
+let _bkSearchTerm  = '';
+let _bkLastSeenIds = new Set(); // para detectar bookings nuevos en polling
 
 function updateBookingsBadge() {
   const badge = document.getElementById('bkPendingBadge');
@@ -1356,6 +1535,21 @@ function updateBookingsBadge() {
   } else {
     badge.style.display = 'none';
   }
+}
+
+// Timestamp relativo ("hace 2h", "hace 3d")
+function relativeTime(iso) {
+  if (!iso) return '—';
+  const diff = Date.now() - new Date(iso).getTime();
+  const mins = Math.round(diff / 60000);
+  if (mins < 1)   return 'ahora';
+  if (mins < 60)  return `hace ${mins}m`;
+  const hrs = Math.round(mins / 60);
+  if (hrs  < 24)  return `hace ${hrs}h`;
+  const days = Math.round(hrs / 24);
+  if (days < 30)  return `hace ${days}d`;
+  const months = Math.round(days / 30);
+  return `hace ${months}mo`;
 }
 
 async function loadBookingsAdmin() {
@@ -1372,10 +1566,13 @@ async function loadBookingsAdmin() {
     company: allCompanies.find(c => c.id === b.company_id) || null,
   }));
 
+  // Registrar IDs actuales para futuro polling
+  _bkLastSeenIds = new Set(allBookings.map(b => b.id));
+
   updateBookingsBadge();
   renderBookingsAdmin();
 
-  // Listeners de filtros
+  // Listeners de filtros (reseteables en cada carga)
   document.querySelectorAll('.bk-admin-filter').forEach(btn => {
     btn.onclick = () => {
       document.querySelectorAll('.bk-admin-filter').forEach(b => b.classList.remove('active'));
@@ -1384,14 +1581,43 @@ async function loadBookingsAdmin() {
       renderBookingsAdmin();
     };
   });
+
+  // Search input
+  const searchEl = document.getElementById('bkSearch');
+  if (searchEl && !searchEl.__wired) {
+    searchEl.__wired = true;
+    searchEl.addEventListener('input', e => {
+      _bkSearchTerm = e.target.value.toLowerCase();
+      renderBookingsAdmin();
+    });
+  }
+
+  // Export CSV
+  const exportBtn = document.getElementById('bkExportBtn');
+  if (exportBtn && !exportBtn.__wired) {
+    exportBtn.__wired = true;
+    exportBtn.addEventListener('click', exportBookingsCSV);
+  }
 }
 
 function renderBookingsAdmin() {
   const body = document.getElementById('bookingsAdminBody');
-  const list = _bkAdminFilter === 'all' ? allBookings : allBookings.filter(b => b.voltum_status === _bkAdminFilter);
+  let list = _bkAdminFilter === 'all' ? allBookings : allBookings.filter(b => b.voltum_status === _bkAdminFilter);
+
+  // Filtro de búsqueda — empresa, DJ, venue, ciudad, tipo evento
+  if (_bkSearchTerm) {
+    const q = _bkSearchTerm;
+    list = list.filter(b =>
+      (b.company?.name   || '').toLowerCase().includes(q) ||
+      (b.dj?.dj_name     || '').toLowerCase().includes(q) ||
+      (b.venue_name      || '').toLowerCase().includes(q) ||
+      (b.city            || '').toLowerCase().includes(q) ||
+      (b.event_type      || '').toLowerCase().includes(q)
+    );
+  }
 
   if (!list.length) {
-    body.innerHTML = `<tr><td colspan="8" class="empty-state" style="text-align:center;padding:40px;color:var(--muted);">Sin bookings en este estado</td></tr>`;
+    body.innerHTML = `<tr><td colspan="9" class="empty-state" style="text-align:center;padding:40px;color:var(--muted);">${_bkSearchTerm ? 'Sin resultados para "'+_bkSearchTerm+'"' : 'Sin bookings en este estado'}</td></tr>`;
     return;
   }
 
@@ -1411,9 +1637,12 @@ function renderBookingsAdmin() {
     const budget = b.budget ? formatPrice(b.budget) : '—';
     const eq = b.equipment_provided === true ? '<i data-lucide="check-circle" class="icon-sm" style="color:var(--green);"></i>' :
                b.equipment_provided === false ? '<i data-lucide="alert-triangle" class="icon-sm" style="color:var(--warn);"></i>' : '—';
-    return `<tr onclick="openAdminBookingModal('${b.id}')" style="cursor:pointer;">
+    const rec = relativeTime(b.created_at);
+    // Bookings recibidos hace <15min se marcan como "nuevos"
+    const isNew = b.created_at && (Date.now() - new Date(b.created_at).getTime() < 15 * 60 * 1000);
+    return `<tr onclick="openAdminBookingModal('${b.id}')" style="cursor:pointer;${isNew ? 'background:rgba(212,255,58,0.04);' : ''}">
       <td>
-        <div style="font-weight:600;">${b.company?.name || '—'}</div>
+        <div style="font-weight:600;">${b.company?.name || '—'}${isNew ? ' <span class="badge badge-lime" style="font-size:0.6rem;margin-left:4px;">NUEVO</span>' : ''}</div>
         <div class="muted">${b.company?.contact_name || b.event_type || ''}</div>
       </td>
       <td>
@@ -1425,10 +1654,42 @@ function renderBookingsAdmin() {
       <td style="white-space:nowrap;">${budget}</td>
       <td style="text-align:center;">${eq}</td>
       <td><span class="badge ${lbl.cls}">${lbl.text}</span></td>
+      <td class="muted" style="white-space:nowrap;font-size:0.78rem;">${rec}</td>
       <td><i data-lucide="chevron-right" class="icon-sm" style="color:var(--muted);"></i></td>
     </tr>`;
   }).join('');
   window.renderIcons?.();
+}
+
+// ═══════════════════════════════════════════════════════════
+// EXPORT CSV — útil para contabilidad / reportes externos
+// ═══════════════════════════════════════════════════════════
+function csvEscape(v) {
+  if (v == null) return '';
+  const s = String(v).replace(/"/g, '""');
+  return /[,\n"]/.test(s) ? `"${s}"` : s;
+}
+function triggerCSVDownload(filename, rows) {
+  const csv = rows.map(r => r.map(csvEscape).join(',')).join('\n');
+  const blob = new Blob(['\ufeff' + csv], { type: 'text/csv;charset=utf-8;' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url; a.download = filename; a.click();
+  setTimeout(() => URL.revokeObjectURL(url), 100);
+}
+function exportBookingsCSV() {
+  const header = ['ID','Empresa','Contacto empresa','Teléfono','DJ','Fecha evento','Horario','Duración (hrs)','Tipo','Venue','Ciudad','Presupuesto CLP','Equipo en lugar','Detalle equipo','Comisión %','Neto DJ','Estado','Notas admin','Mensaje','Creado'];
+  const rows = [header, ...allBookings.map(b => [
+    b.id, b.company?.name, b.company?.contact_name, b.company?.contact_phone,
+    b.dj?.dj_name, b.event_date, b.event_time, b.duration_hrs, b.event_type,
+    b.venue_name, b.city, b.budget,
+    b.equipment_provided === true ? 'Sí' : b.equipment_provided === false ? 'No' : '',
+    b.equipment_details, b.commission_percent, b.dj_net_amount,
+    b.voltum_status, b.admin_notes, b.message,
+    b.created_at
+  ])];
+  triggerCSVDownload(`voltum-bookings-${new Date().toISOString().slice(0,10)}.csv`, rows);
+  showToast('CSV descargado', 'success');
 }
 
 window.openAdminBookingModal = function(bookingId) {
@@ -1518,13 +1779,20 @@ window.openAdminBookingModal = function(bookingId) {
       <textarea id="bkAdminNotes_${b.id}" class="form-input" rows="2" style="font-size:0.88rem;">${b.admin_notes || ''}</textarea>
     </div>
 
-    <div class="muted" style="font-size:0.78rem;margin-bottom:14px;display:flex;gap:8px;align-items:center;">
+    <div class="muted" style="font-size:0.78rem;margin-bottom:14px;display:flex;gap:8px;align-items:center;flex-wrap:wrap;">
       <i data-lucide="info"></i> Estado actual: <strong style="color:var(--text);">${voltumLabel[b.voltum_status] || b.voltum_status}</strong>
+      ${b.admin_reviewed_at ? `· Última revisión ${relativeTime(b.admin_reviewed_at)}` : ''}
+      ${b.created_at ? `· Recibido ${relativeTime(b.created_at)}` : ''}
     </div>
 
-    <div style="display:flex;gap:8px;justify-content:flex-end;flex-wrap:wrap;">
-      <button onclick="closeAdminBookingModal()" class="btn btn-outline btn-sm">Cerrar</button>
-      ${b.voltum_status === 'review_voltum' ? `
+    <div style="display:flex;gap:8px;justify-content:space-between;flex-wrap:wrap;align-items:center;">
+      <div style="display:flex;gap:6px;flex-wrap:wrap;">
+        <button onclick="copyBookingDetails('${b.id}')" class="btn btn-outline btn-sm" title="Copiar todos los detalles (para pegar en WhatsApp/email)"><i data-lucide="copy"></i> Copiar detalles</button>
+        ${co?.contact_phone ? `<a href="https://wa.me/${String(co.contact_phone).replace(/\D/g,'')}?text=${encodeURIComponent('Hola ' + (co.contact_name || co.name || '') + ', te contactamos desde Voltum sobre la solicitud de booking para ' + (dj?.dj_name || 'el DJ') + ' el ' + date + '.')}" target="_blank" rel="noopener" class="btn btn-outline btn-sm" style="color:#25D366;border-color:rgba(37,211,102,0.35);"><i data-lucide="message-circle"></i> WhatsApp</a>` : ''}
+      </div>
+      <div style="display:flex;gap:8px;flex-wrap:wrap;">
+        <button onclick="closeAdminBookingModal()" class="btn btn-outline btn-sm">Cerrar</button>
+        ${b.voltum_status === 'review_voltum' ? `
         <button onclick="updateBooking('${b.id}', 'rejected_voltum')" class="btn btn-danger btn-sm"><i data-lucide="x"></i> Rechazar</button>
         <button onclick="updateBooking('${b.id}', 'approved_voltum')" class="btn btn-outline btn-sm" style="color:var(--lime);border-color:var(--border);"><i data-lucide="check"></i> Aprobar</button>
         <button onclick="updateBooking('${b.id}', 'dj_review')" class="btn btn-primary btn-sm"><i data-lucide="send"></i> Aprobar y enviar al DJ</button>
@@ -1535,10 +1803,42 @@ window.openAdminBookingModal = function(bookingId) {
       ` : `
         <button onclick="updateBooking('${b.id}', null)" class="btn btn-outline btn-sm"><i data-lucide="save"></i> Guardar cambios</button>
       `}
+      </div>
     </div>
   `;
   document.getElementById('bookingAdminModal').classList.remove('hidden');
   window.renderIcons?.();
+};
+
+// Copia el booking a un texto formateado — útil para pegar en WhatsApp/email
+window.copyBookingDetails = function(bookingId) {
+  const b = allBookings.find(x => x.id === bookingId);
+  if (!b) return;
+  const dj = b.dj, co = b.company;
+  const date = b.event_date ? new Date(b.event_date + 'T12:00:00').toLocaleDateString('es-CL', { day:'numeric', month:'long', year:'numeric' }) : '—';
+  const budget = b.budget ? formatPrice(b.budget) : '—';
+  const eq = b.equipment_provided === true ? 'Sí, el lugar cuenta con equipo' :
+             b.equipment_provided === false ? 'No — Voltum debe proveer equipo' : 'No especificado';
+  const txt = [
+    '🎧 SOLICITUD DE BOOKING · VOLTUM',
+    `Empresa: ${co?.name || '—'}${co?.contact_name ? ' ('+co.contact_name+')' : ''}`,
+    co?.contact_phone ? `Teléfono: ${co.contact_phone}` : null,
+    `DJ: ${dj?.dj_name || '—'}`,
+    `Fecha: ${date}${b.event_time ? ' · '+b.event_time : ''}`,
+    `Duración: ${b.duration_hrs ? b.duration_hrs+' hrs' : '—'}`,
+    `Tipo: ${b.event_type || '—'}`,
+    `Venue: ${b.venue_name || '—'}${b.city ? ' · '+b.city : ''}`,
+    `Equipamiento: ${eq}`,
+    b.equipment_details ? `Detalle equipo: ${b.equipment_details}` : null,
+    `Presupuesto: ${budget}`,
+    b.message ? `Mensaje: ${b.message}` : null,
+    b.admin_notes ? `Notas internas: ${b.admin_notes}` : null,
+  ].filter(Boolean).join('\n');
+
+  navigator.clipboard.writeText(txt).then(
+    () => showToast('Detalles copiados al portapapeles', 'success'),
+    () => showToast('No se pudo copiar', 'error')
+  );
 };
 
 window.closeAdminBookingModal = function() {
@@ -1575,6 +1875,230 @@ window.updateBooking = async function(bookingId, newStatus) {
 document.getElementById('closeBookingAdminModal')?.addEventListener('click', closeAdminBookingModal);
 document.getElementById('bookingAdminModal')?.addEventListener('click', e => {
   if (e.target.id === 'bookingAdminModal') closeAdminBookingModal();
+});
+
+// ═══════════════════════════════════════════════════════════
+// ATTENTION CARD — lo que requiere acción inmediata del admin
+// ═══════════════════════════════════════════════════════════
+function renderAttentionCard() {
+  const card = document.getElementById('attentionCard');
+  const list = document.getElementById('attentionList');
+  const total = document.getElementById('attentionTotal');
+  if (!card || !list) return;
+
+  const now = Date.now();
+  const items = [];
+
+  // 1. Bookings por revisar (críticos)
+  const pending = allBookings.filter(b => b.voltum_status === 'review_voltum');
+  if (pending.length) {
+    items.push({
+      level: pending.length > 3 ? 'critical' : 'warn',
+      icon: 'clipboard-list',
+      title: `${pending.length} booking${pending.length === 1 ? '' : 's'} por revisar`,
+      sub: pending[0] ? `Último: ${pending[0].company?.name || '—'} · ${relativeTime(pending[0].created_at)}` : '',
+      cta: 'Revisar →',
+      action: () => jumpToTab('bookings', 'review_voltum'),
+    });
+  }
+
+  // 2. Bookings stuck con el DJ >3 días sin respuesta
+  const stuck = allBookings.filter(b =>
+    b.voltum_status === 'dj_review' &&
+    b.dj_notified_at &&
+    (now - new Date(b.dj_notified_at).getTime()) > 3 * 24 * 60 * 60 * 1000
+  );
+  if (stuck.length) {
+    items.push({
+      level: 'warn',
+      icon: 'clock',
+      title: `${stuck.length} booking${stuck.length === 1 ? '' : 's'} esperando al DJ +3 días`,
+      sub: stuck[0] ? `DJ: ${stuck[0].dj?.dj_name || '—'}` : '',
+      cta: 'Ver →',
+      action: () => jumpToTab('bookings', 'dj_review'),
+    });
+  }
+
+  // 3. Membresías venciendo en ≤7 días (activas, con auto-renovación cancelada o sin subscription)
+  const soonExpiring = allMemberships.filter(m => {
+    if (m.status !== 'active') return false;
+    const daysLeft = (new Date(m.expires_at).getTime() - now) / (1000 * 60 * 60 * 24);
+    return daysLeft > 0 && daysLeft <= 7 && !m.subscription_id;
+  });
+  if (soonExpiring.length) {
+    items.push({
+      level: 'warn',
+      icon: 'calendar-x',
+      title: `${soonExpiring.length} membresía${soonExpiring.length === 1 ? '' : 's'} vencen en 7 días`,
+      sub: 'Sin auto-renovación — puede que pierdan acceso',
+      cta: 'Ver →',
+      action: () => jumpToTab('memberships', 'active'),
+    });
+  }
+
+  // 4. DJs sin membresía activa (y no son empresas)
+  const djsNoMembership = allUsers.filter(u => {
+    if (u.is_company) return false;
+    const m = allMemberships.find(x => x.user_id === u.id && x.status === 'active');
+    return !m;
+  });
+  if (djsNoMembership.length > 0 && djsNoMembership.length <= 20) {
+    items.push({
+      level: 'info',
+      icon: 'user-x',
+      title: `${djsNoMembership.length} DJ${djsNoMembership.length === 1 ? '' : 's'} sin membresía activa`,
+      sub: 'Considera activarles un trial o contactarlos',
+      cta: 'Ver →',
+      action: () => jumpToTab('users', 'inactive'),
+    });
+  }
+
+  if (!items.length) {
+    card.style.display = 'none';
+    return;
+  }
+
+  card.style.display = 'block';
+  total.textContent = items.length + ' item' + (items.length === 1 ? '' : 's');
+
+  list.innerHTML = '';
+  items.forEach((it, i) => {
+    const btn = document.createElement('button');
+    btn.className = 'attention-item';
+    btn.type = 'button';
+    btn.innerHTML = `
+      <div class="att-icon ${it.level}"><i data-lucide="${it.icon}"></i></div>
+      <div class="att-body">
+        <div class="att-title">${it.title}</div>
+        <div class="att-sub">${it.sub || ''}</div>
+      </div>
+      <span class="att-cta">${it.cta}</span>
+    `;
+    btn.addEventListener('click', it.action);
+    list.appendChild(btn);
+  });
+  window.renderIcons?.();
+}
+
+// Helper para saltar a un tab + aplicar filtro
+function jumpToTab(tabName, filterValue) {
+  const tab = document.querySelector(`.admin-tab[data-tab="${tabName}"]`);
+  if (tab) tab.click();
+
+  setTimeout(() => {
+    if (tabName === 'bookings' && filterValue) {
+      const btn = document.querySelector(`.bk-admin-filter[data-bkf="${filterValue}"]`);
+      if (btn) btn.click();
+    } else if (tabName === 'users' && filterValue) {
+      const sel = document.getElementById('filterStatus');
+      if (sel) { sel.value = filterValue; sel.dispatchEvent(new Event('change')); }
+    } else if (tabName === 'memberships' && filterValue) {
+      const sel = document.getElementById('filterMembStatus');
+      if (sel) { sel.value = filterValue; sel.dispatchEvent(new Event('change')); }
+    }
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  }, 60);
+}
+
+// ═══════════════════════════════════════════════════════════
+// MINI STATS CLICKABLES — clic → salta a tab correspondiente
+// ═══════════════════════════════════════════════════════════
+document.querySelectorAll('.mini-stat[data-jump]').forEach(el => {
+  el.addEventListener('click', () => jumpToTab(el.dataset.jump));
+});
+
+// ═══════════════════════════════════════════════════════════
+// POLLING — detectar bookings nuevos cada 45s (solo Por revisar)
+// ═══════════════════════════════════════════════════════════
+let _bkPollTimer = null;
+function startBookingsPolling() {
+  if (_bkPollTimer) return;
+  _bkPollTimer = setInterval(async () => {
+    if (document.hidden) return; // no pollar si la pestaña está oculta
+    try {
+      const { data, error } = await sb.from('bookings')
+        .select('id, created_at, voltum_status, company_id, dj_user_id, venue_name, city, budget, event_date, event_time, event_type, duration_hrs, equipment_provided, equipment_details, message, commission_percent, commission_amount, dj_net_amount, admin_notes, dj_notified_at, admin_reviewed_at')
+        .eq('voltum_status', 'review_voltum')
+        .order('created_at', { ascending: false })
+        .limit(20);
+      if (error) return;
+      const fresh = (data || []).filter(b => !_bkLastSeenIds.has(b.id));
+      if (!fresh.length) return;
+      // Agregar al estado local con joins
+      fresh.forEach(b => {
+        b.dj = allUsers.find(u => u.id === b.dj_user_id) || null;
+        b.company = allCompanies.find(c => c.id === b.company_id) || null;
+        allBookings.unshift(b);
+        _bkLastSeenIds.add(b.id);
+      });
+      updateBookingsBadge();
+      renderBookingsAdmin();
+      renderAttentionCard();
+      showToast(`${fresh.length} booking${fresh.length === 1 ? '' : 's'} nuevo${fresh.length === 1 ? '' : 's'} · ${fresh[0].company_id ? (allCompanies.find(c => c.id === fresh[0].company_id)?.name || '') : ''}`, 'info');
+      // Beep sutil opcional (solo si el admin está activo)
+      try {
+        const ctx = new (window.AudioContext || window.webkitAudioContext)();
+        const o = ctx.createOscillator(), g = ctx.createGain();
+        o.type = 'sine'; o.frequency.value = 880;
+        g.gain.value = 0.05;
+        o.connect(g); g.connect(ctx.destination);
+        o.start(); o.stop(ctx.currentTime + 0.08);
+      } catch(_) {}
+    } catch (_) {}
+  }, 45000);
+}
+startBookingsPolling();
+
+// ═══════════════════════════════════════════════════════════
+// KEYBOARD SHORTCUTS
+//   /      → focus search activo del tab
+//   Esc    → cierra modal
+//   1-6    → cambia tab
+//   r      → refresh
+// ═══════════════════════════════════════════════════════════
+document.addEventListener('keydown', e => {
+  // Si el usuario escribe en un input/textarea, ignorar (excepto Esc)
+  const tag = (e.target && e.target.tagName) || '';
+  const typing = ['INPUT','TEXTAREA','SELECT'].includes(tag) || e.target.isContentEditable;
+
+  // Esc: cerrar modales abiertos
+  if (e.key === 'Escape') {
+    ['bookingAdminModal','userModal','activateModal'].forEach(id => {
+      const m = document.getElementById(id);
+      if (m && !m.classList.contains('hidden')) m.classList.add('hidden');
+    });
+    return;
+  }
+
+  if (typing) return;
+
+  // /  → focus search del tab activo
+  if (e.key === '/' || (e.ctrlKey && e.key === 'k') || (e.metaKey && e.key === 'k')) {
+    e.preventDefault();
+    const activeTab = document.querySelector('.admin-tab.active')?.dataset.tab;
+    const searchId = {
+      bookings: 'bkSearch',
+      users: 'searchUsers',
+      memberships: 'searchMemberships',
+      events: 'searchEvents',
+    }[activeTab];
+    if (searchId) document.getElementById(searchId)?.focus();
+    return;
+  }
+
+  // 1..6 → cambiar tab
+  if (/^[1-6]$/.test(e.key)) {
+    const idx = parseInt(e.key, 10) - 1;
+    const tabs = document.querySelectorAll('.admin-tab');
+    if (tabs[idx]) tabs[idx].click();
+    return;
+  }
+
+  // r → refresh
+  if (e.key === 'r' || e.key === 'R') {
+    document.getElementById('refreshBtn')?.click();
+    return;
+  }
 });
 </script>
 <script>
