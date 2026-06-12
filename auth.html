@@ -186,15 +186,35 @@
       <!-- RESET PASSWORD FORM -->
       <div id="resetForm" class="hidden">
         <h3 style="margin-bottom:8px;">Recuperar contraseña</h3>
-        <p style="margin-bottom:24px;font-size:0.9rem;">Te enviaremos un link para resetear tu contraseña.</p>
+        <p style="margin-bottom:24px;font-size:0.9rem;">Te enviaremos un link seguro para crear una nueva contraseña.</p>
         <div class="form-group">
           <label class="form-label">Email</label>
-          <input type="email" id="resetEmail" class="form-input" placeholder="tu@email.com">
+          <input type="email" id="resetEmail" class="form-input" placeholder="tu@email.com" autocomplete="email">
         </div>
         <button class="btn btn-primary btn-full" id="resetBtn" style="margin-bottom:16px;">
           Enviar link de recuperación
         </button>
         <a href="#" id="backToLogin" style="font-size:0.875rem;">← Volver al login</a>
+      </div>
+
+      <!-- UPDATE PASSWORD FORM -->
+      <div id="updatePasswordForm" class="hidden">
+        <h3 style="margin-bottom:8px;">Crear nueva contraseña</h3>
+        <p id="recoveryHelp" style="margin-bottom:24px;font-size:0.9rem;">
+          Ingresa una contraseña nueva para volver a entrar a Voltum.
+        </p>
+        <div class="form-group">
+          <label class="form-label">Nueva contraseña</label>
+          <input type="password" id="newPassword" class="form-input" placeholder="Mínimo 6 caracteres" autocomplete="new-password">
+        </div>
+        <div class="form-group">
+          <label class="form-label">Confirmar contraseña</label>
+          <input type="password" id="confirmPassword" class="form-input" placeholder="Repite tu contraseña" autocomplete="new-password">
+        </div>
+        <button class="btn btn-primary btn-full" id="updatePasswordBtn" style="margin-bottom:16px;">
+          Guardar nueva contraseña
+        </button>
+        <a href="#" id="requestNewRecoveryLink" style="font-size:0.875rem;">Solicitar otro link</a>
       </div>
 
       <div class="divider"></div>
@@ -210,27 +230,18 @@
 <script src="js/config.js"></script>
 <script>
 (async () => {
-  // Si ya está logueado, redirigir
-  const user = await Auth.getUser();
-  if (user) {
-    const { data: p } = await sb.from('profiles').select('is_company').eq('id', user.id).single();
-    window.location.href = p?.is_company ? 'company-dashboard.html' : 'dashboard.html';
-    return;
-  }
-
-  // Tabs
   const tabs = document.querySelectorAll('.auth-tab');
   const loginF = document.getElementById('loginForm');
   const registerF = document.getElementById('registerForm');
   const resetF = document.getElementById('resetForm');
+  const updatePasswordF = document.getElementById('updatePasswordForm');
+  const authTabs = document.getElementById('authTabs');
 
   const urlParams = new URLSearchParams(window.location.search);
-  if (urlParams.get('tab') === 'register') {
-    showTab('register');
-  }
-  if (urlParams.get('type') === 'empresa') {
-    setAccountType('empresa');
-  }
+  const hashParams = new URLSearchParams((window.location.hash || '').replace(/^#/, ''));
+  const authType = hashParams.get('type') || urlParams.get('type');
+  const linkError = hashParams.get('error_description') || urlParams.get('error_description');
+  const isRecoveryFlow = urlParams.get('mode') === 'recovery' || authType === 'recovery';
 
   tabs.forEach(tab => {
     tab.addEventListener('click', () => showTab(tab.dataset.tab));
@@ -241,18 +252,127 @@
     loginF.classList.toggle('hidden', name !== 'login');
     registerF.classList.toggle('hidden', name !== 'register');
     resetF.classList.add('hidden');
+    updatePasswordF.classList.add('hidden');
+    authTabs.classList.remove('hidden');
+  }
+
+  function showResetForm(email = '') {
+    loginF.classList.add('hidden');
+    registerF.classList.add('hidden');
+    updatePasswordF.classList.add('hidden');
+    resetF.classList.remove('hidden');
+    authTabs.classList.add('hidden');
+    if (email) document.getElementById('resetEmail').value = email;
+  }
+
+  function showUpdatePasswordForm(message) {
+    loginF.classList.add('hidden');
+    registerF.classList.add('hidden');
+    resetF.classList.add('hidden');
+    updatePasswordF.classList.remove('hidden');
+    authTabs.classList.add('hidden');
+    if (message) document.getElementById('recoveryHelp').textContent = message;
+  }
+
+  function getRecoveryRedirectUrl() {
+    const isHttpOrigin = /^https?:\/\//.test(window.location.origin || '');
+    const origin = isHttpOrigin ? window.location.origin : 'https://voltum.cl';
+    return `${origin}/auth.html?mode=recovery`;
+  }
+
+  async function restoreRecoverySession() {
+    const code = urlParams.get('code');
+    const accessToken = hashParams.get('access_token');
+    const refreshToken = hashParams.get('refresh_token');
+
+    if (code) {
+      const { error } = await sb.auth.exchangeCodeForSession(code);
+      if (error) throw error;
+      history.replaceState(null, '', 'auth.html?mode=recovery');
+      return true;
+    }
+
+    if (accessToken && refreshToken) {
+      const { error } = await sb.auth.setSession({
+        access_token: accessToken,
+        refresh_token: refreshToken
+      });
+      if (error) throw error;
+      history.replaceState(null, '', 'auth.html?mode=recovery');
+      return true;
+    }
+
+    const { data: { session } } = await sb.auth.getSession();
+    return !!session;
+  }
+
+  async function redirectLoggedUser(user) {
+    const { data: p } = await sb.from('profiles').select('is_company').eq('id', user.id).single();
+    window.location.href = p?.is_company ? 'company-dashboard.html' : 'dashboard.html';
+  }
+
+  // Tipo de cuenta
+  let accountType = 'dj';
+  window.setAccountType = function(type) {
+    accountType = type;
+    document.getElementById('typeDJ').classList.toggle('active', type === 'dj');
+    document.getElementById('typeEmpresa').classList.toggle('active', type === 'empresa');
+    document.getElementById('companyTypeGroup').classList.toggle('hidden', type === 'dj');
+    document.getElementById('regNameLabel').textContent = type === 'dj' ? 'Nombre artístico (DJ Name)' : 'Nombre de la empresa';
+    document.getElementById('regDjName').placeholder = type === 'dj' ? 'ej: DJ Nova' : 'ej: Northsound Producciones';
+    document.getElementById('regNameHint').textContent = type === 'dj' ? 'Este será tu nombre público en el press kit' : 'Nombre con que aparecerá tu empresa en la plataforma';
+
+    const hintEl = document.getElementById('acctTypeHint');
+    const disclaimerEl = document.getElementById('regDisclaimer');
+    if (type === 'empresa') {
+      if (hintEl) hintEl.innerHTML = '<strong style="color:var(--cyan,#22D3EE);">Empresas: perfil 100% gratuito</strong> · sin tarjeta · sin membresía. Voltum gestiona cada booking contigo caso a caso.';
+      if (disclaimerEl) disclaimerEl.innerHTML = 'Perfil de empresa gratis · sin tarjeta · sin membresía.<br>Voltum coordina cada booking directamente contigo.';
+    } else {
+      if (hintEl) hintEl.innerHTML = '<strong style="color:var(--text);">DJs:</strong> membresía mensual $9.990 CLP (7 días gratis para probar).';
+      if (disclaimerEl) disclaimerEl.innerHTML = 'Al crear tu cuenta, activas una prueba de 7 días.<br>Después necesitas activar tu membresía Voltum Pro.';
+    }
+  };
+
+  if (isRecoveryFlow) {
+    if (linkError) {
+      showResetForm();
+      showToast('El link de recuperación expiró o no es válido. Solicita uno nuevo.', 'error');
+    } else {
+      showUpdatePasswordForm();
+      try {
+        const sessionReady = await restoreRecoverySession();
+        if (!sessionReady) {
+          showResetForm();
+          showToast('El link no tiene una sesión válida. Solicita uno nuevo.', 'error');
+        }
+      } catch (_) {
+        showResetForm();
+        showToast('No pudimos validar el link. Solicita uno nuevo.', 'error');
+      }
+    }
+  } else {
+    const user = await Auth.getUser();
+    if (user) {
+      await redirectLoggedUser(user);
+      return;
+    }
+
+    if (urlParams.get('tab') === 'register') showTab('register');
+    if (urlParams.get('type') === 'empresa') window.setAccountType('empresa');
   }
 
   // Forgot password
   document.getElementById('forgotLink').addEventListener('click', e => {
     e.preventDefault();
-    loginF.classList.add('hidden');
-    resetF.classList.remove('hidden');
+    showResetForm(document.getElementById('loginEmail').value.trim());
   });
   document.getElementById('backToLogin').addEventListener('click', e => {
     e.preventDefault();
-    resetF.classList.add('hidden');
-    loginF.classList.remove('hidden');
+    showTab('login');
+  });
+  document.getElementById('requestNewRecoveryLink').addEventListener('click', e => {
+    e.preventDefault();
+    showResetForm();
   });
 
   // LOGIN
@@ -273,29 +393,6 @@
       window.location.href = p?.is_company ? 'company-dashboard.html' : 'dashboard.html';
     }
   });
-
-  // Tipo de cuenta
-  let accountType = 'dj';
-  window.setAccountType = function(type) {
-    accountType = type;
-    document.getElementById('typeDJ').classList.toggle('active', type === 'dj');
-    document.getElementById('typeEmpresa').classList.toggle('active', type === 'empresa');
-    document.getElementById('companyTypeGroup').classList.toggle('hidden', type === 'dj');
-    document.getElementById('regNameLabel').textContent = type === 'dj' ? 'Nombre artístico (DJ Name)' : 'Nombre de la empresa';
-    document.getElementById('regDjName').placeholder = type === 'dj' ? 'ej: DJ Nova' : 'ej: Northsound Producciones';
-    document.getElementById('regNameHint').textContent = type === 'dj' ? 'Este será tu nombre público en el press kit' : 'Nombre con que aparecerá tu empresa en la plataforma';
-
-    // Ajustar hint y disclaimer según tipo
-    const hintEl = document.getElementById('acctTypeHint');
-    const disclaimerEl = document.getElementById('regDisclaimer');
-    if (type === 'empresa') {
-      if (hintEl) hintEl.innerHTML = '<strong style="color:var(--cyan,#22D3EE);">Empresas: perfil 100% gratuito</strong> · sin tarjeta · sin membresía. Voltum gestiona cada booking contigo caso a caso.';
-      if (disclaimerEl) disclaimerEl.innerHTML = 'Perfil de empresa gratis · sin tarjeta · sin membresía.<br>Voltum coordina cada booking directamente contigo.';
-    } else {
-      if (hintEl) hintEl.innerHTML = '<strong style="color:var(--text);">DJs:</strong> membresía mensual $9.990 CLP (7 días gratis para probar).';
-      if (disclaimerEl) disclaimerEl.innerHTML = 'Al crear tu cuenta, activas una prueba de 7 días.<br>Después necesitas activar tu membresía Voltum Pro.';
-    }
-  };
 
   // REGISTER
   document.getElementById('registerBtn').addEventListener('click', async () => {
@@ -366,11 +463,53 @@
     const email = document.getElementById('resetEmail').value.trim();
     if (!email) { showToast('Ingresa tu email', 'error'); return; }
 
+    const btn = document.getElementById('resetBtn');
+    btn.disabled = true; btn.textContent = 'Enviando...';
+
     const { error } = await sb.auth.resetPasswordForEmail(email, {
-      redirectTo: `${VOLTUM.app.url}/auth.html`
+      redirectTo: getRecoveryRedirectUrl()
     });
-    if (error) { showToast(error.message, 'error'); }
-    else { showToast('Link enviado a tu email', 'success'); }
+    btn.disabled = false; btn.textContent = 'Enviar link de recuperación';
+    if (error) {
+      showToast('No pudimos enviar el link. Revisa el email e intenta otra vez.', 'error');
+    } else {
+      showToast('Si el email existe, recibirás un link para crear tu nueva contraseña.', 'success');
+      document.getElementById('resetEmail').value = '';
+    }
+  });
+
+  document.getElementById('updatePasswordBtn').addEventListener('click', async () => {
+    const password = document.getElementById('newPassword').value;
+    const confirm = document.getElementById('confirmPassword').value;
+
+    if (!password || !confirm) { showToast('Completa ambos campos', 'error'); return; }
+    if (password.length < 6) { showToast('La contraseña debe tener al menos 6 caracteres', 'error'); return; }
+    if (password !== confirm) { showToast('Las contraseñas no coinciden', 'error'); return; }
+
+    const btn = document.getElementById('updatePasswordBtn');
+    btn.disabled = true; btn.textContent = 'Guardando...';
+
+    const { data: { session } } = await sb.auth.getSession();
+    if (!session) {
+      btn.disabled = false; btn.textContent = 'Guardar nueva contraseña';
+      showToast('Tu link expiró. Solicita uno nuevo.', 'error');
+      showResetForm();
+      return;
+    }
+
+    const { error } = await sb.auth.updateUser({ password });
+    if (error) {
+      btn.disabled = false; btn.textContent = 'Guardar nueva contraseña';
+      showToast(error.message || 'No pudimos actualizar la contraseña', 'error');
+      return;
+    }
+
+    showToast('Contraseña actualizada. Redirigiendo...', 'success');
+    setTimeout(async () => {
+      const user = await Auth.getUser();
+      if (user) await redirectLoggedUser(user);
+      else showTab('login');
+    }, 1200);
   });
 
   // Enter key support
@@ -378,6 +517,8 @@
     if (e.key === 'Enter') {
       if (!loginF.classList.contains('hidden')) document.getElementById('loginBtn').click();
       else if (!registerF.classList.contains('hidden')) document.getElementById('registerBtn').click();
+      else if (!resetF.classList.contains('hidden')) document.getElementById('resetBtn').click();
+      else if (!updatePasswordF.classList.contains('hidden')) document.getElementById('updatePasswordBtn').click();
     }
   });
 })();
